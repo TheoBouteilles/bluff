@@ -4,7 +4,7 @@ import CreateRoom from './pages/CreateRoom'
 import JoinRoom from './pages/JoinRoom'
 import Lobby from './pages/Lobby'
 import RolesList from './pages/RolesList'
-import GameStub from './pages/GameStub'
+import Game from './pages/Game'
 
 export default function App() {
   return (
@@ -14,7 +14,7 @@ export default function App() {
         <Route path="/creer" element={<CreateRoom />} />
         <Route path="/rejoindre/:code?" element={<JoinRoom />} />
         <Route path="/salon/:code" element={<Lobby />} />
-        <Route path="/partie/:code" element={<GameStub />} />
+        <Route path="/partie/:code" element={<Game />} />
         <Route path="/roles" element={<RolesList />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

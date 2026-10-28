@@ -38,6 +38,7 @@ export const heartbeat = (roomId: string) => rpc<void>('heartbeat', { p_room_id:
 export const claimHost = (roomId: string) => rpc<boolean>('claim_host', { p_room_id: roomId })
 export const addBot = (roomId: string) => rpc<void>('add_bot', { p_room_id: roomId })
 export const removeBot = (playerId: string) => rpc<void>('remove_bot', { p_player_id: playerId })
+export const resetRoom = (roomId: string) => rpc<void>('reset_room', { p_room_id: roomId })
 
 // Dernier salon visité (pour proposer « Reprendre la partie »)
 const KEY = 'bluff:lastRoom'

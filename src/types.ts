@@ -17,3 +17,10 @@ export type Player = {
   is_alive: boolean
   joined_at: string
 }
+
+export type PlayerSecret = {
+  player_id: string
+  role_id: string
+  team: 'villageois' | 'saboteurs' | 'solitaires'
+  tokens: number
+}

@@ -31,3 +31,11 @@ export const ROLES: Role[] = [
   { id: 'capitaliste', name: 'Le Capitaliste', team: 'solitaires', description: 'Stratège cupide cherchant à accumuler des richesses.', power: 'Aucun pouvoir direct utile : doit mentir et faire croire qu’il détient un pouvoir clé pour amasser des jetons.', victory: 'Accumuler au moins 10 jetons avant la fin de la partie.' },
   { id: 'opportuniste', name: 'L’Opportuniste', team: 'solitaires', description: 'Caméléon politique cherchant le camp gagnant.', power: 'Dépense des jetons pour tenter de changer d’équipe en cours de partie.', victory: 'Survivre jusqu’à la fin et faire partie du camp vainqueur.' },
 ]
+
+export const TEAM_STYLE: Record<TeamId, { label: string; text: string; border: string }> = {
+  villageois: { label: 'Villageois', text: 'text-emerald-400', border: 'border-emerald-500' },
+  saboteurs: { label: 'Saboteurs', text: 'text-red-400', border: 'border-red-500' },
+  solitaires: { label: 'Solitaire', text: 'text-amber-400', border: 'border-amber-500' },
+}
+
+export const getRole = (id: string): Role | undefined => ROLES.find((r) => r.id === id)
