@@ -43,3 +43,22 @@ Accueil (Créer / Rejoindre / Liste des rôles) > Création > Rejoindre > Salon 
 
 ## Environnement
 Mac. Variables Vercel et .env.local : VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (clé publique uniquement).
+## État après l'étape 3b (mise à jour)
+Phases 0, 1, 2, 3a, 3b faites. Prochaine étape : phase 4 (débat, vote, élimination, victoire), puis rôles couche par couche (Saboteur de l'ombre en premier).
+Migrations SQL dans supabase/migrations/ (0004 = 3b, à exécuter dans Supabase > SQL Editor ; 0001 à 0003 déjà exécutées).
+
+### Mode simple (en cours de test)
+Rôles villageois_simple / saboteur_simple, 1 saboteur jusqu'à 5 joueurs puis 2. Jetons : Saboteurs 2, autres 1, +1 par joueur vivant à chaque nuit (dès la nuit 2).
+Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at ; advance_phase appelé par les clients à l'expiration du minuteur (ou quand tous les humains ont joué).
+
+### Lieux et effets (3b)
+- Casino : mise 0 à 3 jetons, 50 % de gagner le double (résultat privé).
+- Taverne : rien / cadeau secret de 1 jeton (révélé au seul receveur) / rumeur (2 ou 3 joueurs : au moins un Saboteur parmi eux ? Caméléon compté innocent). Coût rumeur : 1 jeton à 3, 2 jetons à 2.
+- Poste de Garde : 2 jetons, on apprend où un joueur a passé la nuit.
+- Planque (Saboteurs) : 2 jetons, ferme un lieu (casino, taverne, poste de garde) la nuit suivante ; échoue (jetons perdus) si un non-Saboteur est aussi à la Planque. Fermetures annoncées publiquement à l'aube.
+- Croisements visibles : casino, taverne, planque. Discrets : poste de garde, maison.
+- Coûts centralisés : SQL game_param() et miroir src/data/costs.ts (à garder alignés).
+- Données : night_actions.params (choix) et night_actions.result (résultat privé) ; table closures(room_id, round, location).
+- RPC : submit_night_action(room, lieu, joueur?, params) ; get_dawn_report renvoie location, present, result, closed_next.
+- Erreurs ajoutées : location_closed, not_enough_tokens, invalid_params, not_saboteur.
+- Front : NightPannel (options par lieu), DayPannel (rapport privé + annonce publique), hooks useNightChoices, useClosures ; useSecrets rafraîchi par "manche-phase".

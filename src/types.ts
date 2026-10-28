@@ -1,9 +1,15 @@
+export type Phase = 'lobby' | 'night' | 'day' | 'vote'
+
 export type Room = {
   id: string
   code: string
   status: 'lobby' | 'playing' | 'ended'
   debug: boolean
   created_at: string
+  mode: 'simple' | 'roles'
+  round: number
+  phase: Phase
+  phase_ends_at: string | null
 }
 
 export type Player = {

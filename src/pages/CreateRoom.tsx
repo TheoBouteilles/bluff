@@ -27,7 +27,7 @@ export default function CreateRoom() {
 
   return (
     <Screen>
-      <Link to="/" className="text-slate-400 hover:text-white">← Retour</Link>
+      <Link to="/" className="text-stone-400 hover:text-white">← Retour</Link>
       <h1 className="text-3xl font-bold">Créer une partie</h1>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <input
@@ -38,7 +38,7 @@ export default function CreateRoom() {
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
         />
-        <label className="flex items-center gap-3 text-slate-300">
+        <label className="flex items-center gap-3 text-stone-300">
           <input type="checkbox" checked={debug} onChange={(e) => setDebug(e.target.checked)} className="h-5 w-5" />
           Mode debug (bots pour tester seul)
         </label>

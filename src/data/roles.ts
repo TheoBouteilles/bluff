@@ -10,9 +10,9 @@ export type Role = {
 }
 
 export const TEAMS: { id: TeamId; label: string; text: string }[] = [
-  { id: 'villageois', label: 'Villageois (Gentils)', text: 'text-emerald-400' },
-  { id: 'saboteurs', label: 'Saboteurs (Méchants)', text: 'text-red-400' },
-  { id: 'solitaires', label: 'Solitaires', text: 'text-amber-400' },
+  { id: 'villageois', label: 'Villageois (Gentils)', text: 'text-blue-400' },
+  { id: 'saboteurs', label: 'Saboteurs (Méchants)', text: 'text-red-500' },
+  { id: 'solitaires', label: 'Solitaires', text: 'text-emerald-500' },
 ]
 
 const V = 'Victoire des Villageois.'
@@ -33,9 +33,30 @@ export const ROLES: Role[] = [
 ]
 
 export const TEAM_STYLE: Record<TeamId, { label: string; text: string; border: string }> = {
-  villageois: { label: 'Villageois', text: 'text-emerald-400', border: 'border-emerald-500' },
-  saboteurs: { label: 'Saboteurs', text: 'text-red-400', border: 'border-red-500' },
-  solitaires: { label: 'Solitaire', text: 'text-amber-400', border: 'border-amber-500' },
+  villageois: { label: 'Villageois', text: 'text-blue-400', border: 'border-blue-500' },
+  saboteurs: { label: 'Saboteurs', text: 'text-red-500', border: 'border-red-600' },
+  solitaires: { label: 'Solitaire', text: 'text-emerald-500', border: 'border-emerald-600' },
 }
 
-export const getRole = (id: string): Role | undefined => ROLES.find((r) => r.id === id)
+// Rôles de la version simplifiée (hors liste publique des rôles)
+export const SIMPLE_ROLES: Role[] = [
+  {
+    id: 'villageois_simple',
+    name: 'Villageois',
+    team: 'villageois',
+    description: 'Un habitant du village, sans pouvoir particulier.',
+    power: 'Aucun pouvoir : tes armes sont ton alibi, tes jetons et ton sens de l’observation.',
+    victory: 'Éliminer tous les Saboteurs.',
+  },
+  {
+    id: 'saboteur_simple',
+    name: 'Saboteur',
+    team: 'saboteurs',
+    description: 'Tu te fonds dans le village pour mieux le détruire.',
+    power: 'Tu connais tes complices. Tu pourras saboter un lieu depuis la Planque (2 jetons).',
+    victory: 'Éliminer les Villageois ou égaliser leur nombre.',
+  },
+]
+
+export const getRole = (id: string): Role | undefined =>
+  [...ROLES, ...SIMPLE_ROLES].find((r) => r.id === id)

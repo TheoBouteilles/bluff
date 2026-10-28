@@ -17,7 +17,7 @@ export default function Lobby() {
   }, [room?.status, code, navigate])
 
   if (state === 'loading') {
-    return <Screen><p className="text-center text-slate-400 mt-24">Chargement…</p></Screen>
+    return <Screen><p className="text-center text-stone-400 mt-24">Chargement…</p></Screen>
   }
   if (state === 'notfound' || !room) return <Navigate to={`/rejoindre/${code}`} replace />
 
@@ -55,34 +55,34 @@ export default function Lobby() {
   return (
     <Screen>
       <div className="text-center mt-4">
-        <p className="text-slate-400 text-sm">Code du salon</p>
+        <p className="text-stone-400 text-sm">Code du salon</p>
         <p className="text-6xl font-bold tracking-[0.25em] mt-1">{room.code}</p>
-        <button onClick={share} className="mt-3 text-violet-400 hover:text-violet-300">
+        <button onClick={share} className="mt-3 text-amber-400 hover:text-amber-300">
           {copied ? 'Lien copié ✓' : 'Partager le lien'}
         </button>
       </div>
 
       <div className="flex items-center justify-between mt-2">
         <h2 className="font-semibold">Joueurs ({players.length}/10)</h2>
-        <Link to="/roles" className="text-sm text-slate-400 hover:text-white">Voir les rôles</Link>
+        <Link to="/roles" className="text-sm text-stone-400 hover:text-white">Voir les rôles</Link>
       </div>
 
       <ul className="flex flex-col gap-2">
         {players.map((p) => {
           const a = AVATARS[p.avatar]
           return (
-            <li key={p.id} className="flex items-center gap-3 rounded-xl bg-slate-900 px-4 py-3">
+            <li key={p.id} className="flex items-center gap-3 rounded-xl bg-stone-900 px-4 py-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full text-xl" style={{ backgroundColor: a.color }}>
                 {a.emoji}
               </span>
               <span className="flex-1 font-medium">
                 {p.nickname}
-                {p.id === me?.id && <span className="text-slate-500"> (toi)</span>}
-                {p.is_bot && <span className="ml-2 rounded bg-slate-700 px-1.5 py-0.5 text-xs text-slate-300">bot</span>}
+                {p.id === me?.id && <span className="text-stone-500"> (toi)</span>}
+                {p.is_bot && <span className="ml-2 rounded bg-stone-700 px-1.5 py-0.5 text-xs text-stone-300">bot</span>}
               </span>
               {p.is_host && <span title="Hôte">👑</span>}
               {p.is_bot && me?.is_host && (
-                <button onClick={() => run(() => removeBot(p.id))} aria-label="Retirer le bot" className="text-slate-500 hover:text-white">
+                <button onClick={() => run(() => removeBot(p.id))} aria-label="Retirer le bot" className="text-stone-500 hover:text-white">
                   ✕
                 </button>
               )}
@@ -104,9 +104,9 @@ export default function Lobby() {
           Lancer la partie
         </Button>
       ) : (
-        <p className="text-center text-slate-400">En attente de l’hôte…</p>
+        <p className="text-center text-stone-400">En attente de l’hôte…</p>
       )}
-      {!canStart && <p className="text-center text-sm text-slate-500">Il faut au moins 4 joueurs pour commencer.</p>}
+      {!canStart && <p className="text-center text-sm text-stone-500">Il faut au moins 4 joueurs pour commencer.</p>}
 
       <Button variant="ghost" onClick={leave}>Quitter le salon</Button>
     </Screen>

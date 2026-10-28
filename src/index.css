@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cinzel", Georgia, serif;
+
+  /* Effet « brillance » quand le compteur de jetons change */
+  --animate-shine: shine 1.2s ease-out;
+  @keyframes shine {
+    0%   { filter: brightness(1);   box-shadow: 0 0 0 0 rgb(252 211 77 / 0.7); }
+    50%  { filter: brightness(1.5); box-shadow: 0 0 18px 6px rgb(252 211 77 / 0.5); }
+    100% { filter: brightness(1);   box-shadow: 0 0 0 0 rgb(252 211 77 / 0); }
+  }
+}
+
+@layer base {
+  html { color-scheme: dark; }
+  body {
+    @apply bg-stone-950 font-sans text-amber-50 antialiased;
+    /* Lueur de bougie en haut de l'écran */
+    background-image: radial-gradient(ellipse at top, rgb(120 53 15 / 0.28), transparent 60%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0.02em; }
+}

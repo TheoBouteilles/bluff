@@ -13,6 +13,16 @@ const MESSAGES: Record<string, string> = {
   not_host: 'Seul l’hôte peut faire ça.',
   not_enough_players: 'Il faut au moins 4 joueurs.',
   debug_disabled: 'Le mode debug n’est pas activé dans ce salon.',
+  not_member: 'Tu ne fais pas partie de ce salon.',
+  not_night: 'La nuit est terminée.',
+  invalid_target: 'Joueur invalide.',
+  player_dead: 'Ce joueur est éliminé.',
+  invalid_location: 'Lieu inconnu.',
+  night_not_over: 'La nuit n’est pas terminée.',
+  location_closed: 'Ce lieu est fermé cette nuit.',
+  not_enough_tokens: 'Pas assez de jetons pour cette action.',
+  invalid_params: 'Choix invalide.',
+  not_saboteur: 'Réservé aux Saboteurs.',
 }
 
 export function errorMessage(e: unknown): string {
@@ -39,6 +49,38 @@ export const claimHost = (roomId: string) => rpc<boolean>('claim_host', { p_room
 export const addBot = (roomId: string) => rpc<void>('add_bot', { p_room_id: roomId })
 export const removeBot = (playerId: string) => rpc<void>('remove_bot', { p_player_id: playerId })
 export const resetRoom = (roomId: string) => rpc<void>('reset_room', { p_room_id: roomId })
+export type NightParams = {
+  stake?: number
+  action?: 'none' | 'don' | 'rumeur'
+  target?: string
+  targets?: string[]
+  sabotage?: string
+}
+
+export type NightResult = {
+  casino?: { stake: number; won: boolean }
+  don?: { target: string; amount: number }
+  gifts_received?: number
+  rumeur?: { targets: string[]; has_saboteur: boolean }
+  observation?: { target: string; location: string | null }
+  sabotage?: { location: string; success: boolean }
+}
+
+export type DawnReport = {
+  location: string | null
+  present: string[]
+  result: NightResult
+  closed_next: string[]
+}
+
+export const submitNightAction = (roomId: string, location: string, playerId?: string, params: NightParams = {}) =>
+  rpc<void>('submit_night_action', { p_room_id: roomId, p_location: location, p_player_id: playerId ?? null, p_params: params })
+export const advancePhase = (roomId: string, force = false) =>
+  rpc<void>('advance_phase', { p_room_id: roomId, p_force: force })
+export const getDawnReport = (roomId: string, round: number, playerId?: string) =>
+  rpc<DawnReport>('get_dawn_report', { p_room_id: roomId, p_round: round, p_player_id: playerId ?? null })
+export const getAllies = (roomId: string, playerId?: string) =>
+  rpc<string[]>('get_allies', { p_room_id: roomId, p_player_id: playerId ?? null })
 
 // Dernier salon visité (pour proposer « Reprendre la partie »)
 const KEY = 'bluff:lastRoom'

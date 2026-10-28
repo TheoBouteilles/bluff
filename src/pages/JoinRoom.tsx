@@ -28,7 +28,7 @@ export default function JoinRoom() {
 
   return (
     <Screen>
-      <Link to="/" className="text-slate-400 hover:text-white">← Retour</Link>
+      <Link to="/" className="text-stone-400 hover:text-white">← Retour</Link>
       <h1 className="text-3xl font-bold">Rejoindre une partie</h1>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <input
