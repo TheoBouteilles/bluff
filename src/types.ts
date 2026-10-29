@@ -1,4 +1,4 @@
-export type Phase = 'lobby' | 'night' | 'day' | 'vote'
+export type Phase = 'lobby' | 'night' | 'day' | 'vote' | 'result' | 'ended'
 
 export type Room = {
   id: string
@@ -10,6 +10,7 @@ export type Room = {
   round: number
   phase: Phase
   phase_ends_at: string | null
+  winner: 'villageois' | 'saboteurs' | null
 }
 
 export type Player = {

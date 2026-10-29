@@ -70,3 +70,14 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - Taverne : le don n'a lieu que si le receveur est aussi à la Taverne ; sinon échec, jeton conservé, l'émetteur l'apprend à l'aube (result.don.ok = false).
 - Règles de chaque lieu lisibles au moment du choix (« Lire les règles », données dans src/data/locations.ts).
 - À venir : phase 4 (vote, élimination, victoire), puis Mairie (trucage : +2 voix contre un joueur OU annulation des voix contre soi ; échec si 2 joueurs, jetons perdus, croisement visible, échec annoncé aux deux ; ouvert à tous ; prix provisoire), puis carte interactive des lieux (SVG).
+
+## Phase 4 : vote, élimination, victoire (migration 0006)
+- Déroulé d'une manche (tout manuel, par l'hôte) : nuit > jour (débat) > vote > résultat > nuit suivante. Phases : lobby, night, day, vote, result, ended. rooms.winner = villageois | saboteurs.
+- Vote secret (table votes, lisible par son auteur uniquement ; abstention = target null). Le plus voté est éliminé ; égalité ou aucun vote = personne. À l'élimination, seule l'équipe est révélée (vote_results.eliminated_team). Total de voix par joueur public (vote_results.tally), pas les votants.
+- Sans vote au dépouillement : bots au hasard, humains s'abstiennent.
+- Victoire (check_victory) : Villageois si plus aucun Saboteur vivant ; Saboteurs si Saboteurs vivants >= autres vivants. Les Solitaires comptent avec les « autres » pour l'instant.
+- Éliminés : spectateurs (ni nuit ni vote), restent dans la liste, barrés avec leur équipe.
+- Fin : écran avec tous les rôles (get_final_roles, disponible seulement en phase ended) ; l'hôte relance via « Retour au salon ».
+- RPC : submit_vote(room, cible|null, joueur?), vote_progress(room), get_final_roles(room). Erreurs : not_vote, not_ended.
+- Front : VotePannel, ResultPannel, EndPannel, hooks useVotes.ts. Tests SQL : scénarios complets dans /tmp (non versionnés).
+- À venir : Mairie (trucage du vote) puis carte interactive.

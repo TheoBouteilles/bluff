@@ -22,6 +22,8 @@ const MESSAGES: Record<string, string> = {
   location_closed: 'Ce lieu est fermé cette nuit.',
   not_enough_tokens: 'Pas assez de jetons pour cette action.',
   invalid_params: 'Choix invalide.',
+  not_vote: 'Le vote n’est pas ouvert.',
+  not_ended: 'La partie n’est pas terminée.',
   not_saboteur: 'Réservé aux Saboteurs.',
 }
 
@@ -75,6 +77,20 @@ export type DawnReport = {
 
 export const submitNightAction = (roomId: string, location: string, playerId?: string, params: NightParams = {}) =>
   rpc<void>('submit_night_action', { p_room_id: roomId, p_location: location, p_player_id: playerId ?? null, p_params: params })
+export type VoteResult = {
+  room_id: string
+  round: number
+  eliminated_id: string | null
+  eliminated_team: string | null
+  tied: boolean
+  tally: Record<string, number>
+}
+export type FinalRole = { player_id: string; role_id: string; team: string }
+
+export const submitVote = (roomId: string, targetId: string | null, playerId?: string) =>
+  rpc<void>('submit_vote', { p_room_id: roomId, p_target: targetId, p_player_id: playerId ?? null })
+export const getVoteProgress = (roomId: string) => rpc<NightProgress>('vote_progress', { p_room_id: roomId })
+export const getFinalRoles = (roomId: string) => rpc<FinalRole[]>('get_final_roles', { p_room_id: roomId })
 export type NightProgress = { played: number; total: number }
 export const getNightProgress = (roomId: string) => rpc<NightProgress>('night_progress', { p_room_id: roomId })
 export const advancePhase = (roomId: string, force = false) =>

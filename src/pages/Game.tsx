@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Moon, Sun } from 'lucide-react'
 import DayPanel from '../components/DayPannel'
+import EndPanel from '../components/EndPannel'
 import HoldToReveal from '../components/HoldToReveal'
 import NightPanel from '../components/NightPannel'
+import ResultPanel from '../components/ResultPannel'
 import RoleCard from '../components/RoleCard'
+import VotePanel from '../components/VotePannel'
 import { Button, Screen, TokenBadge, panelClass } from '../components/ui'
 import { AVATARS } from '../data/avatars'
 import { getRole } from '../data/roles'
@@ -16,7 +19,8 @@ import { useNightChoices } from '../hooks/useNightChoices'
 import { useNightProgress } from '../hooks/useNightProgress'
 import { useRoom } from '../hooks/useRoom'
 import { useSecrets } from '../hooks/useSecrets'
-import { advancePhase, errorMessage, resetRoom, submitNightAction } from '../lib/api'
+import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
+import { advancePhase, errorMessage, resetRoom, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import type { Player } from '../types'
 
@@ -42,6 +46,10 @@ export default function Game() {
   const expired = playing && !!room?.phase_ends_at && secondsLeft === 0
   const { choices, reload: reloadChoices } = useNightChoices(room?.id, round, playing && round > 0)
   const progress = useNightProgress(room?.id, playing && room?.phase === 'night' && !!me?.is_host, choices)
+  const voteChoices = useVoteChoices(room?.id, round, playing && room?.phase === 'vote')
+  const voteProgress = useVoteProgress(room?.id, playing && room?.phase === 'vote' && !!me?.is_host, voteChoices.choices)
+  const voteResults = useVoteResults(room?.id, playing && round > 0, `${round}-${room?.phase}`)
+  const finalRoles = useFinalRoles(room?.id, playing && room?.phase === 'ended')
   const closed = useClosures(room?.id, round, playing && room?.phase === 'night')
   const report = useDawnReport(room?.id, round, playing && room?.phase === 'day', targetId)
   const allyIds = useAllies(room?.id, targetId, playing && secret?.team === 'saboteurs')
@@ -63,7 +71,7 @@ export default function Game() {
 
   // Dès la 2e manche, ou le jour, on ouvre directement l'onglet d'action
   useEffect(() => {
-    if (room && (room.phase === 'day' || room.round > 1)) setTab('action')
+    if (room && (room.phase !== 'night' || room.round > 1)) setTab('action')
   }, [room?.phase, room?.round])
 
   if (state === 'loading') {
@@ -99,6 +107,19 @@ export default function Game() {
     })
   }
 
+  async function castVote(targetId: string | null) {
+    await run(async () => {
+      await submitVote(roomId, targetId, tIsMe ? undefined : tId)
+      await voteChoices.reload()
+    })
+  }
+
+  const PHASE_LABEL: Record<string, string> = { night: 'Nuit', day: 'Jour', vote: 'Vote', result: 'Résultat', ended: 'Fin de partie' }
+  const TAB_LABEL: Record<string, string> = { night: 'Ma nuit', day: 'Aube et débat', vote: 'Mon vote', result: 'Résultat', ended: 'Fin' }
+  const alivePlayers = players.filter((p) => p.is_alive)
+  const resultOfRound = voteResults.find((v) => v.round === room.round)
+  const teamRevealed = (id: string) => voteResults.find((v) => v.eliminated_id === id)?.eliminated_team
+
   async function backToLobby() {
     if (!window.confirm('Retourner au salon ? Les rôles seront redistribués au prochain lancement.')) return
     await run(() => resetRoom(roomId))
@@ -116,7 +137,7 @@ export default function Game() {
           <div>
             <p className="text-xs uppercase tracking-widest text-stone-400">Manche {room.round}</p>
             <p className="font-display text-xl font-bold text-amber-100">
-              {room.phase === 'night' ? 'Nuit' : 'Jour'}
+              {PHASE_LABEL[room.phase] ?? room.phase}
             </p>
           </div>
         </div>
@@ -154,7 +175,7 @@ export default function Game() {
           Mon rôle
         </Button>
         <Button variant={tab === 'action' ? 'primary' : 'secondary'} onClick={() => setTab('action')}>
-          {room.phase === 'night' ? 'Ma nuit' : 'Aube et débat'}
+          {TAB_LABEL[room.phase] ?? 'Action'}
         </Button>
       </div>
 
@@ -176,6 +197,23 @@ export default function Game() {
             <RoleCard role={role} tokens={secret.tokens} allies={allies} />
           </HoldToReveal>
         )
+      ) : room.phase === 'ended' ? (
+        <EndPanel winner={room.winner} roles={finalRoles} players={players} />
+      ) : room.phase === 'result' ? (
+        <ResultPanel result={resultOfRound} players={players} />
+      ) : room.phase === 'vote' ? (
+        <VotePanel
+          key={tId}
+          player={target}
+          others={alivePlayers.filter((p) => p.id !== tId)}
+          choice={voteChoices.choices[tId]}
+          onVote={castVote}
+        />
+      ) : room.phase === 'night' && !target.is_alive ? (
+        <section className={`${panelClass} p-4`}>
+          <h2 className="text-lg font-bold text-amber-100">Tu es spectateur</h2>
+          <p className="mt-2 text-stone-400">Les éliminés n’agissent plus. Observe la suite de la partie.</p>
+        </section>
       ) : room.phase === 'night' ? (
         <NightPanel
           key={tId}
@@ -197,19 +235,24 @@ export default function Game() {
         <h2 className="mb-2 font-semibold">Joueurs ({players.length})</h2>
         <ul className="flex flex-wrap gap-2">
           {players.map((p) => (
-            <li key={p.id} className="flex items-center gap-2 rounded-full bg-stone-900 px-3 py-1 text-sm">
+            <li key={p.id} className={`flex items-center gap-2 rounded-full bg-stone-900 px-3 py-1 text-sm ${p.is_alive ? '' : 'opacity-60'}`}>
               <span>{AVATARS[p.avatar].emoji}</span>
-              <span>{p.nickname}</span>
+              <span className={p.is_alive ? '' : 'line-through'}>{p.nickname}</span>
+              {!p.is_alive && <span className="text-xs text-stone-400">éliminé{teamRevealed(p.id) ? ` · ${teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'}` : ''}</span>}
             </li>
           ))}
         </ul>
       </section>
 
-      {me.is_host && (
+      {me.is_host && room.phase !== 'ended' && (
         <Button onClick={() => run(() => advancePhase(roomId, true))}>
           {room.phase === 'night'
             ? `Résoudre la nuit${progress ? ` (${progress.played}/${progress.total} ont choisi)` : ''}`
-            : 'Passer à la nuit suivante'}
+            : room.phase === 'day'
+              ? 'Ouvrir le vote'
+              : room.phase === 'vote'
+                ? `Dépouiller le vote${voteProgress ? ` (${voteProgress.played}/${voteProgress.total} ont voté)` : ''}`
+                : 'Passer à la nuit suivante'}
         </Button>
       )}
       {me.is_host && (
