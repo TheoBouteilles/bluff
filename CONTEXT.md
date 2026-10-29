@@ -62,3 +62,11 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - RPC : submit_night_action(room, lieu, joueur?, params) ; get_dawn_report renvoie location, present, result, closed_next.
 - Erreurs ajoutées : location_closed, not_enough_tokens, invalid_params, not_saboteur.
 - Front : NightPannel (options par lieu), DayPannel (rapport privé + annonce publique), hooks useNightChoices, useClosures ; useSecrets rafraîchi par "manche-phase".
+
+## Étape 3c (phases manuelles + taverne)
+- Plus de minuteurs : game_param('timers_on') = 0, un trigger garde rooms.phase_ends_at vide. Passer à 1 réactive les minuteurs (à faire en fin de projet).
+- L'hôte fait avancer la partie (bouton « Résoudre la nuit (X/Y ont choisi) » puis « Passer à la nuit suivante »). advance_phase(force) réservé à l'hôte ; plus de passage automatique quand tous ont joué (c'était la cause du bug en mode debug).
+- RPC night_progress(room) : compteur de joueurs ayant choisi.
+- Taverne : le don n'a lieu que si le receveur est aussi à la Taverne ; sinon échec, jeton conservé, l'émetteur l'apprend à l'aube (result.don.ok = false).
+- Règles de chaque lieu lisibles au moment du choix (« Lire les règles », données dans src/data/locations.ts).
+- À venir : phase 4 (vote, élimination, victoire), puis Mairie (trucage : +2 voix contre un joueur OU annulation des voix contre soi ; échec si 2 joueurs, jetons perdus, croisement visible, échec annoncé aux deux ; ouvert à tous ; prix provisoire), puis carte interactive des lieux (SVG).

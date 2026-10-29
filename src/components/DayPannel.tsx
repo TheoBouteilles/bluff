@@ -27,7 +27,15 @@ export default function DayPanel({ report, players }: Props) {
         : <>🎰 Tu as misé {r.casino.stake} et tout perdu.</>,
     )
   }
-  if (r.don) events.push(<>🎁 Tu as offert {r.don.amount} jeton à {nameOf(r.don.target)} (en secret).</>)
+  if (r.don) {
+    events.push(
+      r.don.ok === false ? (
+        <>🎁 Cadeau raté : {nameOf(r.don.target)} n’était pas à la Taverne. Ton jeton est conservé.</>
+      ) : (
+        <>🎁 Tu as offert {r.don.amount} jeton à {nameOf(r.don.target)} (en secret).</>
+      ),
+    )
+  }
   if (r.gifts_received) {
     events.push(
       <>🎁 Quelqu’un t’a offert <strong className="text-amber-300">{r.gifts_received} jeton{r.gifts_received > 1 ? 's' : ''}</strong> en secret.</>,

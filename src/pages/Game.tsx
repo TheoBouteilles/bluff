@@ -13,6 +13,7 @@ import { useCountdown } from '../hooks/useCountdown'
 import { useClosures } from '../hooks/useClosures'
 import { useDawnReport } from '../hooks/useDawnReport'
 import { useNightChoices } from '../hooks/useNightChoices'
+import { useNightProgress } from '../hooks/useNightProgress'
 import { useRoom } from '../hooks/useRoom'
 import { useSecrets } from '../hooks/useSecrets'
 import { advancePhase, errorMessage, resetRoom, submitNightAction } from '../lib/api'
@@ -40,6 +41,7 @@ export default function Game() {
   const secondsLeft = useCountdown(room?.phase_ends_at ?? null)
   const expired = playing && !!room?.phase_ends_at && secondsLeft === 0
   const { choices, reload: reloadChoices } = useNightChoices(room?.id, round, playing && round > 0)
+  const progress = useNightProgress(room?.id, playing && room?.phase === 'night' && !!me?.is_host, choices)
   const closed = useClosures(room?.id, round, playing && room?.phase === 'night')
   const report = useDawnReport(room?.id, round, playing && room?.phase === 'day', targetId)
   const allyIds = useAllies(room?.id, targetId, playing && secret?.team === 'saboteurs')
@@ -119,9 +121,11 @@ export default function Game() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`font-mono text-xl tabular-nums ${secondsLeft <= 10 ? 'text-red-400' : ''}`}>
-            {mm}:{ss}
-          </span>
+          {room.phase_ends_at && (
+            <span className={`font-mono text-xl tabular-nums ${secondsLeft <= 10 ? 'text-red-400' : ''}`}>
+              {mm}:{ss}
+            </span>
+          )}
           {secret && <TokenBadge count={secret.tokens} />}
         </div>
       </div>
@@ -201,9 +205,11 @@ export default function Game() {
         </ul>
       </section>
 
-      {debugHost && (
-        <Button variant="secondary" onClick={() => run(() => advancePhase(roomId, true))}>
-          Forcer la phase suivante (debug)
+      {me.is_host && (
+        <Button onClick={() => run(() => advancePhase(roomId, true))}>
+          {room.phase === 'night'
+            ? `Résoudre la nuit${progress ? ` (${progress.played}/${progress.total} ont choisi)` : ''}`
+            : 'Passer à la nuit suivante'}
         </Button>
       )}
       {me.is_host && (

@@ -34,6 +34,7 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
 export default function NightPanel({ player, others, tokens, isSaboteur, choice, closed, onChoose }: Props) {
   const [rumTargets, setRumTargets] = useState<string[]>([])
   const [rumOpen, setRumOpen] = useState(false)
+  const [rulesOpen, setRulesOpen] = useState<string | null>(null)
   const loc = choice?.location
   const params = choice?.params ?? {}
 
@@ -108,7 +109,7 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
 
           {action === 'don' && (
             <>
-              <p className="text-xs text-stone-500">Cadeau secret : seul le receveur saura qu’il a reçu un jeton, pas de qui.</p>
+              <p className="text-xs text-stone-500">Cadeau secret, reçu seulement si le receveur est aussi à la Taverne cette nuit. Sinon il échoue (jeton conservé).</p>
               <div className="flex flex-wrap gap-2">
                 {others.map((p) => playerChip(p, params.target === p.id, () => onChoose('taverne', { action: 'don', target: p.id })))}
               </div>
@@ -194,6 +195,7 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
         const isClosed = closed.includes(l.id)
         return (
           <div key={l.id} className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
             <button
               type="button"
               disabled={isClosed}
@@ -217,6 +219,21 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
                 </span>
               </span>
             </button>
+            <button
+              type="button"
+              onClick={() => setRulesOpen(rulesOpen === l.id ? null : l.id)}
+              className="self-end text-xs text-stone-400 underline hover:text-amber-200"
+            >
+              {rulesOpen === l.id ? 'Masquer les règles' : 'Lire les règles'}
+            </button>
+            {rulesOpen === l.id && (
+              <ul className="list-disc rounded-xl bg-stone-950/60 p-3 pl-7 text-sm text-stone-300">
+                {l.rules.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            )}
+            </div>
             {selected && options(l.id)}
           </div>
         )

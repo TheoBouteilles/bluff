@@ -59,7 +59,7 @@ export type NightParams = {
 
 export type NightResult = {
   casino?: { stake: number; won: boolean }
-  don?: { target: string; amount: number }
+  don?: { target: string; amount: number; ok?: boolean }
   gifts_received?: number
   rumeur?: { targets: string[]; has_saboteur: boolean }
   observation?: { target: string; location: string | null }
@@ -75,6 +75,8 @@ export type DawnReport = {
 
 export const submitNightAction = (roomId: string, location: string, playerId?: string, params: NightParams = {}) =>
   rpc<void>('submit_night_action', { p_room_id: roomId, p_location: location, p_player_id: playerId ?? null, p_params: params })
+export type NightProgress = { played: number; total: number }
+export const getNightProgress = (roomId: string) => rpc<NightProgress>('night_progress', { p_room_id: roomId })
 export const advancePhase = (roomId: string, force = false) =>
   rpc<void>('advance_phase', { p_room_id: roomId, p_force: force })
 export const getDawnReport = (roomId: string, round: number, playerId?: string) =>
