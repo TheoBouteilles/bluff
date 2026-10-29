@@ -146,6 +146,42 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
         </Options>
       )
     }
+    if (id === 'mairie') {
+      const rig = params.rig
+      return (
+        <Options title={`Truquer le vote (${COSTS.mairie} jetons)`}>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={chip(!rig)} onClick={() => onChoose('mairie', {})}>
+              Ne rien truquer
+            </button>
+            <button
+              type="button"
+              disabled={tokens < COSTS.mairie}
+              className={chip(rig === 'shield', tokens < COSTS.mairie)}
+              onClick={() => onChoose('mairie', { rig: 'shield' })}
+            >
+              Annuler les voix contre moi
+            </button>
+            <button
+              type="button"
+              disabled={tokens < COSTS.mairie}
+              className={chip(rig === 'boost', tokens < COSTS.mairie)}
+              onClick={() => onChoose('mairie', { rig: 'boost', target: params.target ?? others[0]?.id })}
+            >
+              +2 voix contre un joueur
+            </button>
+          </div>
+          {rig === 'boost' && (
+            <div className="flex flex-wrap gap-2">
+              {others.map((p) => playerChip(p, params.target === p.id, () => onChoose('mairie', { rig: 'boost', target: p.id })))}
+            </div>
+          )}
+          <p className="text-xs text-stone-500">
+            Échec (jetons perdus) si un autre joueur est aussi à la Mairie cette nuit.
+          </p>
+        </Options>
+      )
+    }
     if (id === 'planque' && isSaboteur) {
       const sab = params.sabotage
       const targets = LOCATIONS.filter((l) => ['casino', 'taverne', 'poste_garde'].includes(l.id))

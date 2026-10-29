@@ -5,6 +5,7 @@ export const COSTS = {
   rumeur3: 1, // rumeur sur un groupe de 3
   rumeur2: 2, // rumeur sur un groupe de 2 (plus précise, donc plus chère)
   don: 1,
+  mairie: 2, // trucage du vote
   casinoMax: 3,
   casinoWinPct: 50,
 }

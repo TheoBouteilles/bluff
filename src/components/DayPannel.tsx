@@ -60,6 +60,22 @@ export default function DayPanel({ report, players }: Props) {
       </>,
     )
   }
+  if (r.mairie) {
+    const m = r.mairie
+    if (m.success) {
+      events.push(
+        m.rig === 'boost' ? (
+          <>🏛 Trucage réussi : <strong className="text-amber-300">+2 voix contre {m.target ? nameOf(m.target) : 'ton choix'}</strong> lors du vote.</>
+        ) : (
+          <>🏛 Trucage réussi : <strong className="text-amber-300">les voix contre toi seront annulées</strong> lors du vote.</>
+        ),
+      )
+    } else if (m.attempted) {
+      events.push(<>🏛 Trucage raté : tu n’étais pas seul à la Mairie. Les jetons sont perdus.</>)
+    } else {
+      events.push(<>🏛 Quelqu’un a tenté de truquer le vote à la Mairie, mais vous étiez plusieurs : le trucage a échoué.</>)
+    }
+  }
   if (r.sabotage) {
     events.push(
       r.sabotage.success ? (

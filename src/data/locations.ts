@@ -1,7 +1,7 @@
-import { Beer, Dices, Eye, Home, Skull } from 'lucide-react'
+import { Beer, Dices, Eye, Home, Landmark, Skull } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type LocationId = 'casino' | 'taverne' | 'planque' | 'poste_garde' | 'maison'
+export type LocationId = 'casino' | 'taverne' | 'planque' | 'poste_garde' | 'mairie' | 'maison'
 
 export type GameLocation = {
   id: LocationId
@@ -35,6 +35,12 @@ export const LOCATIONS: GameLocation[] = [
     rules: [
       'Pour 2 jetons, tu apprends où un joueur de ton choix a passé la nuit.',
       'Lieu discret : personne ne te voit et tu ne vois personne.',
+    ] },
+  { id: 'mairie', name: 'Mairie', icon: Landmark, description: 'Tenter de truquer le vote du jour.', visibleCrossing: true,
+    rules: [
+      'Pour 2 jetons, tu truques le vote de la journée qui suit : soit +2 voix contre un joueur de ton choix, soit tes propres voix reçues sont annulées.',
+      'Le trucage échoue (jetons perdus) si au moins deux joueurs sont à la Mairie cette nuit. Ils se voient alors à l’aube et l’échec leur est annoncé.',
+      'Le trucage réussi reste secret : seul le total des voix est public.',
     ] },
   { id: 'maison', name: 'Rester chez soi', icon: Home, description: 'Un alibi tranquille, sans effet.', visibleCrossing: false,
     rules: [

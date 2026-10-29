@@ -81,3 +81,10 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - RPC : submit_vote(room, cible|null, joueur?), vote_progress(room), get_final_roles(room). Erreurs : not_vote, not_ended.
 - Front : VotePannel, ResultPannel, EndPannel, hooks useVotes.ts. Tests SQL : scénarios complets dans /tmp (non versionnés).
 - À venir : Mairie (trucage du vote) puis carte interactive.
+
+## Mairie : trucage du vote (migration 0007)
+- 6e lieu : la Mairie (croisement visible). Trucage à 2 jetons (game_param 'mairie_cost', provisoire), deux options : +2 voix contre un joueur choisi, ou annuler les voix reçues par soi. Agit sur le vote du jour suivant la nuit.
+- Échec (jetons perdus) si au moins deux joueurs sont à la Mairie, même si un seul truque : ils se voient à l'aube et l'échec est annoncé à tous les présents.
+- Un trucage réussi reste secret ; seul le total de voix (modifié) est public. Table vote_tampering (aucune lecture client).
+- Ouverte à tous les camps pour l'instant. Mairie non sabotable pour l'instant.
+- Prochaine étape : carte interactive des lieux (SVG), avec les 6 lieux et les règles lisibles.

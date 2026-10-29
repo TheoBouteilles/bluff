@@ -57,6 +57,7 @@ export type NightParams = {
   target?: string
   targets?: string[]
   sabotage?: string
+  rig?: 'boost' | 'shield'
 }
 
 export type NightResult = {
@@ -66,6 +67,7 @@ export type NightResult = {
   rumeur?: { targets: string[]; has_saboteur: boolean }
   observation?: { target: string; location: string | null }
   sabotage?: { location: string; success: boolean }
+  mairie?: { attempted: boolean; success: boolean; crowded?: boolean; rig?: 'boost' | 'shield'; target?: string | null }
 }
 
 export type DawnReport = {
