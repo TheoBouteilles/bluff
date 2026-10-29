@@ -88,3 +88,8 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - Un trucage réussi reste secret ; seul le total de voix (modifié) est public. Table vote_tampering (aucune lecture client).
 - Ouverte à tous les camps pour l'instant. Mairie non sabotable pour l'instant.
 - Prochaine étape : carte interactive des lieux (SVG), avec les 6 lieux et les règles lisibles.
+
+## Carte interactive des lieux (front uniquement)
+- src/components/VillageMap.tsx : village en SVG, un bâtiment cliquable par lieu (6 lieux), sélection animée, lieux fermés barrés « FERMÉ ». Un bouton « i » par bâtiment ouvre les règles du lieu sans faire de choix ; le panneau propose « Aller à : … ».
+- NightPannel : carte + fiche du lieu choisi + options (casino, taverne, poste de garde, planque, mairie). Positions et couleurs des bâtiments dans SPOTS (VillageMap.tsx).
+- Un nouveau lieu = une entrée dans locations.ts + une entrée dans SPOTS + éventuellement un bloc d'options dans NightPannel.

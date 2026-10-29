@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { AVATARS } from '../data/avatars'
 import { COSTS, rumeurCost } from '../data/costs'
 import { LOCATIONS } from '../data/locations'
+import VillageMap from './VillageMap'
 import type { NightParams } from '../lib/api'
 import type { NightChoice } from '../hooks/useNightChoices'
 import type { Player } from '../types'
@@ -36,6 +37,8 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
   const [rumOpen, setRumOpen] = useState(false)
   const [rulesOpen, setRulesOpen] = useState<string | null>(null)
   const loc = choice?.location
+  const selectedLoc = LOCATIONS.find((l) => l.id === loc)
+  const rulesInfo = LOCATIONS.find((l) => l.id === rulesOpen)
   const params = choice?.params ?? {}
 
   const playerChip = (p: Player, active: boolean, onClick: () => void) => (
@@ -225,55 +228,52 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
         </p>
       )}
 
-      {LOCATIONS.map((l) => {
-        const Icon = l.icon
-        const selected = loc === l.id
-        const isClosed = closed.includes(l.id)
-        return (
-          <div key={l.id} className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-            <button
-              type="button"
-              disabled={isClosed}
-              onClick={() => onChoose(l.id, {})}
-              className={`flex items-start gap-3 rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                selected
-                  ? 'border-amber-500 bg-amber-900/20'
-                  : 'border-amber-800/40 bg-stone-900/80 hover:border-amber-600/60'
-              }`}
-            >
-              <Icon className="mt-0.5 shrink-0 text-amber-500" size={26} />
-              <span>
-                <span className="block font-display text-lg font-bold text-amber-100">
-                  {l.name} {isClosed && '(fermé)'}
-                </span>
-                <span className="block text-sm text-stone-400">{l.description}</span>
-                <span className="mt-1 block text-xs text-stone-500">
-                  {l.visibleCrossing
-                    ? 'Tu verras qui s’y trouve, et ils te verront.'
-                    : 'Discret : personne ne te voit, et tu ne vois personne.'}
-                </span>
-              </span>
+      <VillageMap
+        selected={loc}
+        closed={closed}
+        onSelect={(id) => onChoose(id, {})}
+        onInfo={(id) => setRulesOpen(rulesOpen === id ? null : id)}
+      />
+
+      {rulesInfo && (
+        <section className="flex flex-col gap-2 rounded-xl border border-amber-800/40 bg-stone-950/70 p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-lg font-bold text-amber-100">Règles : {rulesInfo.name}</h3>
+            <button type="button" onClick={() => setRulesOpen(null)} className="text-sm text-stone-400 underline hover:text-amber-200">
+              Fermer
             </button>
-            <button
-              type="button"
-              onClick={() => setRulesOpen(rulesOpen === l.id ? null : l.id)}
-              className="self-end text-xs text-stone-400 underline hover:text-amber-200"
-            >
-              {rulesOpen === l.id ? 'Masquer les règles' : 'Lire les règles'}
-            </button>
-            {rulesOpen === l.id && (
-              <ul className="list-disc rounded-xl bg-stone-950/60 p-3 pl-7 text-sm text-stone-300">
-                {l.rules.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
-            )}
-            </div>
-            {selected && options(l.id)}
           </div>
-        )
-      })}
+          <ul className="list-disc pl-5 text-sm text-stone-300">
+            {rulesInfo.rules.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+          {!closed.includes(rulesInfo.id) && loc !== rulesInfo.id && (
+            <button type="button" onClick={() => onChoose(rulesInfo.id, {})} className={chip(false)}>
+              Aller à : {rulesInfo.name}
+            </button>
+          )}
+        </section>
+      )}
+
+      {selectedLoc ? (
+        <section className="flex items-start gap-3 rounded-xl border border-amber-500 bg-amber-900/20 p-4">
+          <selectedLoc.icon className="mt-0.5 shrink-0 text-amber-500" size={26} />
+          <div>
+            <p className="font-display text-lg font-bold text-amber-100">{selectedLoc.name}</p>
+            <p className="text-sm text-stone-300">{selectedLoc.description}</p>
+            <p className="mt-1 text-xs text-stone-500">
+              {selectedLoc.visibleCrossing
+                ? 'Tu verras qui s’y trouve, et ils te verront.'
+                : 'Discret : personne ne te voit, et tu ne vois personne.'}
+            </p>
+          </div>
+        </section>
+      ) : (
+        <p className="text-center text-sm text-stone-400">Touche un bâtiment pour y passer la nuit. Le « i » affiche les règles du lieu.</p>
+      )}
+
+      {loc && options(loc)}
 
       <p className="text-center text-sm text-stone-400">
         {loc
