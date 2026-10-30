@@ -26,6 +26,12 @@ export default function ResultPanel({ result, players }: Props) {
             <p className="mt-2">
               <strong className="text-amber-300">{eliminated}</strong> est éliminé.
             </p>
+            {result.runoffs > 0 && (
+              <p className="mt-1 text-sm text-stone-400">
+                Après {result.runoffs} revote{result.runoffs > 1 ? 's' : ''} pour départager des égalités
+                {result.drawn ? ' puis un tirage au sort entre les derniers ex æquo.' : '.'}
+              </p>
+            )}
             {team && (
               <p className="mt-1">
                 Il faisait partie du camp : <strong className={team.text}>{team.label}</strong>.

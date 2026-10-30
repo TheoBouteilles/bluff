@@ -11,6 +11,8 @@ export type Room = {
   phase: Phase
   phase_ends_at: string | null
   winner: 'villageois' | 'saboteurs' | null
+  vote_step: number
+  vote_candidates: string[] | null
 }
 
 export type Player = {

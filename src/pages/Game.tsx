@@ -18,6 +18,7 @@ import { useDawnReport } from '../hooks/useDawnReport'
 import { useNightChoices } from '../hooks/useNightChoices'
 import { useNightProgress } from '../hooks/useNightProgress'
 import { useRoom } from '../hooks/useRoom'
+import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
 import { advancePhase, errorMessage, resetRoom, submitNightAction, submitVote } from '../lib/api'
@@ -29,6 +30,7 @@ export default function Game() {
   const navigate = useNavigate()
   const { state, room, players, me, refresh } = useRoom(code)
   const playing = room?.status === 'playing'
+  useRoomSettings(room?.id)
   const round = room?.round ?? 0
   const { secrets, ready, reload } = useSecrets(players.map((p) => p.id), playing, `${round}-${room?.phase}`)
   const [viewAs, setViewAs] = useState<string | null>(null)
@@ -205,14 +207,15 @@ export default function Game() {
         <VotePanel
           key={tId}
           player={target}
-          others={alivePlayers.filter((p) => p.id !== tId)}
+          others={alivePlayers.filter((p) => p.id !== tId && (!room.vote_candidates || room.vote_candidates.includes(p.id)))}
+          runoff={room.vote_candidates ? { step: room.vote_step, names: room.vote_candidates.map((id) => players.find((p) => p.id === id)?.nickname ?? '?') } : undefined}
           choice={voteChoices.choices[tId]}
           onVote={castVote}
         />
       ) : room.phase === 'night' && !target.is_alive ? (
         <section className={`${panelClass} p-4`}>
           <h2 className="text-lg font-bold text-amber-100">Tu es spectateur</h2>
-          <p className="mt-2 text-stone-400">Les éliminés n’agissent plus. Observe la suite de la partie.</p>
+          <p className="mt-2 text-stone-400">Les morts et les éliminés sont des fantômes : ils n’agissent ni ne votent plus. Observe la suite de la partie.</p>
         </section>
       ) : room.phase === 'night' ? (
         <NightPanel
@@ -238,7 +241,7 @@ export default function Game() {
             <li key={p.id} className={`flex items-center gap-2 rounded-full bg-stone-900 px-3 py-1 text-sm ${p.is_alive ? '' : 'opacity-60'}`}>
               <span>{AVATARS[p.avatar].emoji}</span>
               <span className={p.is_alive ? '' : 'line-through'}>{p.nickname}</span>
-              {!p.is_alive && <span className="text-xs text-stone-400">éliminé{teamRevealed(p.id) ? ` · ${teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'}` : ''}</span>}
+              {!p.is_alive && <span className="text-xs text-stone-400">mort{teamRevealed(p.id) ? ` · ${teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'}` : ''}</span>}
             </li>
           ))}
         </ul>

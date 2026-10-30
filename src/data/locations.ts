@@ -44,7 +44,7 @@ export const LOCATIONS: GameLocation[] = [
     ] },
   { id: 'maison', name: 'Rester chez soi', icon: Home, description: 'Un alibi tranquille, sans effet.', visibleCrossing: false,
     rules: [
-      'Aucun effet, aucun risque : personne ne te voit.',
-      'Tu ne peux alors pas être surpris ailleurs, mais tu ne fais rien de la nuit.',
+      'Aucun effet, aucun risque : personne ne te voit et personne ne peut te tuer.',
+      'Tu ne fais rien de la nuit, et tu ne peux pas rester chez toi deux nuits de suite.',
     ] },
 ]

@@ -88,19 +88,41 @@ export default function DayPanel({ report, players }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
+      {report && report.deaths.length > 0 && (
+        <section className="rounded-xl border border-red-900/60 bg-red-950/30 p-4">
+          <h2 className="text-lg font-bold text-red-300">Un cri a déchiré la nuit…</h2>
+          <ul className="mt-2 flex flex-col gap-1 text-red-200">
+            {report.deaths.map((d) => (
+              <li key={d.player_id}>
+                💀 <strong>{nameOf(d.player_id)}</strong> a été retrouvé mort
+                {d.location ? ` (${locName(d.location) ?? d.location})` : ''}.
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">Rapport de l’aube</h2>
         {!report ? (
           <p className="mt-2 text-stone-400">Chargement…</p>
+        ) : report.killed ? (
+          <p className="mt-2 text-red-300">
+            💀 Tu as été tué pendant la nuit. Tu es désormais un fantôme : tu ne peux plus parler ni voter.
+          </p>
         ) : (
           <>
             <p className="mt-2">
               Cette nuit, tu étais : <strong className="text-amber-300">{loc?.name ?? 'nulle part'}</strong>.
             </p>
+            {report.cry && (
+              <p className="mt-1 text-red-300">
+                😱 Tu as entendu un cri : quelqu’un a été tué près de toi. Tu ne sais pas qui était là.
+              </p>
+            )}
             {loc && !loc.visibleCrossing && (
               <p className="mt-1 text-stone-400">Ici, personne ne te voit et tu ne vois personne.</p>
             )}
-            {loc?.visibleCrossing &&
+            {loc?.visibleCrossing && !report.cry &&
               (present.length === 0 ? (
                 <p className="mt-1 text-stone-400">Tu n’y as croisé personne.</p>
               ) : (
@@ -142,7 +164,7 @@ export default function DayPanel({ report, players }: Props) {
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">Le débat est ouvert</h2>
         <p className="mt-2 text-stone-400">
-          Parlez, accusez, mentez : rien n’est prouvé. Le vote arrivera dans une prochaine étape ; pour l’instant, le jour se termine au bout du minuteur.
+          Parlez, accusez, mentez : rien n’est prouvé. L’hôte ouvrira le vote quand la discussion est terminée.
         </p>
       </section>
     </div>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import SettingsPanel from '../components/SettingsPanel'
 import { Button, Screen } from '../components/ui'
 import { AVATARS } from '../data/avatars'
 import { useRoom } from '../hooks/useRoom'
-import { addBot, clearLastRoom, errorMessage, leaveRoom, removeBot, startGame } from '../lib/api'
+import { useRoomSettings } from '../hooks/useRoomSettings'
+import { addBot, clearLastRoom, errorMessage, leaveRoom, removeBot, resetRoomSettings, startGame, updateRoomSettings } from '../lib/api'
 
 export default function Lobby() {
   const code = (useParams().code ?? '').toUpperCase()
@@ -11,6 +13,7 @@ export default function Lobby() {
   const { state, room, players, me, refresh } = useRoom(code)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const cfg = useRoomSettings(room?.id)
 
   useEffect(() => {
     if (room?.status === 'playing') navigate(`/partie/${code}`, { replace: true })
@@ -96,6 +99,16 @@ export default function Lobby() {
           ＋ Ajouter un bot (debug)
         </Button>
       )}
+
+      <SettingsPanel
+        settings={cfg.settings}
+        editable={!!me?.is_host}
+        onChange={(key, value) => {
+          cfg.apply({ ...cfg.settings, [key]: value })
+          run(() => updateRoomSettings(room.id, { [key]: value }).then(cfg.apply))
+        }}
+        onReset={() => run(() => resetRoomSettings(room.id).then(cfg.apply))}
+      />
 
       {error && <p className="text-red-400">{error}</p>}
 

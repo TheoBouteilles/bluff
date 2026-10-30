@@ -20,11 +20,13 @@ const MESSAGES: Record<string, string> = {
   invalid_location: 'Lieu inconnu.',
   night_not_over: 'La nuit n’est pas terminée.',
   location_closed: 'Ce lieu est fermé cette nuit.',
+  maison_twice: 'Tu ne peux pas rester chez toi deux nuits de suite.',
   not_enough_tokens: 'Pas assez de jetons pour cette action.',
   invalid_params: 'Choix invalide.',
   not_vote: 'Le vote n’est pas ouvert.',
   not_ended: 'La partie n’est pas terminée.',
   not_saboteur: 'Réservé aux Saboteurs.',
+  room_settings: 'Réglage invalide.',
 }
 
 export function errorMessage(e: unknown): string {
@@ -75,6 +77,9 @@ export type DawnReport = {
   present: string[]
   result: NightResult
   closed_next: string[]
+  cry: boolean
+  killed: boolean
+  deaths: { player_id: string; location: string | null }[]
 }
 
 export const submitNightAction = (roomId: string, location: string, playerId?: string, params: NightParams = {}) =>
@@ -86,6 +91,8 @@ export type VoteResult = {
   eliminated_team: string | null
   tied: boolean
   tally: Record<string, number>
+  runoffs: number
+  drawn: boolean
 }
 export type FinalRole = { player_id: string; role_id: string; team: string }
 
@@ -113,3 +120,7 @@ export const getLastRoom = (): string | null => {
 export const clearLastRoom = () => {
   try { localStorage.removeItem(KEY) } catch { /* stockage indisponible */ }
 }
+export const getRoomSettings = (roomId: string) => rpc<Record<string, number>>('get_room_settings', { p_room_id: roomId })
+export const updateRoomSettings = (roomId: string, values: Record<string, number>) =>
+  rpc<Record<string, number>>('update_room_settings', { p_room_id: roomId, p_values: values })
+export const resetRoomSettings = (roomId: string) => rpc<Record<string, number>>('reset_room_settings', { p_room_id: roomId })

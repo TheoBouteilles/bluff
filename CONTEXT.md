@@ -93,3 +93,19 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - src/components/VillageMap.tsx : village en SVG, un bâtiment cliquable par lieu (6 lieux), sélection animée, lieux fermés barrés « FERMÉ ». Un bouton « i » par bâtiment ouvre les règles du lieu sans faire de choix ; le panneau propose « Aller à : … ».
 - NightPannel : carte + fiche du lieu choisi + options (casino, taverne, poste de garde, planque, mairie). Positions et couleurs des bâtiments dans SPOTS (VillageMap.tsx).
 - Un nouveau lieu = une entrée dans locations.ts + une entrée dans SPOTS + éventuellement un bloc d'options dans NightPannel.
+
+## Étape 1 des meurtres (migration 0008_meurtres.sql)
+- Règle de mort par lieu et par nuit (hors maison) : Saboteurs > Villageois présents = un Villageois meurt à coup sûr ; égalité = `kill_tie_pct` % (50) ; sinon personne. Max 1 mort par lieu, victime tirée au hasard parmi les Villageois présents, meurtre gratuit.
+- Annonce à l'aube : nom du mort public, lieu secret (`game_param('death_reveals_location')` = 0 ; mettre 1 pour l'annoncer).
+- Aveuglement : les Villageois survivants d'un lieu où l'on a tué n'ont ni liste des présents ni info de nombre, juste `cry`. Les Saboteurs ne sont pas aveuglés. La victime voit `killed`.
+- Maison protégée (jamais de mort) et impossible 2 nuits de suite (`maison_twice`) ; les bots respectent la règle.
+- Victoire des Saboteurs vérifiée dès l'aube. Trucages de la Mairie des morts ignorés au dépouillement.
+- Morts (tués ou éliminés) = fantômes v1 : ne jouent ni ne votent, regardent. Table `night_deaths` (aucun accès client), lue via `get_dawn_report` (`deaths`, `cry`, `killed`).
+- Front : api.ts (DawnReport + message), DayPannel (annonce, cri, tué), locations.ts (règles maison), Game.tsx (libellés).
+- À venir : étape 2 fantômes (observation + indice), étape 3 cimetière.
+
+## Réglages de la partie + revote (migration 0009_reglages.sql)
+- Table `room_settings(room_id, vals jsonb)` : réglages par salon, modifiés par l'hôte dans le salon avant le lancement (RPC `update_room_settings`, `reset_room_settings`, lecture `get_room_settings`). `room_param(room, clé)` = valeur du salon sinon `game_param(clé)` (défauts). Bornes dans `setting_bounds()` (SQL) et `src/data/settings.ts` (front) : à garder alignés.
+- Réglages : nombre de saboteurs (0 = auto), jetons de départ et gains par nuit par camp, % de meurtre (saboteurs plus nombreux / égalité / moins nombreux), annonce du lieu du meurtre, coûts des lieux, casino (mise max, % de gain), revotes max.
+- Les coûts affichés dans le jeu viennent des réglages : `useRoomSettings` → `applySettingsToCosts` (`src/data/costs.ts`). UI : `SettingsPanel` dans `Lobby.tsx` (hôte modifie, autres lisent). Réglages conservés au retour au salon.
+- Égalité au vote : nouveau vote entre les ex æquo (`rooms.vote_step`, `vote_candidates`, historique `vote_runoffs`), jusqu'à `vote_runoff_max` départages, puis tirage au sort ; 0 = égalité = personne. Trucages Mairie comptés au premier décompte seulement. `vote_results.runoffs/drawn`.
