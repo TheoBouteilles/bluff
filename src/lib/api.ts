@@ -27,6 +27,8 @@ const MESSAGES: Record<string, string> = {
   not_ended: 'La partie n’est pas terminée.',
   not_saboteur: 'Réservé aux Saboteurs.',
   room_settings: 'Réglage invalide.',
+  not_ghost: 'Réservé aux fantômes.',
+  not_playing: 'La partie n’est pas en cours.',
 }
 
 export function errorMessage(e: unknown): string {
@@ -124,3 +126,15 @@ export const getRoomSettings = (roomId: string) => rpc<Record<string, number>>('
 export const updateRoomSettings = (roomId: string, values: Record<string, number>) =>
   rpc<Record<string, number>>('update_room_settings', { p_room_id: roomId, p_values: values })
 export const resetRoomSettings = (roomId: string) => rpc<Record<string, number>>('reset_room_settings', { p_room_id: roomId })
+
+export type GhostReport = {
+  ghost: boolean
+  watches: { round: number; target_id: string; location: string | null }[]
+  suspect: string | null
+}
+export const submitGhostWatch = (roomId: string, targetId: string, playerId?: string) =>
+  rpc<void>('submit_ghost_watch', { p_room_id: roomId, p_target: targetId, p_player_id: playerId ?? null })
+export const setGhostHint = (roomId: string, suspectId: string | null, playerId?: string) =>
+  rpc<void>('set_ghost_hint', { p_room_id: roomId, p_suspect: suspectId, p_player_id: playerId ?? null })
+export const getGhostReport = (roomId: string, playerId?: string) =>
+  rpc<GhostReport>('get_ghost_report', { p_room_id: roomId, p_player_id: playerId ?? null })

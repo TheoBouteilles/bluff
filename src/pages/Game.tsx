@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Moon, Sun } from 'lucide-react'
 import DayPanel from '../components/DayPannel'
 import EndPanel from '../components/EndPannel'
+import GhostPanel from '../components/GhostPannel'
 import HoldToReveal from '../components/HoldToReveal'
 import NightPanel from '../components/NightPannel'
 import ResultPanel from '../components/ResultPannel'
@@ -15,13 +16,14 @@ import { useAllies } from '../hooks/useAllies'
 import { useCountdown } from '../hooks/useCountdown'
 import { useClosures } from '../hooks/useClosures'
 import { useDawnReport } from '../hooks/useDawnReport'
+import { useGhostReport } from '../hooks/useGhostReport'
 import { useNightChoices } from '../hooks/useNightChoices'
 import { useNightProgress } from '../hooks/useNightProgress'
 import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
-import { advancePhase, errorMessage, resetRoom, submitNightAction, submitVote } from '../lib/api'
+import { advancePhase, errorMessage, resetRoom, setGhostHint, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import type { Player } from '../types'
 
@@ -54,6 +56,7 @@ export default function Game() {
   const finalRoles = useFinalRoles(room?.id, playing && room?.phase === 'ended')
   const closed = useClosures(room?.id, round, playing && room?.phase === 'night')
   const report = useDawnReport(room?.id, round, playing && room?.phase === 'day', targetId)
+  const ghost = useGhostReport(room?.id, targetId, playing && !!target && !target.is_alive, `${round}-${room?.phase}`)
   const allyIds = useAllies(room?.id, targetId, playing && secret?.team === 'saboteurs')
 
   useEffect(() => {
@@ -106,6 +109,20 @@ export default function Game() {
     await run(async () => {
       await submitNightAction(roomId, location, tIsMe ? undefined : tId, params)
       await reloadChoices()
+    })
+  }
+
+  async function watchGhost(targetId: string) {
+    await run(async () => {
+      await submitGhostWatch(roomId, targetId, tIsMe ? undefined : tId)
+      await ghost.reload()
+    })
+  }
+
+  async function hintGhost(suspectId: string | null) {
+    await run(async () => {
+      await setGhostHint(roomId, suspectId, tIsMe ? undefined : tId)
+      await ghost.reload()
     })
   }
 
@@ -213,10 +230,7 @@ export default function Game() {
           onVote={castVote}
         />
       ) : room.phase === 'night' && !target.is_alive ? (
-        <section className={`${panelClass} p-4`}>
-          <h2 className="text-lg font-bold text-amber-100">Tu es spectateur</h2>
-          <p className="mt-2 text-stone-400">Les morts et les éliminés sont des fantômes : ils n’agissent ni ne votent plus. Observe la suite de la partie.</p>
-        </section>
+        <GhostPanel mode="night" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} />
       ) : room.phase === 'night' ? (
         <NightPanel
           key={tId}
@@ -230,6 +244,10 @@ export default function Game() {
         />
       ) : (
         <DayPanel report={report} players={players} />
+      )}
+
+      {!target.is_alive && room.phase !== 'night' && room.phase !== 'ended' && (
+        <GhostPanel mode="info" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} />
       )}
 
       {error && <p className="text-red-400">{error}</p>}

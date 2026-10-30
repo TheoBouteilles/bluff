@@ -109,3 +109,9 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - Réglages : nombre de saboteurs (0 = auto), jetons de départ et gains par nuit par camp, % de meurtre (saboteurs plus nombreux / égalité / moins nombreux), annonce du lieu du meurtre, coûts des lieux, casino (mise max, % de gain), revotes max.
 - Les coûts affichés dans le jeu viennent des réglages : `useRoomSettings` → `applySettingsToCosts` (`src/data/costs.ts`). UI : `SettingsPanel` dans `Lobby.tsx` (hôte modifie, autres lisent). Réglages conservés au retour au salon.
 - Égalité au vote : nouveau vote entre les ex æquo (`rooms.vote_step`, `vote_candidates`, historique `vote_runoffs`), jusqu'à `vote_runoff_max` départages, puis tirage au sort ; 0 = égalité = personne. Trucages Mairie comptés au premier décompte seulement. `vote_results.runoffs/drawn`.
+
+## Étape 2 des fantômes (migration 0010_fantomes.sql)
+- Fantôme = joueur mort (tué ou éliminé). Chaque nuit il observe 1 vivant (`submit_ghost_watch`, gratuit) et apprend à l'aube où il a passé la nuit (`ghost_watch.location`, rempli par `resolve_night`). Il désigne un suspect modifiable à tout moment (`set_ghost_hint`, table `ghost_hints`) : il servira d'indice au Cimetière (étape 3) ; un fantôme saboteur peut mentir.
+- Lecture uniquement via `get_ghost_report(room, player)` : `{ghost, watches[{round,target_id,location}], suspect}`. Fantômes-bots : observation et suspect au hasard.
+- Front : `GhostPannel.tsx` (mode nuit = choix de l'observé ; mode info = historique + suspect, affiché aussi le jour/vote/résultat), `useGhostReport.ts`, appels dans `api.ts`, intégration dans `Game.tsx`.
+- À venir : étape 3 cimetière (tombes, 7e lieu, indice).
