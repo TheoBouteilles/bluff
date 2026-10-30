@@ -62,6 +62,7 @@ export type NightParams = {
   targets?: string[]
   sabotage?: string
   rig?: 'boost' | 'shield'
+  tomb?: number
 }
 
 export type NightResult = {
@@ -71,6 +72,7 @@ export type NightResult = {
   rumeur?: { targets: string[]; has_saboteur: boolean }
   observation?: { target: string; location: string | null }
   sabotage?: { location: string; success: boolean }
+  cimetiere?: { tomb: number; ok: boolean; spirits: { ghost_id: string; suspect_id: string | null }[] }
   mairie?: { attempted: boolean; success: boolean; crowded?: boolean; rig?: 'boost' | 'shield'; target?: string | null }
 }
 
@@ -131,6 +133,7 @@ export type GhostReport = {
   ghost: boolean
   watches: { round: number; target_id: string; location: string | null }[]
   suspect: string | null
+  tomb: number | null
 }
 export const submitGhostWatch = (roomId: string, targetId: string, playerId?: string) =>
   rpc<void>('submit_ghost_watch', { p_room_id: roomId, p_target: targetId, p_player_id: playerId ?? null })
@@ -138,3 +141,5 @@ export const setGhostHint = (roomId: string, suspectId: string | null, playerId?
   rpc<void>('set_ghost_hint', { p_room_id: roomId, p_suspect: suspectId, p_player_id: playerId ?? null })
 export const getGhostReport = (roomId: string, playerId?: string) =>
   rpc<GhostReport>('get_ghost_report', { p_room_id: roomId, p_player_id: playerId ?? null })
+export const setGhostTomb = (roomId: string, tomb: number, playerId?: string) =>
+  rpc<void>('set_ghost_tomb', { p_room_id: roomId, p_tomb: tomb, p_player_id: playerId ?? null })

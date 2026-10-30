@@ -12,17 +12,18 @@ type Spot = { x: number; y: number; body: string; roof: string; emoji: string }
 
 // Position et couleurs de chaque bâtiment sur la carte (viewBox 360 x 450)
 const SPOTS: Record<string, Spot> = {
-  mairie: { x: 180, y: 78, body: '#d6d3d1', roof: '#92400e', emoji: '🏛' },
-  casino: { x: 72, y: 188, body: '#7c2d12', roof: '#f59e0b', emoji: '🎰' },
-  taverne: { x: 288, y: 188, body: '#78350f', roof: '#b45309', emoji: '🍺' },
-  poste_garde: { x: 72, y: 318, body: '#44403c', roof: '#1e3a8a', emoji: '👁' },
-  planque: { x: 288, y: 318, body: '#1c1917', roof: '#7f1d1d', emoji: '💀' },
-  maison: { x: 180, y: 392, body: '#57534e', roof: '#78350f', emoji: '🏠' },
+  mairie: { x: 180, y: 72, body: '#d6d3d1', roof: '#92400e', emoji: '🏛' },
+  casino: { x: 72, y: 178, body: '#7c2d12', roof: '#f59e0b', emoji: '🎰' },
+  taverne: { x: 288, y: 178, body: '#78350f', roof: '#b45309', emoji: '🍺' },
+  poste_garde: { x: 72, y: 308, body: '#44403c', roof: '#1e3a8a', emoji: '👁' },
+  planque: { x: 288, y: 308, body: '#1c1917', roof: '#7f1d1d', emoji: '💀' },
+  cimetiere: { x: 72, y: 438, body: '#3f3f46', roof: '#581c87', emoji: '🪦' },
+  maison: { x: 288, y: 438, body: '#57534e', roof: '#78350f', emoji: '🏠' },
 }
 
-const CENTER = { x: 180, y: 252 }
+const CENTER = { x: 180, y: 255 }
 const TREES = [
-  [20, 60], [338, 70], [26, 252], [334, 252], [22, 410], [340, 420], [120, 150], [244, 150], [118, 340], [246, 345],
+  [20, 60], [338, 70], [26, 252], [334, 252], [180, 500], [20, 520], [340, 520], [120, 150], [244, 150], [118, 345], [246, 345],
 ]
 
 export default function VillageMap({ selected, closed, onSelect, onInfo }: Props) {
@@ -35,7 +36,7 @@ export default function VillageMap({ selected, closed, onSelect, onInfo }: Props
 
   return (
     <svg
-      viewBox="0 0 360 462"
+      viewBox="0 0 360 540"
       className="w-full select-none rounded-2xl border border-amber-800/40 bg-stone-950"
       role="group"
       aria-label="Carte du village : choisis où passer la nuit"
@@ -46,7 +47,7 @@ export default function VillageMap({ selected, closed, onSelect, onInfo }: Props
           <stop offset="100%" stopColor="#0c0a09" />
         </radialGradient>
       </defs>
-      <rect width="360" height="462" fill="url(#ground)" />
+      <rect width="360" height="540" fill="url(#ground)" />
 
       {/* Chemins */}
       {Object.values(SPOTS).map((s, i) => (

@@ -1,7 +1,7 @@
-import { Beer, Dices, Eye, Home, Landmark, Skull } from 'lucide-react'
+import { Beer, Dices, Eye, Ghost, Home, Landmark, Skull } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type LocationId = 'casino' | 'taverne' | 'planque' | 'poste_garde' | 'mairie' | 'maison'
+export type LocationId = 'casino' | 'taverne' | 'planque' | 'poste_garde' | 'mairie' | 'cimetiere' | 'maison'
 
 export type GameLocation = {
   id: LocationId
@@ -41,6 +41,13 @@ export const LOCATIONS: GameLocation[] = [
       'Pour 2 jetons, tu truques le vote de la journée qui suit : soit +2 voix contre un joueur de ton choix, soit tes propres voix reçues sont annulées.',
       'Le trucage échoue (jetons perdus) si au moins deux joueurs sont à la Mairie cette nuit. Ils se voient alors à l’aube et l’échec leur est annoncé.',
       'Le trucage réussi reste secret : seul le total des voix est public.',
+    ] },
+  { id: 'cimetiere', name: 'Cimetière', icon: Ghost, description: 'Interroger les fantômes sur leur tombe.', visibleCrossing: true,
+    rules: [
+      'Chaque fantôme (joueur mort) a choisi en secret une tombe. Si tu choisis la même, son esprit te murmure le nom de celui qu’il soupçonne.',
+      'Choisir une tombe coûte 1 jeton. Tu peux aussi venir sans choisir : c’est gratuit, mais tu n’apprends rien.',
+      'Un fantôme peut mentir, et un même indice peut venir de plusieurs fantômes si leurs tombes sont identiques.',
+      'Les joueurs présents au Cimetière se voient à l’aube. Attention : c’est un lieu comme les autres pour les meurtres.',
     ] },
   { id: 'maison', name: 'Rester chez soi', icon: Home, description: 'Un alibi tranquille, sans effet.', visibleCrossing: false,
     rules: [

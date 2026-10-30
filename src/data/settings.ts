@@ -54,6 +54,13 @@ export const SETTING_GROUPS: SettingGroup[] = [
       { key: 'rumeur2_cost', label: 'Rumeur sur 2 joueurs', min: 0, max: 9, default: 2 },
       { key: 'don_cost', label: 'Cadeau (taverne)', min: 0, max: 9, default: 1 },
       { key: 'mairie_cost', label: 'Mairie (trucage)', min: 0, max: 9, default: 2 },
+      { key: 'cemetery_cost', label: 'Cimetière (choisir une tombe)', min: 0, max: 9, default: 1 },
+    ],
+  },
+  {
+    title: 'Fantômes',
+    settings: [
+      { key: 'tomb_count', label: 'Nombre de tombes au Cimetière', min: 2, max: 6, default: 3 },
     ],
   },
   {

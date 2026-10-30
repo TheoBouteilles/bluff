@@ -115,3 +115,10 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - Lecture uniquement via `get_ghost_report(room, player)` : `{ghost, watches[{round,target_id,location}], suspect}`. Fantômes-bots : observation et suspect au hasard.
 - Front : `GhostPannel.tsx` (mode nuit = choix de l'observé ; mode info = historique + suspect, affiché aussi le jour/vote/résultat), `useGhostReport.ts`, appels dans `api.ts`, intégration dans `Game.tsx`.
 - À venir : étape 3 cimetière (tombes, 7e lieu, indice).
+
+## Étape 3 : le Cimetière (migration 0011_cimetiere.sql)
+- 7e lieu `cimetiere` (croisement visible, règle de mort comme les autres lieux). Chaque fantôme choisit sa tombe (`set_ghost_tomb`, colonne `ghost_hints.tomb`, 1..`tomb_count`) ; tirée au hasard à la résolution de la nuit tant qu'il n'a pas choisi.
+- Un vivant peut y choisir une tombe (`params.tomb`, coût `cemetery_cost` = 1 jeton ; sans tombe = gratuit mais rien appris). Résultat `result.cimetiere = {tomb, ok, spirits:[{ghost_id, suspect_id}]}` : on apprend le nom du fantôme et son suspect actuel (peut mentir). Plusieurs fantômes sur la même tombe = plusieurs indices.
+- Nouveaux réglages (salon) : `cemetery_cost` (1), `tomb_count` (3, de 2 à 6).
+- Front : `locations.ts` (Cimetière), `VillageMap.tsx` (7 bâtiments, viewBox 360x540), `NightPannel.tsx` (choix de tombe), `DayPannel.tsx` (indices à l'aube), `GhostPannel.tsx` (choix de la tombe), `costs.ts`/`settings.ts`.
+- Reste à faire : vérifier la carte à 7 bâtiments sur téléphone ; rôles spéciaux ; équilibrage ; minuteurs (`timers_on`).

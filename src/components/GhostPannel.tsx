@@ -12,6 +12,8 @@ type Props = {
   players: Player[] // tous les joueurs
   onWatch: (targetId: string) => void
   onHint: (suspectId: string | null) => void
+  tombCount: number
+  onTomb: (tomb: number) => void
 }
 
 const chip = (active: boolean) =>
@@ -21,7 +23,7 @@ const chip = (active: boolean) =>
       : 'border-amber-800/40 bg-stone-900/80 hover:border-amber-600/60'
   }`
 
-export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint }: Props) {
+export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint, tombCount, onTomb }: Props) {
   const find = (id: string) => players.find((p) => p.id === id)
   const label = (id: string) => {
     const p = find(id)
@@ -74,6 +76,23 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
           </ul>
         </section>
       )}
+
+      <section className={`${panelClass} p-4`}>
+        <h2 className="text-lg font-bold text-amber-100">Ta tombe</h2>
+        <p className="mt-1 text-sm text-stone-400">
+          Choisis en secret ta tombe au Cimetière. Un vivant qui choisit la même reçoit ton suspect. Sans choix, elle est tirée au hasard.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {Array.from({ length: tombCount }, (_, i) => i + 1).map((n) => (
+            <button key={n} type="button" onClick={() => onTomb(n)} className={chip(report?.tomb === n)}>
+              🪦 Tombe {n}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-center text-sm text-stone-400">
+          {report?.tomb ? `Ta tombe : n°${report.tomb}.` : 'Tombe non choisie (tirage au hasard).'}
+        </p>
+      </section>
 
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">Ton suspect</h2>

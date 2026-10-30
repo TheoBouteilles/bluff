@@ -9,6 +9,8 @@ export const COSTS = {
   mairie: 2, // trucage du vote
   casinoMax: 3,
   casinoWinPct: 50,
+  cimetiere: 1, // choisir une tombe
+  tombCount: 3,
 }
 
 export function applySettingsToCosts(s: Record<string, number>) {
@@ -21,6 +23,8 @@ export function applySettingsToCosts(s: Record<string, number>) {
   COSTS.mairie = pick('mairie_cost', COSTS.mairie)
   COSTS.casinoMax = pick('casino_max', COSTS.casinoMax)
   COSTS.casinoWinPct = pick('casino_win_pct', COSTS.casinoWinPct)
+  COSTS.cimetiere = pick('cemetery_cost', COSTS.cimetiere)
+  COSTS.tombCount = pick('tomb_count', COSTS.tombCount)
 }
 
 export const rumeurCost = (groupSize: number) => (groupSize === 3 ? COSTS.rumeur3 : COSTS.rumeur2)

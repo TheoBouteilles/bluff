@@ -23,7 +23,7 @@ import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
-import { advancePhase, errorMessage, resetRoom, setGhostHint, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
+import { advancePhase, errorMessage, resetRoom, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import type { Player } from '../types'
 
@@ -32,7 +32,7 @@ export default function Game() {
   const navigate = useNavigate()
   const { state, room, players, me, refresh } = useRoom(code)
   const playing = room?.status === 'playing'
-  useRoomSettings(room?.id)
+  const cfg = useRoomSettings(room?.id)
   const round = room?.round ?? 0
   const { secrets, ready, reload } = useSecrets(players.map((p) => p.id), playing, `${round}-${room?.phase}`)
   const [viewAs, setViewAs] = useState<string | null>(null)
@@ -122,6 +122,13 @@ export default function Game() {
   async function hintGhost(suspectId: string | null) {
     await run(async () => {
       await setGhostHint(roomId, suspectId, tIsMe ? undefined : tId)
+      await ghost.reload()
+    })
+  }
+
+  async function tombGhost(tomb: number) {
+    await run(async () => {
+      await setGhostTomb(roomId, tomb, tIsMe ? undefined : tId)
       await ghost.reload()
     })
   }
@@ -230,7 +237,7 @@ export default function Game() {
           onVote={castVote}
         />
       ) : room.phase === 'night' && !target.is_alive ? (
-        <GhostPanel mode="night" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} />
+        <GhostPanel mode="night" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} />
       ) : room.phase === 'night' ? (
         <NightPanel
           key={tId}
@@ -247,7 +254,7 @@ export default function Game() {
       )}
 
       {!target.is_alive && room.phase !== 'night' && room.phase !== 'ended' && (
-        <GhostPanel mode="info" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} />
+        <GhostPanel mode="info" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} />
       )}
 
       {error && <p className="text-red-400">{error}</p>}

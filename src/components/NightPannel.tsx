@@ -212,6 +212,31 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
         </Options>
       )
     }
+    if (id === 'cimetiere') {
+      const tomb = params.tomb
+      const canPay = tokens >= COSTS.cimetiere
+      return (
+        <Options title={`Choisir une tombe (${COSTS.cimetiere} jeton${COSTS.cimetiere > 1 ? 's' : ''}) : si un fantôme l’a choisie, tu apprends son suspect`}>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => onChoose('cimetiere', {})} className={chip(tomb === undefined)}>
+              Aucune (gratuit)
+            </button>
+            {Array.from({ length: COSTS.tombCount }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                disabled={!canPay}
+                onClick={() => onChoose('cimetiere', { tomb: n })}
+                className={chip(tomb === n, !canPay)}
+              >
+                🪦 Tombe {n}
+              </button>
+            ))}
+          </div>
+          {!canPay && <p className="text-xs text-stone-500">Il te faut {COSTS.cimetiere} jeton pour choisir une tombe.</p>}
+        </Options>
+      )
+    }
     return null
   }
 

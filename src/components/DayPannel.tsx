@@ -76,6 +76,24 @@ export default function DayPanel({ report, players }: Props) {
       events.push(<>🏛 Quelqu’un a tenté de truquer le vote à la Mairie, mais vous étiez plusieurs : le trucage a échoué.</>)
     }
   }
+  if (r.cimetiere) {
+    const c = r.cimetiere
+    if (!c.ok) {
+      events.push(<>🪦 Tu n’avais plus de quoi payer : la tombe {c.tomb} est restée silencieuse.</>)
+    } else if (c.spirits.length === 0) {
+      events.push(<>🪦 Tombe {c.tomb} : personne ne répond. Aucun fantôme n’a choisi cette tombe.</>)
+    } else {
+      for (const sp of c.spirits) {
+        events.push(
+          sp.suspect_id ? (
+            <>👻 Tombe {c.tomb} : l’esprit de <strong className="text-amber-300">{nameOf(sp.ghost_id)}</strong> te murmure que <strong className="text-red-400">{nameOf(sp.suspect_id)}</strong> est suspect. (Un fantôme peut mentir.)</>
+          ) : (
+            <>👻 Tombe {c.tomb} : l’esprit de <strong className="text-amber-300">{nameOf(sp.ghost_id)}</strong> n’a aucun soupçon à te confier.</>
+          ),
+        )
+      }
+    }
+  }
   if (r.sabotage) {
     events.push(
       r.sabotage.success ? (
