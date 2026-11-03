@@ -13,6 +13,7 @@ export type Room = {
   winner: 'villageois' | 'saboteurs' | null
   vote_step: number
   vote_candidates: string[] | null
+  sudden_death: boolean
 }
 
 export type Player = {

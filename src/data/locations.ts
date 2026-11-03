@@ -22,14 +22,14 @@ export const LOCATIONS: GameLocation[] = [
   { id: 'taverne', name: 'Taverne', icon: Beer, description: 'Échanger des jetons et acheter des rumeurs.', visibleCrossing: true,
     rules: [
       'Cadeau : offre 1 jeton à un joueur. Il reste secret et n’est reçu que si le receveur est aussi à la Taverne cette nuit. Sinon le cadeau échoue, ton jeton est conservé et tu l’apprends à l’aube.',
-      'Rumeur : choisis 2 ou 3 joueurs et apprends si au moins un Saboteur se cache parmi eux (1 jeton pour 3 joueurs, 2 jetons pour 2). Le Caméléon passe pour un innocent.',
+      'Rumeur : choisis 2 ou 3 joueurs et apprends si au moins un Saboteur se cache parmi eux (1 jeton pour 3 joueurs, 2 jetons pour 2). Dans une petite partie (5 joueurs ou moins), il faut cibler exactement 3 joueurs, pour 3 jetons. Le Caméléon passe pour un innocent.',
       'Les joueurs présents à la Taverne se voient entre eux à l’aube.',
     ] },
   { id: 'planque', name: 'La Planque', icon: Skull, description: 'Un repaire obscur où l’on prépare de mauvais coups.', visibleCrossing: true,
     rules: [
-      'Réservé aux Saboteurs pour agir : 2 jetons pour fermer le Casino, la Taverne ou le Poste de Garde la nuit suivante.',
+      'Réservé aux Saboteurs pour agir : 2 jetons pour saboter en secret un lieu, la même nuit. Personne ne sait que c’est saboté.',
+      'Casino saboté : toutes les mises sont perdues. Taverne ou Poste de Garde sabotés : les informations données sont fausses. Mairie sabotée : celui qui truque reçoit une voix contre lui.',
       'Le sabotage échoue (jetons perdus) si un joueur hors Saboteurs est aussi à la Planque. Tous se voient alors à l’aube.',
-      'Un lieu saboté est annoncé publiquement à l’aube.',
     ] },
   { id: 'poste_garde', name: 'Poste de Garde', icon: Eye, description: 'Surveiller les allées et venues des autres.', visibleCrossing: false,
     rules: [
@@ -38,7 +38,7 @@ export const LOCATIONS: GameLocation[] = [
     ] },
   { id: 'mairie', name: 'Mairie', icon: Landmark, description: 'Tenter de truquer le vote du jour.', visibleCrossing: true,
     rules: [
-      'Pour 2 jetons, tu truques le vote de la journée qui suit : soit +2 voix contre un joueur de ton choix, soit tes propres voix reçues sont annulées.',
+      'Pour 2 jetons, tu truques le vote de la journée qui suit : soit +1 voix contre un joueur de ton choix, soit tes propres voix reçues sont annulées.',
       'Le trucage échoue (jetons perdus) si au moins deux joueurs sont à la Mairie cette nuit. Ils se voient alors à l’aube et l’échec leur est annoncé.',
       'Le trucage réussi reste secret : seul le total des voix est public.',
     ] },

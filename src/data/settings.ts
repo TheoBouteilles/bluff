@@ -31,7 +31,7 @@ export const SETTING_GROUPS: SettingGroup[] = [
     title: 'Jetons',
     settings: [
       { key: 'tokens_start_villager', label: 'Départ Villageois', min: 0, max: 10, default: 1 },
-      { key: 'tokens_start_saboteur', label: 'Départ Saboteur', min: 0, max: 10, default: 2 },
+      { key: 'tokens_start_saboteur', label: 'Départ Saboteur', min: 0, max: 10, default: 3 },
       { key: 'tokens_income_villager', label: 'Gain par nuit Villageois', min: 0, max: 5, default: 1, hint: 'À partir de la nuit 2' },
       { key: 'tokens_income_saboteur', label: 'Gain par nuit Saboteur', min: 0, max: 5, default: 1 },
     ],
@@ -54,6 +54,9 @@ export const SETTING_GROUPS: SettingGroup[] = [
       { key: 'rumeur2_cost', label: 'Rumeur sur 2 joueurs', min: 0, max: 9, default: 2 },
       { key: 'don_cost', label: 'Cadeau (taverne)', min: 0, max: 9, default: 1 },
       { key: 'mairie_cost', label: 'Mairie (trucage)', min: 0, max: 9, default: 2 },
+      { key: 'mairie_boost', label: 'Mairie : voix ajoutées', min: 1, max: 3, default: 1 },
+      { key: 'rumeur_small_cost', label: 'Rumeur en petite partie', min: 0, max: 9, default: 3, hint: 'Toujours 3 joueurs ciblés' },
+      { key: 'rumeur_small_max_players', label: 'Petite partie : jusqu’à (joueurs)', min: 0, max: 10, default: 5, hint: '0 = jamais' },
       { key: 'cemetery_cost', label: 'Cimetière (choisir une tombe)', min: 0, max: 9, default: 1 },
     ],
   },
@@ -68,6 +71,16 @@ export const SETTING_GROUPS: SettingGroup[] = [
     settings: [
       { key: 'casino_max', label: 'Mise maximale', min: 0, max: 9, default: 3 },
       { key: 'casino_win_pct', label: 'Chance de gagner', min: 0, max: 100, step: 10, unit: '%', default: 50 },
+    ],
+  },
+  {
+    title: 'Victoire',
+    settings: [
+      {
+        key: 'sudden_death_on', label: 'Mort subite à égalité', min: 0, max: 1, default: 1,
+        hint: 'Oui : à égalité Saboteurs / autres, la partie continue ; si aucun Saboteur n’est éliminé au vote suivant, ils gagnent. Non : égalité = victoire des Saboteurs',
+        format: yesNo,
+      },
     ],
   },
   {

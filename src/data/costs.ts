@@ -11,6 +11,9 @@ export const COSTS = {
   casinoWinPct: 50,
   cimetiere: 1, // choisir une tombe
   tombCount: 3,
+  mairieBoost: 1, // voix ajoutées par un trucage réussi
+  rumeurSmall: 3, // petite partie : rumeur sur 3 joueurs uniquement, à ce prix
+  rumeurSmallMax: 5, // « petite partie » = au plus ce nombre de joueurs
 }
 
 export function applySettingsToCosts(s: Record<string, number>) {
@@ -25,6 +28,12 @@ export function applySettingsToCosts(s: Record<string, number>) {
   COSTS.casinoWinPct = pick('casino_win_pct', COSTS.casinoWinPct)
   COSTS.cimetiere = pick('cemetery_cost', COSTS.cimetiere)
   COSTS.tombCount = pick('tomb_count', COSTS.tombCount)
+  COSTS.mairieBoost = pick('mairie_boost', COSTS.mairieBoost)
+  COSTS.rumeurSmall = pick('rumeur_small_cost', COSTS.rumeurSmall)
+  COSTS.rumeurSmallMax = pick('rumeur_small_max_players', COSTS.rumeurSmallMax)
 }
 
-export const rumeurCost = (groupSize: number) => (groupSize === 3 ? COSTS.rumeur3 : COSTS.rumeur2)
+export const isSmallGame = (totalPlayers: number) => totalPlayers <= COSTS.rumeurSmallMax
+
+export const rumeurCost = (groupSize: number, totalPlayers: number) =>
+  isSmallGame(totalPlayers) ? COSTS.rumeurSmall : groupSize === 3 ? COSTS.rumeur3 : COSTS.rumeur2

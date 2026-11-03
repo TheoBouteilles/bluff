@@ -122,3 +122,9 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - Nouveaux réglages (salon) : `cemetery_cost` (1), `tomb_count` (3, de 2 à 6).
 - Front : `locations.ts` (Cimetière), `VillageMap.tsx` (7 bâtiments, viewBox 360x540), `NightPannel.tsx` (choix de tombe), `DayPannel.tsx` (indices à l'aube), `GhostPannel.tsx` (choix de la tombe), `costs.ts`/`settings.ts`.
 - Reste à faire : vérifier la carte à 7 bâtiments sur téléphone ; rôles spéciaux ; équilibrage ; minuteurs (`timers_on`).
+
+## Équilibrage après les parties à 5 (migration 0012_equilibrage.sql)
+- Jetons de départ : Villageois 1, Saboteur 3 (réglables). Mairie : un trucage réussi ajoute `mairie_boost` = 1 voix (au lieu de 2).
+- Petite partie (≤ `rumeur_small_max_players` = 5 joueurs) : la rumeur cible exactement 3 joueurs et coûte `rumeur_small_cost` = 3 jetons (`rumeur_small()`, `rumeur_cost()` en SQL ; `isSmallGame`, `rumeurCost(n, totalPlayers)` en front).
+- Planque : sabotage ANONYME et IMMÉDIAT (même nuit), plus aucune fermeture ni annonce publique (la table `closures` n'est plus alimentée). Cibles : casino (toutes les mises perdent), taverne (rumeurs inversées), poste de garde (lieu annoncé faux, tiré au hasard), mairie (le tricheur reçoit 1 voix contre lui : `vote_tampering.kind = 'backfire'`). Échec (jetons perdus) si un non-saboteur est à la Planque. Pré-passe dans `resolve_night`.
+- Mort subite (`sudden_death_on` = 1) : `update_victory(room, après_vote)` remplace `check_victory` : Saboteurs > autres = victoire immédiate ; égalité = la partie continue (`rooms.sudden_death`), et si l'égalité survit à un vote, les Saboteurs gagnent. `sudden_death_on` = 0 : ancienne règle (égalité = victoire). Bannière dans `Game.tsx`.

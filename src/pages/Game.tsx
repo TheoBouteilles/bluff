@@ -177,6 +177,12 @@ export default function Game() {
         </div>
       </div>
 
+      {room.sudden_death && room.phase !== 'ended' && (
+        <p className="rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-sm text-red-200">
+          ⚠️ Mort subite : les Saboteurs sont aussi nombreux que les autres. Si aucun Saboteur n’est éliminé au prochain vote, ils gagnent.
+        </p>
+      )}
+
       {debugHost && (
         <div className="rounded-xl bg-stone-900 p-3">
           <p className="mb-2 text-xs uppercase tracking-wider text-stone-500">Debug : voir en tant que</p>
@@ -244,6 +250,7 @@ export default function Game() {
           player={target}
           others={players.filter((p) => p.is_alive && p.id !== tId)}
           tokens={secret?.tokens ?? 0}
+          totalPlayers={players.length}
           isSaboteur={secret?.team === 'saboteurs'}
           choice={choices[tId]}
           closed={closed}

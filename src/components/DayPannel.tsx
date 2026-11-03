@@ -97,7 +97,7 @@ export default function DayPanel({ report, players }: Props) {
   if (r.sabotage) {
     events.push(
       r.sabotage.success ? (
-        <>💀 Sabotage réussi : <strong className="text-amber-300">{locName(r.sabotage.location)}</strong> sera fermé cette nuit.</>
+        <>💀 Sabotage réussi : <strong className="text-amber-300">{locName(r.sabotage.location)}</strong> a été saboté cette nuit, en secret.</>
       ) : (
         <>💀 Sabotage raté : quelqu’un d’extérieur était à la Planque. Les jetons sont perdus.</>
       ),

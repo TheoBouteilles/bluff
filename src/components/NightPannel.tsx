@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { AVATARS } from '../data/avatars'
-import { COSTS, rumeurCost } from '../data/costs'
+import { COSTS, isSmallGame, rumeurCost } from '../data/costs'
 import { LOCATIONS } from '../data/locations'
 import VillageMap from './VillageMap'
 import type { NightParams } from '../lib/api'
@@ -12,6 +12,7 @@ type Props = {
   player: Player
   others: Player[] // joueurs vivants autres que player
   tokens: number
+  totalPlayers: number
   isSaboteur: boolean
   choice?: NightChoice
   closed: string[]
@@ -32,7 +33,7 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export default function NightPanel({ player, others, tokens, isSaboteur, choice, closed, onChoose }: Props) {
+export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, onChoose }: Props) {
   const [rumTargets, setRumTargets] = useState<string[]>([])
   const [rumOpen, setRumOpen] = useState(false)
   const [rulesOpen, setRulesOpen] = useState<string | null>(null)
@@ -98,8 +99,8 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
             </button>
             <button
               type="button"
-              disabled={tokens < COSTS.rumeur3}
-              className={chip(action === 'rumeur' || rumOpen, tokens < COSTS.rumeur3)}
+              disabled={tokens < (isSmallGame(totalPlayers) ? COSTS.rumeurSmall : COSTS.rumeur3)}
+              className={chip(action === 'rumeur' || rumOpen, tokens < (isSmallGame(totalPlayers) ? COSTS.rumeurSmall : COSTS.rumeur3))}
               onClick={() => {
                 setRumOpen(true)
                 setRumTargets(params.targets ?? [])
@@ -129,6 +130,7 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
             active={action === 'rumeur'}
             savedTargets={params.targets}
             playerChip={playerChip}
+            totalPlayers={totalPlayers}
           />
         </Options>
       )
@@ -171,7 +173,7 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
               className={chip(rig === 'boost', tokens < COSTS.mairie)}
               onClick={() => onChoose('mairie', { rig: 'boost', target: params.target ?? others[0]?.id })}
             >
-              +2 voix contre un joueur
+              +{COSTS.mairieBoost} voix contre un joueur
             </button>
           </div>
           {rig === 'boost' && (
@@ -187,9 +189,9 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
     }
     if (id === 'planque' && isSaboteur) {
       const sab = params.sabotage
-      const targets = LOCATIONS.filter((l) => ['casino', 'taverne', 'poste_garde'].includes(l.id))
+      const targets = LOCATIONS.filter((l) => ['casino', 'taverne', 'poste_garde', 'mairie'].includes(l.id))
       return (
-        <Options title={`Saboteurs : fermer un lieu la nuit prochaine (${COSTS.planque} jetons)`}>
+        <Options title={`Saboteurs : saboter un lieu en secret cette nuit (${COSTS.planque} jetons)`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={chip(!sab)} onClick={() => onChoose('planque', {})}>
               Ne rien saboter
@@ -207,7 +209,7 @@ export default function NightPanel({ player, others, tokens, isSaboteur, choice,
             ))}
           </div>
           <p className="text-xs text-stone-500">
-            Échec (jetons perdus) si un joueur hors Saboteurs se trouve aussi à la Planque cette nuit.
+            Casino : mises perdues. Taverne : rumeurs fausses. Poste de Garde : lieu faux. Mairie : le tricheur reçoit une voix contre lui. Échec (jetons perdus) si un joueur hors Saboteurs se trouve aussi à la Planque.
           </p>
         </Options>
       )
@@ -319,17 +321,21 @@ type RumeurProps = {
   active: boolean
   savedTargets?: string[]
   playerChip: (p: Player, active: boolean, onClick: () => void) => ReactNode
+  totalPlayers: number
 }
 
-function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, savedTargets, playerChip }: RumeurProps) {
+function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, savedTargets, playerChip, totalPlayers }: RumeurProps) {
   if (!show && !active) return null
+  const small = isSmallGame(totalPlayers)
   const n = targets.length
-  const valid = n === 2 || n === 3
-  const cost = valid ? rumeurCost(n) : COSTS.rumeur3
+  const valid = small ? n === 3 : n === 2 || n === 3
+  const cost = valid ? rumeurCost(n, totalPlayers) : small ? COSTS.rumeurSmall : COSTS.rumeur3
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs text-stone-500">
-        Choisis 2 ou 3 joueurs : tu sauras si au moins un Saboteur se cache parmi eux. Groupe de 3 : {COSTS.rumeur3} jeton, groupe de 2 : {COSTS.rumeur2} jetons.
+        {small
+          ? `Petite partie : choisis exactement 3 joueurs, tu sauras si au moins un Saboteur se cache parmi eux (${COSTS.rumeurSmall} jetons).`
+          : `Choisis 2 ou 3 joueurs : tu sauras si au moins un Saboteur se cache parmi eux. Groupe de 3 : ${COSTS.rumeur3} jeton, groupe de 2 : ${COSTS.rumeur2} jetons.`}
       </p>
       <div className="flex flex-wrap gap-2">
         {others.map((p) => playerChip(p, targets.includes(p.id), () => onToggle(p.id)))}
@@ -340,7 +346,7 @@ function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, 
         onClick={onBuy}
         className={chip(false, !valid || tokens < cost)}
       >
-        {valid ? `Valider la rumeur (${cost} jeton${cost > 1 ? 's' : ''})` : 'Choisis 2 ou 3 joueurs'}
+        {valid ? `Valider la rumeur (${cost} jeton${cost > 1 ? 's' : ''})` : small ? 'Choisis 3 joueurs' : 'Choisis 2 ou 3 joueurs'}
       </button>
       {active && savedTargets && <p className="text-xs text-amber-400">Rumeur enregistrée.</p>}
     </div>
