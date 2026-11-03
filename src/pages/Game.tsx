@@ -127,6 +127,7 @@ export default function Game() {
   }
 
   async function tombGhost(tomb: number) {
+    if (!window.confirm(`Choisir la tombe n°${tomb} ? Ce choix est définitif.`)) return
     await run(async () => {
       await setGhostTomb(roomId, tomb, tIsMe ? undefined : tId)
       await ghost.reload()
@@ -253,7 +254,7 @@ export default function Game() {
           totalPlayers={players.length}
           isSaboteur={secret?.team === 'saboteurs'}
           choice={choices[tId]}
-          closed={closed}
+          closed={players.some((p) => !p.is_alive) ? closed : [...closed, 'cimetiere']}
           onChoose={choose}
         />
       ) : (

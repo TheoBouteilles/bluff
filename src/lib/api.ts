@@ -28,6 +28,7 @@ const MESSAGES: Record<string, string> = {
   not_saboteur: 'Réservé aux Saboteurs.',
   room_settings: 'Réglage invalide.',
   not_ghost: 'Réservé aux fantômes.',
+  tomb_locked: 'Ta tombe est déjà choisie : ce choix est définitif.',
   not_playing: 'La partie n’est pas en cours.',
 }
 

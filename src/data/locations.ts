@@ -44,6 +44,7 @@ export const LOCATIONS: GameLocation[] = [
     ] },
   { id: 'cimetiere', name: 'Cimetière', icon: Ghost, description: 'Interroger les fantômes sur leur tombe.', visibleCrossing: true,
     rules: [
+      'Le Cimetière n’ouvre qu’à partir du premier mort de la partie.',
       'Chaque fantôme (joueur mort) a choisi en secret une tombe. Si tu choisis la même, son esprit te murmure le nom de celui qu’il soupçonne.',
       'Choisir une tombe coûte 1 jeton. Tu peux aussi venir sans choisir : c’est gratuit, mais tu n’apprends rien.',
       'Un fantôme peut mentir, et un même indice peut venir de plusieurs fantômes si leurs tombes sont identiques.',

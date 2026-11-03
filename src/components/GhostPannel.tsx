@@ -80,18 +80,19 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">Ta tombe</h2>
         <p className="mt-1 text-sm text-stone-400">
-          Choisis en secret ta tombe au Cimetière. Un vivant qui choisit la même reçoit ton suspect. Sans choix, elle est tirée au hasard.
+          Choisis en secret ta tombe au Cimetière. Un vivant qui choisit la même reçoit ton suspect. Le choix est définitif ; sans choix avant la prochaine nuit, elle est tirée au hasard.
         </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {Array.from({ length: tombCount }, (_, i) => i + 1).map((n) => (
-            <button key={n} type="button" onClick={() => onTomb(n)} className={chip(report?.tomb === n)}>
-              🪦 Tombe {n}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-center text-sm text-stone-400">
-          {report?.tomb ? `Ta tombe : n°${report.tomb}.` : 'Tombe non choisie (tirage au hasard).'}
-        </p>
+        {report?.tomb ? (
+          <p className="mt-3 text-center font-semibold text-amber-300">🪦 Ta tombe : n°{report.tomb} (définitive)</p>
+        ) : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {Array.from({ length: tombCount }, (_, i) => i + 1).map((n) => (
+              <button key={n} type="button" onClick={() => onTomb(n)} className={chip(false)}>
+                🪦 Tombe {n}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className={`${panelClass} p-4`}>

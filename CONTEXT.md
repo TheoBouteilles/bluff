@@ -128,3 +128,8 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - Petite partie (≤ `rumeur_small_max_players` = 5 joueurs) : la rumeur cible exactement 3 joueurs et coûte `rumeur_small_cost` = 3 jetons (`rumeur_small()`, `rumeur_cost()` en SQL ; `isSmallGame`, `rumeurCost(n, totalPlayers)` en front).
 - Planque : sabotage ANONYME et IMMÉDIAT (même nuit), plus aucune fermeture ni annonce publique (la table `closures` n'est plus alimentée). Cibles : casino (toutes les mises perdent), taverne (rumeurs inversées), poste de garde (lieu annoncé faux, tiré au hasard), mairie (le tricheur reçoit 1 voix contre lui : `vote_tampering.kind = 'backfire'`). Échec (jetons perdus) si un non-saboteur est à la Planque. Pré-passe dans `resolve_night`.
 - Mort subite (`sudden_death_on` = 1) : `update_victory(room, après_vote)` remplace `check_victory` : Saboteurs > autres = victoire immédiate ; égalité = la partie continue (`rooms.sudden_death`), et si l'égalité survit à un vote, les Saboteurs gagnent. `sudden_death_on` = 0 : ancienne règle (égalité = victoire). Bannière dans `Game.tsx`.
+
+## Ajustements (migration 0013_ajustements.sql)
+- 1 Saboteur contre 1 seul autre joueur vivant : victoire automatique des Saboteurs (dans `update_victory`), même avec la mort subite.
+- Le Cimetière n'ouvre qu'à partir du premier mort (`location_closed` sinon ; bots exclus ; fermé sur la carte côté front tant que tous sont vivants).
+- Le choix de tombe d'un fantôme est définitif (`tomb_locked`), y compris une tombe tirée au hasard à la résolution de la nuit.
