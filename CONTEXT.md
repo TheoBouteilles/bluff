@@ -141,3 +141,6 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - **Jetons de départ Saboteur** : `tokens_start_saboteur_solo` 3 (1 saboteur), `tokens_start_saboteur` 2 (par saboteur à plusieurs).
 - **Rumeurs +1** : rumeur3 2, rumeur2 3, petite partie 4.
 - **Onglet Règles** : `RulesPanel` (valeurs du salon injectées) = 3e onglet en partie + page `/regles?salon=CODE` (lien dans le salon).
+
+## Carte illustrée
+- `VillageMap` utilise `public/village.jpg` (864x1222) ; zones cliquables en polygones (SPOTS), lieu choisi = halo doré pulsé + reste assombri, lieu fermé = voile noir + croix rouge. Bouton « i » par lieu conservé.
