@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import CreateRoom from './pages/CreateRoom'
 import JoinRoom from './pages/JoinRoom'
 import Lobby from './pages/Lobby'
+import Rules from './pages/Rules'
 import RolesList from './pages/RolesList'
 import Game from './pages/Game'
 
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/rejoindre/:code?" element={<JoinRoom />} />
         <Route path="/salon/:code" element={<Lobby />} />
         <Route path="/partie/:code" element={<Game />} />
+        <Route path="/regles" element={<Rules />} />
         <Route path="/roles" element={<RolesList />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

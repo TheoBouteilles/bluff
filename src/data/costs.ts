@@ -3,8 +3,8 @@
 export const COSTS = {
   posteGarde: 2,
   planque: 2,
-  rumeur3: 1, // rumeur sur un groupe de 3
-  rumeur2: 2, // rumeur sur un groupe de 2 (plus précise, donc plus chère)
+  rumeur3: 2, // rumeur sur un groupe de 3
+  rumeur2: 3, // rumeur sur un groupe de 2 (plus précise, donc plus chère)
   don: 1,
   mairie: 2, // trucage du vote
   casinoMax: 3,
@@ -12,7 +12,7 @@ export const COSTS = {
   cimetiere: 1, // choisir une tombe
   tombCount: 3,
   mairieBoost: 1, // voix ajoutées par un trucage réussi
-  rumeurSmall: 3, // petite partie : rumeur sur 3 joueurs uniquement, à ce prix
+  rumeurSmall: 4, // petite partie : rumeur sur 3 joueurs uniquement, à ce prix
   rumeurSmallMax: 5, // « petite partie » = au plus ce nombre de joueurs
 }
 

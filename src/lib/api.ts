@@ -30,6 +30,7 @@ const MESSAGES: Record<string, string> = {
   not_ghost: 'Réservé aux fantômes.',
   tomb_locked: 'Ta tombe est déjà choisie : ce choix est définitif.',
   not_playing: 'La partie n’est pas en cours.',
+  players_not_ready: 'Tous les joueurs n’ont pas encore validé leur choix.',
 }
 
 export function errorMessage(e: unknown): string {
@@ -100,6 +101,13 @@ export type VoteResult = {
   drawn: boolean
 }
 export type FinalRole = { player_id: string; role_id: string; team: string }
+
+export const cancelNightAction = (roomId: string, playerId?: string) =>
+  rpc<void>('cancel_night_action', { p_room_id: roomId, p_player_id: playerId ?? null })
+export const cancelVote = (roomId: string, playerId?: string) =>
+  rpc<void>('cancel_vote', { p_room_id: roomId, p_player_id: playerId ?? null })
+export const cancelGhostWatch = (roomId: string, playerId?: string) =>
+  rpc<void>('cancel_ghost_watch', { p_room_id: roomId, p_player_id: playerId ?? null })
 
 export const submitVote = (roomId: string, targetId: string | null, playerId?: string) =>
   rpc<void>('submit_vote', { p_room_id: roomId, p_target: targetId, p_player_id: playerId ?? null })

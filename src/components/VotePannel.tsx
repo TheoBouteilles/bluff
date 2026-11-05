@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { AVATARS } from '../data/avatars'
 import type { Player } from '../types'
 import { panelClass } from './ui'
@@ -7,7 +8,8 @@ type Props = {
   others: Player[] // joueurs vivants autres que player
   runoff?: { step: number; names: string[] } // départage après une égalité
   choice: string | null | undefined // undefined = pas encore voté, null = abstention
-  onVote: (targetId: string | null) => void
+  onVote: (targetId: string | null) => Promise<void> | void // valide le vote
+  onCancel: () => Promise<void> | void // « Retour »
 }
 
 const chip = (active: boolean) =>
@@ -17,7 +19,23 @@ const chip = (active: boolean) =>
       : 'border-amber-800/40 bg-stone-900/80 hover:border-amber-600/60'
   }`
 
-export default function VotePanel({ player, others, runoff, choice, onVote }: Props) {
+export default function VotePanel({ player, others, runoff, choice, onVote, onCancel }: Props) {
+  const [draft, setDraft] = useState<string | null | undefined>(undefined)
+  const [busy, setBusy] = useState(false)
+  const validated = choice !== undefined
+  const current = validated ? choice : draft
+  const pick = (id: string | null) => { if (!validated) setDraft(id) }
+  async function validate() {
+    if (current === undefined || busy) return
+    setBusy(true)
+    try { await onVote(current) } finally { setBusy(false) }
+  }
+  async function back() {
+    if (busy) return
+    setBusy(true)
+    setDraft(choice)
+    try { await onCancel() } finally { setBusy(false) }
+  }
   if (!player.is_alive) {
     return (
       <section className={`${panelClass} p-4`}>
@@ -39,21 +57,35 @@ export default function VotePanel({ player, others, runoff, choice, onVote }: Pr
       </p>
       <div className="grid grid-cols-1 gap-2">
         {others.map((p) => (
-          <button key={p.id} type="button" onClick={() => onVote(p.id)} className={chip(choice === p.id)}>
+          <button key={p.id} type="button" onClick={() => pick(p.id)} className={chip(current === p.id)}>
             <span className="text-xl">{AVATARS[p.avatar].emoji}</span>
             <span className="font-semibold">{p.nickname}</span>
           </button>
         ))}
-        <button type="button" onClick={() => onVote(null)} className={chip(choice === null)}>
+        <button type="button" onClick={() => pick(null)} className={chip(current === null)}>
           <span className="text-xl">🕊️</span>
           <span className="font-semibold">S’abstenir</span>
         </button>
       </div>
-      <p className="text-center text-sm text-stone-400">
-        {choice === undefined
-          ? 'Sans vote, tu t’abstiens.'
-          : 'Vote enregistré. Tu peux encore le changer avant le dépouillement.'}
-      </p>
+      {validated ? (
+        <div className="flex flex-col gap-2">
+          <p className="rounded-xl border border-emerald-800/60 bg-emerald-950/30 p-3 text-center text-sm text-emerald-200">
+            ✅ Vote validé. En attente des autres joueurs…
+          </p>
+          <button type="button" onClick={back} disabled={busy} className="rounded-xl border border-amber-800/40 px-4 py-3 font-semibold text-amber-100 hover:border-amber-600/60 disabled:opacity-40">
+            ↩ Retour (modifier mon vote)
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={validate}
+          disabled={current === undefined || busy}
+          className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 font-semibold text-stone-950 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {current === undefined ? 'Choisis pour valider' : 'Valider mon vote'}
+        </button>
+      )}
     </div>
   )
 }

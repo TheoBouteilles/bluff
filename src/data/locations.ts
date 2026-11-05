@@ -22,7 +22,7 @@ export const LOCATIONS: GameLocation[] = [
   { id: 'taverne', name: 'Taverne', icon: Beer, description: 'Échanger des jetons et acheter des rumeurs.', visibleCrossing: true,
     rules: [
       'Cadeau : offre 1 jeton à un joueur. Il reste secret et n’est reçu que si le receveur est aussi à la Taverne cette nuit. Sinon le cadeau échoue, ton jeton est conservé et tu l’apprends à l’aube.',
-      'Rumeur : choisis 2 ou 3 joueurs et apprends si au moins un Saboteur se cache parmi eux (1 jeton pour 3 joueurs, 2 jetons pour 2). Dans une petite partie (5 joueurs ou moins), il faut cibler exactement 3 joueurs, pour 3 jetons. Le Caméléon passe pour un innocent.',
+      'Rumeur : choisis 2 ou 3 joueurs et apprends si au moins un Saboteur se cache parmi eux (2 jetons pour 3 joueurs, 3 jetons pour 2). Dans une petite partie (5 joueurs ou moins), il faut cibler exactement 3 joueurs, pour 4 jetons. Le Caméléon passe pour un innocent.',
       'Les joueurs présents à la Taverne se voient entre eux à l’aube.',
     ] },
   { id: 'planque', name: 'La Planque', icon: Skull, description: 'Un repaire obscur où l’on prépare de mauvais coups.', visibleCrossing: true,

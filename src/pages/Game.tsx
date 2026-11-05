@@ -8,6 +8,7 @@ import HoldToReveal from '../components/HoldToReveal'
 import NightPanel from '../components/NightPannel'
 import ResultPanel from '../components/ResultPannel'
 import RoleCard from '../components/RoleCard'
+import RulesPanel from '../components/RulesPanel'
 import VotePanel from '../components/VotePannel'
 import { Button, Screen, TokenBadge, panelClass } from '../components/ui'
 import { AVATARS } from '../data/avatars'
@@ -23,7 +24,7 @@ import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
-import { advancePhase, errorMessage, resetRoom, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
+import { advancePhase, cancelNightAction, cancelVote, errorMessage, resetRoom, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import type { Player } from '../types'
 
@@ -36,7 +37,7 @@ export default function Game() {
   const round = room?.round ?? 0
   const { secrets, ready, reload } = useSecrets(players.map((p) => p.id), playing, `${round}-${room?.phase}`)
   const [viewAs, setViewAs] = useState<string | null>(null)
-  const [tab, setTab] = useState<'role' | 'action'>('role')
+  const [tab, setTab] = useState<'role' | 'action' | 'rules'>('role')
   const [error, setError] = useState('')
 
   const debugHost = !!room?.debug && !!me?.is_host
@@ -112,6 +113,20 @@ export default function Game() {
     })
   }
 
+  async function unchoose() {
+    await run(async () => {
+      await cancelNightAction(roomId, tIsMe ? undefined : tId)
+      await reloadChoices()
+    })
+  }
+
+  async function unvote() {
+    await run(async () => {
+      await cancelVote(roomId, tIsMe ? undefined : tId)
+      await voteChoices.reload()
+    })
+  }
+
   async function watchGhost(targetId: string) {
     await run(async () => {
       await submitGhostWatch(roomId, targetId, tIsMe ? undefined : tId)
@@ -140,6 +155,10 @@ export default function Game() {
       await voteChoices.reload()
     })
   }
+
+  const notReady =
+    (room.phase === 'night' && !!progress && progress.played < progress.total) ||
+    (room.phase === 'vote' && !!voteProgress && voteProgress.played < voteProgress.total)
 
   const PHASE_LABEL: Record<string, string> = { night: 'Nuit', day: 'Jour', vote: 'Vote', result: 'Résultat', ended: 'Fin de partie' }
   const TAB_LABEL: Record<string, string> = { night: 'Ma nuit', day: 'Aube et débat', vote: 'Mon vote', result: 'Résultat', ended: 'Fin' }
@@ -203,16 +222,21 @@ export default function Game() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <Button variant={tab === 'role' ? 'primary' : 'secondary'} onClick={() => setTab('role')}>
           Mon rôle
         </Button>
         <Button variant={tab === 'action' ? 'primary' : 'secondary'} onClick={() => setTab('action')}>
           {TAB_LABEL[room.phase] ?? 'Action'}
         </Button>
+        <Button variant={tab === 'rules' ? 'primary' : 'secondary'} onClick={() => setTab('rules')}>
+          Règles
+        </Button>
       </div>
 
-      {tab === 'role' ? (
+      {tab === 'rules' ? (
+        <RulesPanel settings={cfg.settings} />
+      ) : tab === 'role' ? (
         !ready ? (
           <p className="text-center text-stone-400">Chargement…</p>
         ) : !secret || !role ? (
@@ -242,6 +266,7 @@ export default function Game() {
           runoff={room.vote_candidates ? { step: room.vote_step, names: room.vote_candidates.map((id) => players.find((p) => p.id === id)?.nickname ?? '?') } : undefined}
           choice={voteChoices.choices[tId]}
           onVote={castVote}
+          onCancel={unvote}
         />
       ) : room.phase === 'night' && !target.is_alive ? (
         <GhostPanel mode="night" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} />
@@ -255,7 +280,8 @@ export default function Game() {
           isSaboteur={secret?.team === 'saboteurs'}
           choice={choices[tId]}
           closed={players.some((p) => !p.is_alive) ? closed : [...closed, 'cimetiere']}
-          onChoose={choose}
+          onValidate={choose}
+          onCancel={unchoose}
         />
       ) : (
         <DayPanel report={report} players={players} />
@@ -281,13 +307,13 @@ export default function Game() {
       </section>
 
       {me.is_host && room.phase !== 'ended' && (
-        <Button onClick={() => run(() => advancePhase(roomId, true))}>
+        <Button disabled={notReady} onClick={() => run(() => advancePhase(roomId, true))}>
           {room.phase === 'night'
-            ? `Résoudre la nuit${progress ? ` (${progress.played}/${progress.total} ont choisi)` : ''}`
+            ? `Résoudre la nuit${progress ? ` (${progress.played}/${progress.total} ont validé)` : ''}`
             : room.phase === 'day'
               ? 'Ouvrir le vote'
               : room.phase === 'vote'
-                ? `Dépouiller le vote${voteProgress ? ` (${voteProgress.played}/${voteProgress.total} ont voté)` : ''}`
+                ? `Dépouiller le vote${voteProgress ? ` (${voteProgress.played}/${voteProgress.total} ont validé)` : ''}`
                 : 'Passer à la nuit suivante'}
         </Button>
       )}

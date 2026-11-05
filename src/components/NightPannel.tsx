@@ -16,7 +16,8 @@ type Props = {
   isSaboteur: boolean
   choice?: NightChoice
   closed: string[]
-  onChoose: (locationId: string, params?: NightParams) => void
+  onValidate: (locationId: string, params: NightParams) => Promise<void> | void
+  onCancel: () => Promise<void> | void
 }
 
 const chip = (active: boolean, disabled = false) =>
@@ -33,14 +34,33 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, onChoose }: Props) {
+export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, onValidate, onCancel }: Props) {
+  // Brouillon local : rien n'est enregistré avant « Valider ». Une fois validé, le choix est verrouillé jusqu'à « Retour ».
+  const [draft, setDraft] = useState<NightChoice | null>(null)
+  const validated = !!choice
+  const current = validated ? choice : draft
+  const onChoose = (location: string, p: NightParams = {}) => {
+    if (!validated) setDraft({ location, params: p } as NightChoice)
+  }
+  const [busy, setBusy] = useState(false)
+  async function validate() {
+    if (!current || busy) return
+    setBusy(true)
+    try { await onValidate(current.location, current.params ?? {}) } finally { setBusy(false) }
+  }
+  async function back() {
+    if (busy) return
+    setBusy(true)
+    setDraft(choice ?? null)
+    try { await onCancel() } finally { setBusy(false) }
+  }
   const [rumTargets, setRumTargets] = useState<string[]>([])
   const [rumOpen, setRumOpen] = useState(false)
   const [rulesOpen, setRulesOpen] = useState<string | null>(null)
-  const loc = choice?.location
+  const loc = current?.location
   const selectedLoc = LOCATIONS.find((l) => l.id === loc)
   const rulesInfo = LOCATIONS.find((l) => l.id === rulesOpen)
-  const params = choice?.params ?? {}
+  const params = current?.params ?? {}
 
   const playerChip = (p: Player, active: boolean, onClick: () => void) => (
     <button key={p.id} type="button" onClick={onClick} className={chip(active)}>
@@ -300,13 +320,27 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
         <p className="text-center text-sm text-stone-400">Touche un bâtiment pour y passer la nuit. Le « i » affiche les règles du lieu.</p>
       )}
 
-      {loc && options(loc)}
+      {loc && <div className={validated ? 'pointer-events-none opacity-60' : ''}>{options(loc)}</div>}
 
-      <p className="text-center text-sm text-stone-400">
-        {loc
-          ? 'Choix enregistré. Tu peux encore le changer avant la fin de la nuit.'
-          : 'Sans choix, tu resteras chez toi.'}
-      </p>
+      {validated ? (
+        <div className="flex flex-col gap-2">
+          <p className="rounded-xl border border-emerald-800/60 bg-emerald-950/30 p-3 text-center text-sm text-emerald-200">
+            ✅ Choix validé : {selectedLoc?.name}. En attente des autres joueurs…
+          </p>
+          <button type="button" onClick={back} disabled={busy} className="rounded-xl border border-amber-800/40 px-4 py-3 font-semibold text-amber-100 hover:border-amber-600/60 disabled:opacity-40">
+            ↩ Retour (modifier mon choix)
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={validate}
+          disabled={!loc || busy || (loc === 'taverne' && rumOpen && params.action !== 'rumeur')}
+          className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 font-semibold text-stone-950 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {loc ? `Valider : ${selectedLoc?.name}` : 'Choisis un lieu pour valider'}
+        </button>
+      )}
     </div>
   )
 }
@@ -346,9 +380,9 @@ function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, 
         onClick={onBuy}
         className={chip(false, !valid || tokens < cost)}
       >
-        {valid ? `Valider la rumeur (${cost} jeton${cost > 1 ? 's' : ''})` : small ? 'Choisis 3 joueurs' : 'Choisis 2 ou 3 joueurs'}
+        {valid ? `Choisir cette rumeur (${cost} jeton${cost > 1 ? 's' : ''})` : small ? 'Choisis 3 joueurs' : 'Choisis 2 ou 3 joueurs'}
       </button>
-      {active && savedTargets && <p className="text-xs text-amber-400">Rumeur enregistrée.</p>}
+      {active && savedTargets && <p className="text-xs text-amber-400">Rumeur sélectionnée.</p>}
     </div>
   )
 }

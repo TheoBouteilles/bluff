@@ -133,3 +133,11 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - 1 Saboteur contre 1 seul autre joueur vivant : victoire automatique des Saboteurs (dans `update_victory`), même avec la mort subite.
 - Le Cimetière n'ouvre qu'à partir du premier mort (`location_closed` sinon ; bots exclus ; fermé sur la carte côté front tant que tous sont vivants).
 - Le choix de tombe d'un fantôme est définitif (`tomb_locked`), y compris une tombe tirée au hasard à la résolution de la nuit.
+
+## Validation, minuteurs, règles (0014)
+- **Valider / Retour** : nuit (NightPannel, brouillon local puis `submit_night_action` à la validation), vote (VotePannel) ; `cancel_night_action`, `cancel_vote`, `cancel_ghost_watch` (RPC dispo, fantômes non bloquants, UI inchangée).
+- `advance_phase(force)` : refuse (`players_not_ready`) si un joueur humain vivant n'a pas validé (nuit : ligne night_actions ; vote : ligne votes, abstention comprise). Bots exclus. Minuteur écoulé : passe sans exiger la validation. `night_progress`/`vote_progress` ne comptent que les humains vivants. Bouton hôte désactivé tant que `played < total`.
+- **Minuteurs par salon** : réglages `timers_on` (défaut 0), `night_seconds` 120, `day_seconds` 300, `vote_seconds` 90 ; `room_phase_seconds(room, phase)` remplace `phase_seconds`; trigger `rooms_apply_timer_setting` utilise `room_param`.
+- **Jetons de départ Saboteur** : `tokens_start_saboteur_solo` 3 (1 saboteur), `tokens_start_saboteur` 2 (par saboteur à plusieurs).
+- **Rumeurs +1** : rumeur3 2, rumeur2 3, petite partie 4.
+- **Onglet Règles** : `RulesPanel` (valeurs du salon injectées) = 3e onglet en partie + page `/regles?salon=CODE` (lien dans le salon).

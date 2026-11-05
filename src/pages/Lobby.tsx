@@ -67,7 +67,10 @@ export default function Lobby() {
 
       <div className="flex items-center justify-between mt-2">
         <h2 className="font-semibold">Joueurs ({players.length}/10)</h2>
-        <Link to="/roles" className="text-sm text-stone-400 hover:text-white">Voir les rôles</Link>
+        <span className="flex gap-3">
+          <Link to={`/regles?salon=${room.code}`} className="text-sm text-amber-400 hover:text-amber-300">Règles</Link>
+          <Link to="/roles" className="text-sm text-stone-400 hover:text-white">Rôles</Link>
+        </span>
       </div>
 
       <ul className="flex flex-col gap-2">
