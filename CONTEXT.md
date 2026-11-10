@@ -144,3 +144,11 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 
 ## Carte illustrée
 - `VillageMap` utilise `public/village.jpg` (864x1222) ; zones cliquables en polygones (SPOTS), lieu choisi = halo doré pulsé + reste assombri, lieu fermé = voile noir + croix rouge. Bouton « i » par lieu conservé.
+
+## Corrections et options (0015)
+- **Bug Mairie** : les trucages (boost, shield, backfire) ne comptaient qu'au 1er décompte ; ils comptent désormais aussi aux départages, limités aux candidats. Front : plus de cible par défaut pour le boost Mairie et le cadeau Taverne (Valider bloqué tant que la cible n'est pas choisie).
+- `night_kill(room, round, loc)` : meurtre d'un lieu (vivants seulement, max 1 mort, hantise incluse).
+- **Planque** (`planque_kill_first`, défaut 1) : meurtre de la Planque d'abord, sabotage réussi s'il n'y reste aucun non-saboteur vivant. Même lieu visé par 2 saboteurs : seul le premier paie (`shared`).
+- **Casino saboté** (`casino_sabotage_steal`, 1) : tirages gagnants → 2×mise versés au saboteur du casino (`casino_steal` dans son résultat).
+- **Cimetière nominatif** (`cemetery_named`, 1) : param `{ghost}` (mort non saboteur) au lieu de `{tomb}` ; GhostPanel masque la tombe (et le suspect pour un fantôme saboteur).
+- **Hantise** (`ghost_haunt_on` 1, `ghost_haunt_kill_pct` 75) : table `ghost_haunts`, RPC `set_ghost_haunt(room, ally, player)` ; get_ghost_report renvoie `haunt`. Bots fantômes saboteurs hantent au hasard.

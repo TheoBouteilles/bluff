@@ -24,7 +24,7 @@ import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
-import { advancePhase, cancelNightAction, cancelVote, errorMessage, resetRoom, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
+import { advancePhase, cancelNightAction, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import type { Player } from '../types'
 
@@ -141,6 +141,13 @@ export default function Game() {
     })
   }
 
+  async function hauntGhost(allyId: string | null) {
+    await run(async () => {
+      await setGhostHaunt(roomId, allyId, tIsMe ? undefined : tId)
+      await ghost.reload()
+    })
+  }
+
   async function tombGhost(tomb: number) {
     if (!window.confirm(`Choisir la tombe n°${tomb} ? Ce choix est définitif.`)) return
     await run(async () => {
@@ -156,6 +163,14 @@ export default function Game() {
     })
   }
 
+  const namedCemetery = (cfg.settings.cemetery_named ?? 1) === 1
+  const ghostExtra = {
+    namedCemetery,
+    isSaboteur: secret?.team === 'saboteurs',
+    allies: (allies ?? []).filter((p) => p.is_alive),
+    hauntPct: (cfg.settings.ghost_haunt_on ?? 1) === 1 ? (cfg.settings.ghost_haunt_kill_pct ?? 75) : null,
+    onHaunt: hauntGhost,
+  }
   const notReady =
     (room.phase === 'night' && !!progress && progress.played < progress.total) ||
     (room.phase === 'vote' && !!voteProgress && voteProgress.played < voteProgress.total)
@@ -269,7 +284,7 @@ export default function Game() {
           onCancel={unvote}
         />
       ) : room.phase === 'night' && !target.is_alive ? (
-        <GhostPanel mode="night" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} />
+        <GhostPanel mode="night" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} {...ghostExtra} />
       ) : room.phase === 'night' ? (
         <NightPanel
           key={tId}
@@ -280,6 +295,8 @@ export default function Game() {
           isSaboteur={secret?.team === 'saboteurs'}
           choice={choices[tId]}
           closed={players.some((p) => !p.is_alive) ? closed : [...closed, 'cimetiere']}
+          ghosts={players.filter((p) => !p.is_alive && teamRevealed(p.id) !== 'saboteurs')}
+          namedCemetery={namedCemetery}
           onValidate={choose}
           onCancel={unchoose}
         />
@@ -288,7 +305,7 @@ export default function Game() {
       )}
 
       {!target.is_alive && room.phase !== 'night' && room.phase !== 'ended' && (
-        <GhostPanel mode="info" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} />
+        <GhostPanel mode="info" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} {...ghostExtra} />
       )}
 
       {error && <p className="text-red-400">{error}</p>}

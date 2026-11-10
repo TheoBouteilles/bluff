@@ -14,6 +14,11 @@ type Props = {
   onHint: (suspectId: string | null) => void
   tombCount: number
   onTomb: (tomb: number) => void
+  namedCemetery: boolean
+  isSaboteur: boolean
+  allies: Player[] // Saboteurs vivants (pour la hantise)
+  hauntPct: number | null // null = option désactivée
+  onHaunt: (allyId: string | null) => void
 }
 
 const chip = (active: boolean) =>
@@ -23,7 +28,7 @@ const chip = (active: boolean) =>
       : 'border-amber-800/40 bg-stone-900/80 hover:border-amber-600/60'
   }`
 
-export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint, tombCount, onTomb }: Props) {
+export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint, tombCount, onTomb, namedCemetery, isSaboteur, allies, hauntPct, onHaunt }: Props) {
   const find = (id: string) => players.find((p) => p.id === id)
   const label = (id: string) => {
     const p = find(id)
@@ -63,6 +68,27 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
         </section>
       )}
 
+      {mode === 'night' && isSaboteur && hauntPct !== null && (
+        <section className={`${panelClass} p-4`}>
+          <h2 className="text-lg font-bold text-red-300">💀 Hanter un allié</h2>
+          <p className="mt-1 text-sm text-stone-400">
+            Suis un Saboteur vivant cette nuit : là où il va, la chance de meurtre monte à au moins {hauntPct} %.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {allies.map((p) => (
+              <button key={p.id} type="button" onClick={() => onHaunt(report?.haunt === p.id ? null : p.id)} className={chip(report?.haunt === p.id)}>
+                <span className="text-xl">{AVATARS[p.avatar].emoji}</span>
+                <span className="font-semibold">{p.nickname}</span>
+              </button>
+            ))}
+          </div>
+          {allies.length === 0 && <p className="mt-2 text-sm text-stone-500">Aucun Saboteur vivant à accompagner.</p>}
+          <p className="mt-2 text-center text-sm text-stone-400">
+            {report?.haunt ? 'Hantise enregistrée (touche-le pour annuler).' : 'Tu ne hantes personne cette nuit.'}
+          </p>
+        </section>
+      )}
+
       {past.length > 0 && (
         <section className={`${panelClass} p-4`}>
           <h2 className="text-lg font-bold text-amber-100">Tes observations</h2>
@@ -77,6 +103,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
         </section>
       )}
 
+      {!namedCemetery && (
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">Ta tombe</h2>
         <p className="mt-1 text-sm text-stone-400">
@@ -94,11 +121,13 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
           </div>
         )}
       </section>
+      )}
 
+      {!(namedCemetery && isSaboteur) && (
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">Ton suspect</h2>
         <p className="mt-1 text-sm text-stone-400">
-          Désigne le méchant probable. Un vivant qui trouvera ta tombe au Cimetière recevra ce nom. Tu peux le changer
+          Désigne le méchant probable. {namedCemetery ? 'Un vivant qui t’interroge au Cimetière recevra ce nom.' : 'Un vivant qui trouvera ta tombe au Cimetière recevra ce nom.'} Tu peux le changer
           à tout moment, ou mentir.
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -118,6 +147,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
           {report?.suspect ? `Suspect actuel : ${label(report.suspect)} (touche-le pour l’effacer).` : 'Aucun suspect désigné.'}
         </p>
       </section>
+      )}
     </div>
   )
 }

@@ -78,17 +78,18 @@ export default function DayPanel({ report, players }: Props) {
   }
   if (r.cimetiere) {
     const c = r.cimetiere
+    const where = c.ghost ? `Tombe de ${nameOf(c.ghost)}` : `Tombe ${c.tomb}`
     if (!c.ok) {
-      events.push(<>🪦 Tu n’avais plus de quoi payer : la tombe {c.tomb} est restée silencieuse.</>)
+      events.push(<>🪦 Tu n’avais plus de quoi payer : la tombe est restée silencieuse.</>)
     } else if (c.spirits.length === 0) {
-      events.push(<>🪦 Tombe {c.tomb} : personne ne répond. Aucun fantôme n’a choisi cette tombe.</>)
+      events.push(<>🪦 {where} : personne ne répond. Aucun fantôme n’a choisi cette tombe.</>)
     } else {
       for (const sp of c.spirits) {
         events.push(
           sp.suspect_id ? (
-            <>👻 Tombe {c.tomb} : l’esprit de <strong className="text-amber-300">{nameOf(sp.ghost_id)}</strong> te murmure que <strong className="text-red-400">{nameOf(sp.suspect_id)}</strong> est suspect. (Un fantôme peut mentir.)</>
+            <>👻 {where} : l’esprit de <strong className="text-amber-300">{nameOf(sp.ghost_id)}</strong> te murmure que <strong className="text-red-400">{nameOf(sp.suspect_id)}</strong> est suspect. (Un fantôme peut mentir.)</>
           ) : (
-            <>👻 Tombe {c.tomb} : l’esprit de <strong className="text-amber-300">{nameOf(sp.ghost_id)}</strong> n’a aucun soupçon à te confier.</>
+            <>👻 {where} : l’esprit de <strong className="text-amber-300">{nameOf(sp.ghost_id)}</strong> n’a aucun soupçon à te confier.</>
           ),
         )
       }
@@ -97,11 +98,14 @@ export default function DayPanel({ report, players }: Props) {
   if (r.sabotage) {
     events.push(
       r.sabotage.success ? (
-        <>💀 Sabotage réussi : <strong className="text-amber-300">{locName(r.sabotage.location)}</strong> a été saboté cette nuit, en secret.</>
+        <>💀 Sabotage réussi : <strong className="text-amber-300">{locName(r.sabotage.location)}</strong> a été saboté cette nuit, en secret.{r.sabotage.shared ? ' (Un allié visait déjà ce lieu : rien payé.)' : ''}</>
       ) : (
-        <>💀 Sabotage raté : quelqu’un d’extérieur était à la Planque. Les jetons sont perdus.</>
+        <>💀 Sabotage raté : quelqu’un d’extérieur est resté à la Planque.{r.sabotage.shared ? '' : ' Les jetons sont perdus.'}</>
       ),
     )
+  }
+  if (r.casino_steal) {
+    events.push(<>🎰 Casino saboté : tu empoches les gains des joueurs, <strong className="text-amber-300">+{r.casino_steal} jetons</strong>.</>)
   }
 
   return (

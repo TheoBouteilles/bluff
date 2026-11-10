@@ -62,6 +62,16 @@ export const SETTING_GROUPS: SettingGroup[] = [
     ],
   },
   {
+    title: 'Options de jeu',
+    settings: [
+      { key: 'planque_kill_first', label: 'Planque : meurtre avant sabotage', min: 0, max: 1, default: 1, format: yesNo, hint: 'Oui : si le Saboteur tue le seul intrus de la Planque, son sabotage réussit' },
+      { key: 'casino_sabotage_steal', label: 'Casino saboté : le Saboteur empoche les gains', min: 0, max: 1, default: 1, format: yesNo, hint: 'Ce que les joueurs auraient gagné va au Saboteur qui a saboté' },
+      { key: 'cemetery_named', label: 'Cimetière : tombes nominatives', min: 0, max: 1, default: 1, format: yesNo, hint: 'Oui : on choisit le fantôme (non Saboteur) par son nom. Non : tombes numérotées choisies au hasard' },
+      { key: 'ghost_haunt_on', label: 'Fantôme Saboteur : hanter un allié', min: 0, max: 1, default: 1, format: yesNo, hint: 'Il suit un Saboteur vivant : chance de meurtre augmentée dans son lieu' },
+      { key: 'ghost_haunt_kill_pct', label: 'Chance de meurtre avec hantise (minimum)', min: 0, max: 100, step: 5, unit: '%', default: 75 },
+    ],
+  },
+  {
     title: 'Fantômes',
     settings: [
       { key: 'tomb_count', label: 'Nombre de tombes au Cimetière', min: 2, max: 6, default: 3 },

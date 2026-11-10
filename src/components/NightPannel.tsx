@@ -16,6 +16,8 @@ type Props = {
   isSaboteur: boolean
   choice?: NightChoice
   closed: string[]
+  ghosts: Player[] // fantômes consultables au Cimetière (mode nominatif)
+  namedCemetery: boolean
   onValidate: (locationId: string, params: NightParams) => Promise<void> | void
   onCancel: () => Promise<void> | void
 }
@@ -34,7 +36,7 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, onValidate, onCancel }: Props) {
+export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, ghosts, namedCemetery, onValidate, onCancel }: Props) {
   // Brouillon local : rien n'est enregistré avant « Valider ». Une fois validé, le choix est verrouillé jusqu'à « Retour ».
   const [draft, setDraft] = useState<NightChoice | null>(null)
   const validated = !!choice
@@ -112,7 +114,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               className={chip(action === 'don', tokens < COSTS.don)}
               onClick={() => {
                 setRumOpen(false)
-                onChoose('taverne', { action: 'don', target: others[0]?.id })
+                onChoose('taverne', { action: 'don' })
               }}
             >
               Offrir {COSTS.don} jeton
@@ -191,13 +193,14 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               type="button"
               disabled={tokens < COSTS.mairie}
               className={chip(rig === 'boost', tokens < COSTS.mairie)}
-              onClick={() => onChoose('mairie', { rig: 'boost', target: params.target ?? others[0]?.id })}
+              onClick={() => onChoose('mairie', { rig: 'boost' })}
             >
               +{COSTS.mairieBoost} voix contre un joueur
             </button>
           </div>
           {rig === 'boost' && (
             <div className="flex flex-wrap gap-2">
+              {!params.target && <p className="w-full text-xs text-amber-400">Choisis le joueur visé :</p>}
               {others.map((p) => playerChip(p, params.target === p.id, () => onChoose('mairie', { rig: 'boost', target: p.id })))}
             </div>
           )}
@@ -229,8 +232,28 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             ))}
           </div>
           <p className="text-xs text-stone-500">
-            Casino : mises perdues. Taverne : rumeurs fausses. Poste de Garde : lieu faux. Mairie : le tricheur reçoit une voix contre lui. Échec (jetons perdus) si un joueur hors Saboteurs se trouve aussi à la Planque.
+            Casino : mises perdues. Taverne : rumeurs fausses. Poste de Garde : lieu faux. Mairie : le tricheur reçoit une voix contre lui. Le meurtre de la Planque passe d’abord : échec (jetons perdus) si un joueur hors Saboteurs y reste en vie. Deux Saboteurs sur le même lieu : un seul paie.
           </p>
+        </Options>
+      )
+    }
+    if (id === 'cimetiere' && namedCemetery) {
+      const canPay = tokens >= COSTS.cimetiere
+      return (
+        <Options title={`Interroger un fantôme (${COSTS.cimetiere} jeton${COSTS.cimetiere > 1 ? 's' : ''}) : il te confie son suspect`}>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => onChoose('cimetiere', {})} className={chip(!params.ghost)}>
+              Personne (gratuit)
+            </button>
+            {ghosts.map((g) => (
+              <button key={g.id} type="button" disabled={!canPay} onClick={() => onChoose('cimetiere', { ghost: g.id })} className={chip(params.ghost === g.id, !canPay)}>
+                🪦 {AVATARS[g.avatar].emoji} {g.nickname}
+              </button>
+            ))}
+          </div>
+          {ghosts.length === 0 && <p className="text-xs text-stone-500">Aucun fantôme à interroger (les Saboteurs éliminés ne parlent pas).</p>}
+          {!canPay && <p className="text-xs text-stone-500">Il te faut {COSTS.cimetiere} jeton pour interroger un fantôme.</p>}
+          <p className="text-xs text-stone-500">Un fantôme peut mentir.</p>
         </Options>
       )
     }
@@ -335,10 +358,10 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
         <button
           type="button"
           onClick={validate}
-          disabled={!loc || busy || (loc === 'taverne' && rumOpen && params.action !== 'rumeur')}
+          disabled={!loc || busy || (loc === 'taverne' && rumOpen && params.action !== 'rumeur') || (params.action === 'don' && !params.target) || (params.rig === 'boost' && !params.target)}
           className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 font-semibold text-stone-950 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {loc ? `Valider : ${selectedLoc?.name}` : 'Choisis un lieu pour valider'}
+          {!loc ? 'Choisis un lieu pour valider' : (params.action === 'don' || params.rig === 'boost') && !params.target ? 'Choisis le joueur visé' : `Valider : ${selectedLoc?.name}`}
         </button>
       )}
     </div>
