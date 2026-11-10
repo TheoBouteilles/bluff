@@ -65,10 +65,11 @@ export const SETTING_GROUPS: SettingGroup[] = [
     title: 'Options de jeu',
     settings: [
       { key: 'planque_kill_first', label: 'Planque : meurtre avant sabotage', min: 0, max: 1, default: 1, format: yesNo, hint: 'Oui : si le Saboteur tue le seul intrus de la Planque, son sabotage réussit' },
-      { key: 'casino_sabotage_steal', label: 'Casino saboté : le Saboteur empoche les gains', min: 0, max: 1, default: 1, format: yesNo, hint: 'Ce que les joueurs auraient gagné va au Saboteur qui a saboté' },
+      { key: 'casino_sabotage_steal', label: 'Casino saboté : le Saboteur empoche les gains', min: 0, max: 1, default: 1, format: yesNo, hint: 'La moitié des mises jouées (arrondie au supérieur) va au Saboteur qui a saboté' },
       { key: 'cemetery_named', label: 'Cimetière : tombes nominatives', min: 0, max: 1, default: 1, format: yesNo, hint: 'Oui : on choisit le fantôme (non Saboteur) par son nom. Non : tombes numérotées choisies au hasard' },
       { key: 'ghost_haunt_on', label: 'Fantôme Saboteur : hanter un allié', min: 0, max: 1, default: 1, format: yesNo, hint: 'Il suit un Saboteur vivant : chance de meurtre augmentée dans son lieu' },
-      { key: 'ghost_haunt_kill_pct', label: 'Chance de meurtre avec hantise (minimum)', min: 0, max: 100, step: 5, unit: '%', default: 75 },
+      { key: 'ghost_haunt_bonus_pct', label: 'Hantise : bonus de meurtre par fantôme', min: 0, max: 100, step: 5, unit: '%', default: 25, hint: 'Ajouté à la chance du lieu (ex. égalité 50 % → 75 %)' },
+      { key: 'saboteur_vision', label: 'Saboteurs : voir les lieux des alliés', min: 0, max: 1, default: 1, format: yesNo, hint: 'Pendant la nuit, les Saboteurs et fantômes Saboteurs voient les lieux validés de leurs alliés et les hantises' },
     ],
   },
   {

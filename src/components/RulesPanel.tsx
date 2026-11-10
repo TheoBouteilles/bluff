@@ -27,7 +27,7 @@ export default function RulesPanel({ settings }: Props) {
   const costs: Record<string, string> = {
     casino: `Mise de 0 à ${s('casino_max')} jetons, ${s('casino_win_pct')} % de chance de gagner le double.`,
     taverne: `Cadeau : ${j(s('don_cost'))}. Rumeur sur 3 joueurs : ${j(s('rumeur3_cost'))}, sur 2 joueurs : ${j(s('rumeur2_cost'))}.${small > 0 ? ` Jusqu’à ${small} joueurs : exactement 3 cibles, ${j(s('rumeur_small_cost'))}.` : ''}`,
-    planque: `Saboteurs : ${j(s('planque_cost'))} pour saboter un lieu en secret, la même nuit. ${s('planque_kill_first') === 1 ? 'Le meurtre est résolu avant le sabotage.' : 'Un intrus présent fait échouer le sabotage, même s’il meurt.'}${s('casino_sabotage_steal') === 1 ? ' Casino saboté : le Saboteur empoche les gains.' : ''}`,
+    planque: `Saboteurs : ${j(s('planque_cost'))} pour saboter un lieu en secret, la même nuit. ${s('planque_kill_first') === 1 ? 'Le meurtre est résolu avant le sabotage.' : 'Un intrus présent fait échouer le sabotage, même s’il meurt.'}${s('casino_sabotage_steal') === 1 ? ' Casino saboté : le Saboteur empoche la moitié des mises jouées.' : ''}`,
     poste_garde: `Enquête sur un joueur : ${j(s('poste_garde_cost'))}.`,
     mairie: `Trucage : ${j(s('mairie_cost'))} (+${s('mairie_boost')} voix contre un joueur, ou voix reçues annulées).`,
     cimetiere: s('cemetery_named') === 1 ? `Interroger un fantôme par son nom : ${j(s('cemetery_cost'))}. Ouvert après le premier mort.` : `Choisir une tombe : ${j(s('cemetery_cost'))} (${s('tomb_count')} tombes). Ouvert après le premier mort.`,
@@ -90,7 +90,7 @@ export default function RulesPanel({ settings }: Props) {
       <Section title="Vote et égalités">
         <List items={[
           'Les voix sont publiques après le dépouillement, les votes individuels restent secrets.',
-          'Les trucages de la Mairie comptent aussi lors des revotes (si le joueur visé est candidat).',
+          'Les trucages de la Mairie ne comptent qu’au premier dépouillement, pas lors des revotes.',
           s('vote_runoff_max') > 0
             ? `En cas d’égalité, on revote entre les ex æquo (jusqu’à ${s('vote_runoff_max')} fois), puis tirage au sort.`
             : 'En cas d’égalité, personne n’est éliminé.',
@@ -102,7 +102,8 @@ export default function RulesPanel({ settings }: Props) {
           'Un joueur éliminé devient fantôme : il ne vote plus ni ne joue, et ne parle plus à la table.',
           'Chaque nuit il observe gratuitement un joueur vivant (il saura où il est allé), choisit une tombe (définitive) et désigne un suspect, qu’il peut mentir.',
           s('cemetery_named') === 1 ? 'Au Cimetière, un vivant interroge un fantôme non Saboteur par son nom et reçoit son suspect.' : 'Un vivant qui choisit la même tombe au Cimetière reçoit le suspect du fantôme.',
-          ...(s('ghost_haunt_on') === 1 ? [`Fantôme Saboteur : chaque nuit il peut hanter un Saboteur vivant ; dans le lieu de celui-ci, la chance de meurtre est d’au moins ${s('ghost_haunt_kill_pct')} %.`] : []),
+          ...(s('ghost_haunt_on') === 1 ? [`Fantôme Saboteur : chaque nuit il peut hanter un Saboteur vivant ; dans le lieu de celui-ci, la chance de meurtre gagne ${s('ghost_haunt_bonus_pct')} points par fantôme (ex. égalité ${s('kill_tie_pct')} % → ${Math.min(100, s('kill_tie_pct') + s('ghost_haunt_bonus_pct'))} %).`] : []),
+          ...(s('saboteur_vision') === 1 ? ['Vision des Saboteurs : pendant la nuit, les Saboteurs (vivants ou fantômes) voient les lieux validés de leurs alliés vivants et les hantises.'] : []),
         ]} />
       </Section>
 

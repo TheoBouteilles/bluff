@@ -6,6 +6,7 @@ type Props = {
   closed: string[]
   onSelect: (locationId: string) => void
   onInfo: (locationId: string) => void
+  marks?: Record<string, string> // pastille par lieu (ex. allié Saboteur)
 }
 
 // Carte illustrée (public/village.jpg, 864 x 1222). Chaque lieu est une zone cliquable posée sur l'image :
@@ -22,7 +23,7 @@ const SPOTS: Record<string, Spot> = {
   maison: { poly: '575,830 800,820 864,900 864,1100 575,1100', c: [715, 970], i: [830, 850] },
 }
 
-export default function VillageMap({ selected, closed, onSelect, onInfo }: Props) {
+export default function VillageMap({ selected, closed, onSelect, onInfo, marks = {} }: Props) {
   const keyHandler = (id: string, enabled: boolean) => (e: KeyboardEvent) => {
     if (enabled && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault()
@@ -84,6 +85,12 @@ export default function VillageMap({ selected, closed, onSelect, onInfo }: Props
                 </>
               )}
             </g>
+            {marks[l.id] && (
+              <g pointerEvents="none">
+                <circle cx={cx} cy={cy - 70} r="34" fill="#450a0a" fillOpacity="0.9" stroke="#ef4444" strokeWidth="4" />
+                <text x={cx} y={cy - 57} textAnchor="middle" fontSize="36">{marks[l.id]}</text>
+              </g>
+            )}
             {/* bouton règles (n'effectue pas de choix) */}
             <g
               role="button"

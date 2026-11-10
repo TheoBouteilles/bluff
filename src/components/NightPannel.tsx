@@ -18,6 +18,7 @@ type Props = {
   closed: string[]
   ghosts: Player[] // fantômes consultables au Cimetière (mode nominatif)
   namedCemetery: boolean
+  allyInfo?: { name: string; location: string | null; haunted: string[] }[] // vision des Saboteurs
   onValidate: (locationId: string, params: NightParams) => Promise<void> | void
   onCancel: () => Promise<void> | void
 }
@@ -36,7 +37,7 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, ghosts, namedCemetery, onValidate, onCancel }: Props) {
+export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, ghosts, namedCemetery, allyInfo, onValidate, onCancel }: Props) {
   // Brouillon local : rien n'est enregistré avant « Valider ». Une fois validé, le choix est verrouillé jusqu'à « Retour ».
   const [draft, setDraft] = useState<NightChoice | null>(null)
   const validated = !!choice
@@ -298,7 +299,22 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
         </p>
       )}
 
+      {allyInfo && allyInfo.length > 0 && (
+        <div className="rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-sm text-red-200">
+          <p className="text-xs uppercase tracking-wider text-red-300/70">Tes alliés cette nuit</p>
+          <ul className="mt-1">
+            {allyInfo.map((a) => (
+              <li key={a.name}>
+                💀 {a.name} : <strong>{a.location ? LOCATIONS.find((l) => l.id === a.location)?.name ?? a.location : 'pas encore validé'}</strong>
+                {a.haunted.length > 0 && <span className="text-red-300/80"> · hanté par {a.haunted.join(', ')}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <VillageMap
+        marks={Object.fromEntries((allyInfo ?? []).filter((a) => a.location && a.name !== 'Toi').map((a) => [a.location as string, '💀']))}
         selected={loc}
         closed={closed}
         onSelect={(id) => onChoose(id, {})}

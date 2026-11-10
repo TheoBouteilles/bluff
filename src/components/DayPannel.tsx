@@ -105,7 +105,7 @@ export default function DayPanel({ report, players }: Props) {
     )
   }
   if (r.casino_steal) {
-    events.push(<>🎰 Casino saboté : tu empoches les gains des joueurs, <strong className="text-amber-300">+{r.casino_steal} jetons</strong>.</>)
+    events.push(<>🎰 Casino saboté : tu empoches la moitié des mises jouées, <strong className="text-amber-300">+{r.casino_steal} jetons</strong>.</>)
   }
 
   return (

@@ -1,14 +1,14 @@
 -- =====================================================
 -- BLUFF : corrections et options (retours parties à 7)
---   * Mairie : les trucages comptent aussi aux départages (avant : seulement au 1er décompte, d'où une
---     égalité qui persistait), et seulement pour les candidats du départage.
 --   * Planque (option planque_kill_first) : le meurtre est résolu avant le sabotage ; le sabotage réussit
 --     s'il ne reste aucun joueur hors Saboteurs vivant à la Planque. Plusieurs saboteurs : chacun sabote
 --     un lieu, un même lieu n'est payé qu'une fois.
---   * Casino saboté (option casino_sabotage_steal) : le saboteur empoche ce que les joueurs auraient gagné.
+--   * Casino saboté (option casino_sabotage_steal) : le saboteur empoche la moitié des mises jouées.
 --   * Cimetière nominatif (option cemetery_named) : on choisit le fantôme (non saboteur) par son nom.
 --   * Fantôme saboteur (option ghost_haunt_on) : il hante un saboteur vivant ; dans son lieu, la chance
---     de meurtre est au moins ghost_haunt_kill_pct (75 %).
+--     de meurtre gagne ghost_haunt_bonus_pct (25 points) par fantôme.
+--   * Vision des Saboteurs (option saboteur_vision) : pendant la nuit, les Saboteurs vivants et les fantômes
+--     saboteurs voient les lieux validés de leurs alliés vivants et les hantises en cours.
 -- À coller dans Supabase > SQL Editor > New query > Run (après 0014)
 -- =====================================================
 
@@ -44,11 +44,12 @@ returns int language sql immutable as $$
     when 'night_seconds'    then 120
     when 'day_seconds'      then 300
     when 'vote_seconds'     then 90
-    when 'casino_sabotage_steal' then 1  -- casino saboté : le saboteur empoche les gains qui auraient dû être versés
+    when 'casino_sabotage_steal' then 1  -- casino saboté : le saboteur empoche la moitié des mises jouées
     when 'planque_kill_first'    then 1  -- Planque : le meurtre est résolu avant le sabotage
     when 'cemetery_named'        then 1  -- Cimetière : on choisit le fantôme par son nom (fantômes non saboteurs)
     when 'ghost_haunt_on'        then 1  -- fantôme saboteur : peut hanter le lieu d'un saboteur vivant
-    when 'ghost_haunt_kill_pct'  then 75 -- chance minimale de meurtre dans le lieu hanté
+    when 'ghost_haunt_bonus_pct' then 25 -- points de chance de meurtre ajoutés par fantôme qui hante
+    when 'saboteur_vision'       then 1  -- les Saboteurs (et fantômes saboteurs) voient les lieux validés de leurs alliés
   end;
 $$;
 
@@ -67,7 +68,7 @@ language sql immutable as $$
     ('tokens_start_saboteur_solo', 0, 10),
     ('timers_on', 0, 1), ('night_seconds', 30, 600), ('day_seconds', 30, 900), ('vote_seconds', 30, 600),
     ('casino_sabotage_steal', 0, 1), ('planque_kill_first', 0, 1), ('cemetery_named', 0, 1),
-    ('ghost_haunt_on', 0, 1), ('ghost_haunt_kill_pct', 0, 100),
+    ('ghost_haunt_on', 0, 1), ('ghost_haunt_bonus_pct', 0, 100), ('saboteur_vision', 0, 1),
     ('vote_runoff_max', 0, 9)
 $$;
 
@@ -91,6 +92,7 @@ declare
   v_v      int;
   v_pct    int;
   v_victim uuid;
+  v_h      int;
 begin
   if p_loc = 'maison' then return null; end if;
   select count(*) filter (where s.team = 'saboteurs'), count(*) filter (where s.team <> 'saboteurs')
@@ -105,16 +107,16 @@ begin
                 when v_s = v_v then public.room_param(p_room, 'kill_tie_pct')
                 else public.room_param(p_room, 'kill_minority_pct') end;
 
-  -- un fantôme saboteur hante ce lieu (il accompagne un saboteur vivant présent ici)
-  if public.room_param(p_room, 'ghost_haunt_on') = 1 and exists (
-       select 1 from public.ghost_haunts h
+  -- fantômes saboteurs qui hantent ce lieu (ils accompagnent un saboteur vivant présent ici) : +bonus chacun
+  if public.room_param(p_room, 'ghost_haunt_on') = 1 then
+    select count(*) into v_h from public.ghost_haunts h
        join public.players g on g.id = h.ghost_id and not g.is_alive
        join public.player_secrets gs on gs.player_id = h.ghost_id and gs.team = 'saboteurs'
        join public.night_actions na on na.room_id = p_room and na.round = p_round
                                    and na.player_id = h.ally_id and na.location = p_loc
        join public.players al on al.id = h.ally_id and al.is_alive
-       where h.room_id = p_room and h.round = p_round) then
-    v_pct := greatest(v_pct, public.room_param(p_room, 'ghost_haunt_kill_pct'));
+       where h.room_id = p_room and h.round = p_round;
+    v_pct := least(100, v_pct + v_h * public.room_param(p_room, 'ghost_haunt_bonus_pct'));
   end if;
 
   if random() * 100 >= v_pct then return null; end if;
@@ -158,7 +160,6 @@ declare
   v_kill    boolean;
   v_win_t   text;
   v_casino_sab uuid;
-  v_would   boolean;
   v_stolen  int := 0;
   v_kfirst  boolean := public.room_param(p_room_id, 'planque_kill_first') = 1;
   v_ghost   uuid;
@@ -277,13 +278,11 @@ begin
       v_stake := coalesce(public.try_int(a.params->>'stake'), 0);
       if v_stake > 0 then
         if public.spend_tokens(a.player_id, v_stake) then
-          v_would := random() * 100 < public.room_param(p_room_id, 'casino_win_pct');
-          v_win := v_would and not ('casino' = any(v_sab_locs));
-          -- casino saboté : le saboteur empoche ce que le joueur aurait gagné
-          if v_would and not v_win and v_casino_sab is not null
-             and public.room_param(p_room_id, 'casino_sabotage_steal') = 1 then
-            update public.player_secrets set tokens = tokens + 2 * v_stake where player_id = v_casino_sab;
-            v_stolen := v_stolen + 2 * v_stake;
+          v_win := not ('casino' = any(v_sab_locs))
+                   and random() * 100 < public.room_param(p_room_id, 'casino_win_pct');
+          -- casino saboté : on compte les mises perdues, le saboteur en touchera la moitié
+          if 'casino' = any(v_sab_locs) and a.player_id is distinct from v_casino_sab then
+            v_stolen := v_stolen + v_stake;
           end if;
           if v_win then
             update public.player_secrets set tokens = tokens + 2 * v_stake where player_id = a.player_id;
@@ -408,7 +407,10 @@ begin
     end if;
   end loop;
 
-  if v_stolen > 0 then
+  -- casino saboté : la moitié des mises jouées (arrondie au supérieur) va au saboteur
+  v_stolen := ceil(v_stolen / 2.0)::int;
+  if v_stolen > 0 and v_casino_sab is not null and public.room_param(p_room_id, 'casino_sabotage_steal') = 1 then
+    update public.player_secrets set tokens = tokens + v_stolen where player_id = v_casino_sab;
     perform public.add_night_result(p_room_id, v_round, v_casino_sab, jsonb_build_object('casino_steal', v_stolen));
   end if;
 
@@ -607,113 +609,6 @@ begin
   perform public.advance_phase(p_room_id, false);
 end $$;
 
-create or replace function public.resolve_vote(p_room_id uuid)
-returns void
-language plpgsql security definer set search_path = public as $$
-declare
-  v_round  int;
-  v_step   int;
-  v_cands  uuid[];
-  r        record;
-  v_max    int;
-  v_n_top  int;
-  v_elim   uuid;
-  v_team   text;
-  v_tally  jsonb;
-  v_win    text;
-  v_tied   uuid[];
-  v_runmax int := public.room_param(p_room_id, 'vote_runoff_max');
-  v_drawn  boolean := false;
-begin
-  select round, vote_step, vote_candidates into v_round, v_step, v_cands
-  from public.rooms where id = p_room_id;
-
-  -- Joueurs sans vote : les bots votent au hasard (parmi les candidats d'un départage), les humains s'abstiennent
-  for r in
-    select p.id, p.is_bot
-    from public.players p
-    where p.room_id = p_room_id and p.is_alive
-      and not exists (select 1 from public.votes v
-                      where v.room_id = p_room_id and v.round = v_round and v.voter_id = p.id)
-  loop
-    insert into public.votes (room_id, round, voter_id, target_id)
-    values (p_room_id, v_round, r.id,
-            case when r.is_bot
-                 then (select p2.id from public.players p2
-                       where p2.room_id = p_room_id and p2.is_alive and p2.id <> r.id
-                         and (v_cands is null or p2.id = any(v_cands))
-                       order by random() limit 1)
-                 else null end);
-  end loop;
-
-  -- Voix effectives. Les trucages de la Mairie comptent à chaque décompte (départages compris).
-  select coalesce(jsonb_object_agg(e.pid, e.c), '{}'::jsonb) into v_tally
-  from (
-    select u.pid, sum(u.c)::int as c
-    from (
-      select target_id as pid, count(*)::int as c from public.votes
-      where room_id = p_room_id and round = v_round and target_id is not null
-      group by target_id
-      union all
-      select vt.target_id, public.room_param(p_room_id, 'mairie_boost') from public.vote_tampering vt
-      join public.players rg on rg.id = vt.player_id and rg.is_alive
-      where vt.room_id = p_room_id and vt.round = v_round and vt.kind = 'boost'
-      union all
-      select vt.player_id, 1 from public.vote_tampering vt
-      join public.players rg on rg.id = vt.player_id and rg.is_alive
-      where vt.room_id = p_room_id and vt.round = v_round and vt.kind = 'backfire'
-    ) u
-    where u.pid is not null
-      and exists (select 1 from public.players pa where pa.id = u.pid and pa.is_alive)
-      and (v_cands is null or u.pid = any(v_cands))
-      and not exists (select 1 from public.vote_tampering sh
-                      where sh.room_id = p_room_id and sh.round = v_round
-                        and sh.kind = 'shield' and sh.player_id = u.pid)
-    group by u.pid
-  ) e
-  where e.c > 0;
-
-  select max(t.value::int) into v_max from jsonb_each_text(v_tally) t;
-  if v_max is not null then
-    select array_agg(t.key::uuid) into v_tied from jsonb_each_text(v_tally) t where t.value::int = v_max;
-    v_n_top := cardinality(v_tied);
-    if v_n_top = 1 then
-      v_elim := v_tied[1];
-    elsif v_step < v_runmax then
-      -- Égalité : nouveau vote entre les joueurs à égalité
-      insert into public.vote_runoffs (room_id, round, step, candidates, tally)
-      values (p_room_id, v_round, v_step + 1, v_tied, v_tally);
-      delete from public.votes where room_id = p_room_id and round = v_round;
-      update public.rooms
-      set vote_step = v_step + 1, vote_candidates = v_tied, phase_ends_at = null
-      where id = p_room_id;
-      return;
-    elsif v_runmax > 0 then
-      -- Départages épuisés : tirage au sort parmi les joueurs à égalité
-      v_elim := v_tied[1 + floor(random() * v_n_top)::int];
-      v_drawn := true;
-    end if;
-  end if;
-
-  if v_elim is not null then
-    update public.players set is_alive = false where id = v_elim;
-    select team into v_team from public.player_secrets where player_id = v_elim;
-  end if;
-
-  insert into public.vote_results (room_id, round, eliminated_id, eliminated_team, tied, tally, runoffs, drawn)
-  values (p_room_id, v_round, v_elim, v_team, (v_max is not null and v_elim is null), v_tally, v_step, v_drawn);
-
-  v_win := public.update_victory(p_room_id, true);
-
-  update public.rooms
-  set phase = case when v_win is null then 'result' else 'ended' end,
-      winner = v_win,
-      vote_step = 0,
-      vote_candidates = null,
-      phase_ends_at = null
-  where id = p_room_id;
-end $$;
-
 create or replace function public.reset_room(p_room_id uuid)
 returns void
 language plpgsql security definer set search_path = public as $$
@@ -798,6 +693,35 @@ begin
   on conflict (room_id, round, ghost_id) do update set ally_id = excluded.ally_id;
 end $$;
 
+-- Vision des Saboteurs : lieux validés des alliés vivants et hantises de la nuit en cours
+create or replace function public.get_saboteur_vision(p_room_id uuid, p_player_id uuid default null)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_room public.rooms;
+  v_me   public.players;
+begin
+  select * into v_room from public.rooms where id = p_room_id;
+  if not found then raise exception 'room_not_found'; end if;
+  v_me := public.resolve_target(p_room_id, p_player_id);
+  if public.room_param(p_room_id, 'saboteur_vision') <> 1
+     or v_room.status <> 'playing' or v_room.phase <> 'night'
+     or not exists (select 1 from public.player_secrets where player_id = v_me.id and team = 'saboteurs') then
+    return jsonb_build_object('allies', '[]'::jsonb, 'haunts', '[]'::jsonb);
+  end if;
+  return jsonb_build_object(
+    'allies', coalesce((select jsonb_agg(jsonb_build_object('player_id', p.id, 'location', na.location) order by p.id)
+                        from public.players p
+                        join public.player_secrets s on s.player_id = p.id and s.team = 'saboteurs'
+                        left join public.night_actions na on na.room_id = p_room_id and na.round = v_room.round and na.player_id = p.id
+                        where p.room_id = p_room_id and p.is_alive and p.id <> v_me.id), '[]'::jsonb),
+    'haunts', coalesce((select jsonb_agg(jsonb_build_object('ghost_id', h.ghost_id, 'ally_id', h.ally_id))
+                        from public.ghost_haunts h
+                        where h.room_id = p_room_id and h.round = v_room.round), '[]'::jsonb));
+end $$;
+
 revoke execute on function public.night_kill(uuid, int, text) from public, anon, authenticated;
 revoke execute on function public.set_ghost_haunt(uuid, uuid, uuid) from public, anon;
 grant execute on function public.set_ghost_haunt(uuid, uuid, uuid) to authenticated;
+revoke execute on function public.get_saboteur_vision(uuid, uuid) from public, anon;
+grant execute on function public.get_saboteur_vision(uuid, uuid) to authenticated;

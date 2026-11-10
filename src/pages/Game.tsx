@@ -22,6 +22,7 @@ import { useNightChoices } from '../hooks/useNightChoices'
 import { useNightProgress } from '../hooks/useNightProgress'
 import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
+import { useSaboteurVision } from '../hooks/useSaboteurVision'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
 import { advancePhase, cancelNightAction, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
@@ -58,6 +59,7 @@ export default function Game() {
   const closed = useClosures(room?.id, round, playing && room?.phase === 'night')
   const report = useDawnReport(room?.id, round, playing && room?.phase === 'day', targetId)
   const ghost = useGhostReport(room?.id, targetId, playing && !!target && !target.is_alive, `${round}-${room?.phase}`)
+  const vision = useSaboteurVision(room?.id, targetId, playing && room?.phase === 'night' && secret?.team === 'saboteurs' && (cfg.settings.saboteur_vision ?? 1) === 1)
   const allyIds = useAllies(room?.id, targetId, playing && secret?.team === 'saboteurs')
 
   useEffect(() => {
@@ -168,8 +170,9 @@ export default function Game() {
     namedCemetery,
     isSaboteur: secret?.team === 'saboteurs',
     allies: (allies ?? []).filter((p) => p.is_alive),
-    hauntPct: (cfg.settings.ghost_haunt_on ?? 1) === 1 ? (cfg.settings.ghost_haunt_kill_pct ?? 75) : null,
+    hauntPct: (cfg.settings.ghost_haunt_on ?? 1) === 1 ? (cfg.settings.ghost_haunt_bonus_pct ?? 25) : null,
     onHaunt: hauntGhost,
+    allyLocation: vision ? (id: string) => vision.allies.find((a) => a.player_id === id)?.location : undefined,
   }
   const notReady =
     (room.phase === 'night' && !!progress && progress.played < progress.total) ||
@@ -297,6 +300,11 @@ export default function Game() {
           closed={players.some((p) => !p.is_alive) ? closed : [...closed, 'cimetiere']}
           ghosts={players.filter((p) => !p.is_alive && teamRevealed(p.id) !== 'saboteurs')}
           namedCemetery={namedCemetery}
+          allyInfo={vision ? [...vision.allies.map((a) => a.player_id), ...(vision.haunts.some((h) => h.ally_id === tId) ? [tId] : [])].map((id) => ({
+            name: id === tId ? 'Toi' : players.find((p) => p.id === id)?.nickname ?? '?',
+            location: id === tId ? choices[tId]?.location ?? null : vision.allies.find((a) => a.player_id === id)?.location ?? null,
+            haunted: vision.haunts.filter((h) => h.ally_id === id).map((h) => players.find((p) => p.id === h.ghost_id)?.nickname ?? '?'),
+          })) : undefined}
           onValidate={choose}
           onCancel={unchoose}
         />

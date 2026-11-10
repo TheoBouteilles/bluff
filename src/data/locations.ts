@@ -28,7 +28,7 @@ export const LOCATIONS: GameLocation[] = [
   { id: 'planque', name: 'La Planque', icon: Skull, description: 'Un repaire obscur où l’on prépare de mauvais coups.', visibleCrossing: true,
     rules: [
       'Réservé aux Saboteurs pour agir : 2 jetons pour saboter en secret un lieu, la même nuit. Personne ne sait que c’est saboté.',
-      'Casino saboté : toutes les mises sont perdues (et le Saboteur empoche ce que les joueurs auraient gagné, selon les réglages). Taverne ou Poste de Garde sabotés : les informations données sont fausses. Mairie sabotée : celui qui truque reçoit une voix contre lui.',
+      'Casino saboté : toutes les mises sont perdues (et le Saboteur empoche la moitié des mises jouées, selon les réglages). Taverne ou Poste de Garde sabotés : les informations données sont fausses. Mairie sabotée : celui qui truque reçoit une voix contre lui.',
       'Le meurtre de la Planque est résolu d’abord (réglage par défaut) : le sabotage réussit s’il ne reste aucun joueur hors Saboteurs vivant à la Planque. Sinon, jetons perdus.',
       'Plusieurs Saboteurs à la Planque : chacun peut saboter un lieu différent ; si deux visent le même lieu, seul le premier paie.',
     ] },
