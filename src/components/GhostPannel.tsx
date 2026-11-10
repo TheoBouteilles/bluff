@@ -41,17 +41,20 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
   const past = (report?.watches ?? []).filter((w) => w.location !== null || w.round < round)
   const suspectOptions = players.filter((p) => p.id !== self?.id)
 
+  const haunter = isSaboteur && hauntPct !== null // fantôme Saboteur : il aide ses alliés au lieu d'espionner
+
   return (
     <div className="flex flex-col gap-3">
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-amber-100">👻 Tu es un fantôme</h2>
         <p className="mt-2 text-stone-400">
-          Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu peux observer les vivants
-          et laisser un indice.
+          {haunter
+            ? 'Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu restes un Saboteur : chaque nuit, tu peux hanter un allié encore en vie pour augmenter ses chances de meurtre.'
+            : 'Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu peux observer les vivants et laisser un indice.'}
         </p>
       </section>
 
-      {mode === 'night' && (
+      {mode === 'night' && !haunter && (
         <section className={`${panelClass} p-4`}>
           <h2 className="text-lg font-bold text-amber-100">Qui observer cette nuit ?</h2>
           <p className="mt-1 text-sm text-stone-400">À l’aube, tu sauras où il est allé. C’est gratuit.</p>

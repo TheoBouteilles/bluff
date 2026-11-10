@@ -18,7 +18,8 @@ type Props = {
   closed: string[]
   ghosts: Player[] // fantômes consultables au Cimetière (mode nominatif)
   namedCemetery: boolean
-  allyInfo?: { name: string; location: string | null; haunted: string[] }[] // vision des Saboteurs
+  allyInfo?: { name: string; location: string | null; validated: boolean; haunted: string[] }[] // vision des Saboteurs
+  onDraft?: (locationId: string | null) => void // partage le lieu envisagé avec les alliés Saboteurs
   onValidate: (locationId: string, params: NightParams) => Promise<void> | void
   onCancel: () => Promise<void> | void
 }
@@ -37,13 +38,16 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, ghosts, namedCemetery, allyInfo, onValidate, onCancel }: Props) {
+export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, ghosts, namedCemetery, allyInfo, onDraft, onValidate, onCancel }: Props) {
   // Brouillon local : rien n'est enregistré avant « Valider ». Une fois validé, le choix est verrouillé jusqu'à « Retour ».
   const [draft, setDraft] = useState<NightChoice | null>(null)
   const validated = !!choice
   const current = validated ? choice : draft
   const onChoose = (location: string, p: NightParams = {}) => {
-    if (!validated) setDraft({ location, params: p } as NightChoice)
+    if (!validated) {
+      setDraft({ location, params: p } as NightChoice)
+      if (location !== draft?.location) onDraft?.(location)
+    }
   }
   const [busy, setBusy] = useState(false)
   async function validate() {
@@ -55,6 +59,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
     if (busy) return
     setBusy(true)
     setDraft(choice ?? null)
+    if (choice) onDraft?.(choice.location)
     try { await onCancel() } finally { setBusy(false) }
   }
   const [rumTargets, setRumTargets] = useState<string[]>([])
@@ -305,7 +310,8 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
           <ul className="mt-1">
             {allyInfo.map((a) => (
               <li key={a.name}>
-                💀 {a.name} : <strong>{a.location ? LOCATIONS.find((l) => l.id === a.location)?.name ?? a.location : 'pas encore validé'}</strong>
+                💀 {a.name} : <strong>{a.location ? LOCATIONS.find((l) => l.id === a.location)?.name ?? a.location : 'pas encore décidé'}</strong>
+                {a.location && !a.validated && <span className="text-red-300/70"> (hésite encore…)</span>}
                 {a.haunted.length > 0 && <span className="text-red-300/80"> · hanté par {a.haunted.join(', ')}</span>}
               </li>
             ))}
@@ -314,7 +320,11 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
       )}
 
       <VillageMap
-        marks={Object.fromEntries((allyInfo ?? []).filter((a) => a.location && a.name !== 'Toi').map((a) => [a.location as string, '💀']))}
+        marks={(allyInfo ?? []).filter((a) => a.location && a.name !== 'Toi').reduce<Record<string, { count: number; validated: boolean }>>((m, a) => {
+          const k = a.location as string
+          m[k] = { count: (m[k]?.count ?? 0) + 1, validated: (m[k]?.validated ?? true) && a.validated }
+          return m
+        }, {})}
         selected={loc}
         closed={closed}
         onSelect={(id) => onChoose(id, {})}

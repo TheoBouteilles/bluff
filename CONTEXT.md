@@ -153,3 +153,7 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - **Cimetière nominatif** (`cemetery_named`, 1) : param `{ghost}` (mort non saboteur) au lieu de `{tomb}` ; GhostPanel masque la tombe (et le suspect pour un fantôme saboteur).
 - **Hantise** (`ghost_haunt_on` 1, `ghost_haunt_bonus_pct` 25) : +25 points de chance de meurtre par fantôme saboteur qui hante un saboteur vivant présent dans le lieu (cumulable, plafond 100). Table `ghost_haunts`, RPC `set_ghost_haunt`, get_ghost_report renvoie `haunt`. Bots fantômes saboteurs hantent au hasard.
 - **Vision des Saboteurs** (`saboteur_vision`, 1) : RPC `get_saboteur_vision(room, player)` → lieux validés des saboteurs vivants alliés + hantises de la nuit ; hook `useSaboteurVision` (poll 3 s) ; bandeau « Tes alliés » + pastille 💀 sur la carte, lieu de l'allié dans le panneau Hantise.
+
+## Vision directe (0016)
+- `night_drafts` + RPC `set_night_draft(room, location, player)` : le lieu touché sur la carte par un Saboteur est partagé avec ses alliés avant validation ; `get_saboteur_vision` renvoie `location` (validé sinon brouillon) + `validated`. Poll 2 s. Carte : 💀 plein = validé, pâle/pointillé = indécis, ×N si plusieurs alliés.
+- Fantôme Saboteur (hantise active) : plus de section « observer », texte adapté (il aide un allié au lieu d'espionner).

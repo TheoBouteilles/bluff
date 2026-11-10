@@ -17,7 +17,7 @@ export function useSaboteurVision(roomId: string | undefined, playerId: string |
         .then((v) => { if (!cancelled) setVision(v) })
         .catch(() => undefined)
     load()
-    const id = setInterval(load, 3000)
+    const id = setInterval(load, 2000)
     return () => { cancelled = true; clearInterval(id) }
   }, [roomId, playerId, enabled])
 

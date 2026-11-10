@@ -6,7 +6,7 @@ type Props = {
   closed: string[]
   onSelect: (locationId: string) => void
   onInfo: (locationId: string) => void
-  marks?: Record<string, string> // pastille par lieu (ex. allié Saboteur)
+  marks?: Record<string, { count: number; validated: boolean }> // alliés Saboteurs par lieu (plein = validé, pâle = indécis)
 }
 
 // Carte illustrée (public/village.jpg, 864 x 1222). Chaque lieu est une zone cliquable posée sur l'image :
@@ -87,8 +87,9 @@ export default function VillageMap({ selected, closed, onSelect, onInfo, marks =
             </g>
             {marks[l.id] && (
               <g pointerEvents="none">
-                <circle cx={cx} cy={cy - 70} r="34" fill="#450a0a" fillOpacity="0.9" stroke="#ef4444" strokeWidth="4" />
-                <text x={cx} y={cy - 57} textAnchor="middle" fontSize="36">{marks[l.id]}</text>
+                <circle cx={cx} cy={cy - 70} r="34" fill="#450a0a" fillOpacity={marks[l.id].validated ? 0.92 : 0.6} stroke="#ef4444" strokeWidth="4" strokeDasharray={marks[l.id].validated ? undefined : '10 7'} />
+                <text x={cx} y={cy - 57} textAnchor="middle" fontSize="36" opacity={marks[l.id].validated ? 1 : 0.65}>{'💀'}</text>
+                {marks[l.id].count > 1 && <text x={cx + 30} y={cy - 85} textAnchor="middle" fontSize="28" fontWeight="800" fill="#fecaca">×{marks[l.id].count}</text>}
               </g>
             )}
             {/* bouton règles (n'effectue pas de choix) */}

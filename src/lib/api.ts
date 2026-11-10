@@ -156,9 +156,11 @@ export const getGhostReport = (roomId: string, playerId?: string) =>
 export const setGhostHaunt = (roomId: string, allyId: string | null, playerId?: string) =>
   rpc<void>('set_ghost_haunt', { p_room_id: roomId, p_ally: allyId, p_player_id: playerId ?? null })
 export type SaboteurVision = {
-  allies: { player_id: string; location: string | null }[]
+  allies: { player_id: string; location: string | null; validated?: boolean }[]
   haunts: { ghost_id: string; ally_id: string }[]
 }
+export const setNightDraft = (roomId: string, location: string | null, playerId?: string) =>
+  rpc<void>('set_night_draft', { p_room_id: roomId, p_location: location, p_player_id: playerId ?? null })
 export const getSaboteurVision = (roomId: string, playerId?: string) =>
   rpc<SaboteurVision>('get_saboteur_vision', { p_room_id: roomId, p_player_id: playerId ?? null })
 export const setGhostTomb = (roomId: string, tomb: number, playerId?: string) =>

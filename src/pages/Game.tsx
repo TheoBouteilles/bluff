@@ -25,7 +25,7 @@ import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSaboteurVision } from '../hooks/useSaboteurVision'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
-import { advancePhase, cancelNightAction, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
+import { advancePhase, cancelNightAction, setNightDraft, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import type { Player } from '../types'
 
@@ -113,6 +113,12 @@ export default function Game() {
       await submitNightAction(roomId, location, tIsMe ? undefined : tId, params)
       await reloadChoices()
     })
+  }
+
+  function draftNight(loc: string | null) {
+    if (secret?.team === 'saboteurs' && (cfg.settings.saboteur_vision ?? 1) === 1) {
+      setNightDraft(roomId, loc, tIsMe ? undefined : tId).catch(() => undefined)
+    }
   }
 
   async function unchoose() {
@@ -303,8 +309,10 @@ export default function Game() {
           allyInfo={vision ? [...vision.allies.map((a) => a.player_id), ...(vision.haunts.some((h) => h.ally_id === tId) ? [tId] : [])].map((id) => ({
             name: id === tId ? 'Toi' : players.find((p) => p.id === id)?.nickname ?? '?',
             location: id === tId ? choices[tId]?.location ?? null : vision.allies.find((a) => a.player_id === id)?.location ?? null,
+            validated: id === tId ? !!choices[tId] : !!vision.allies.find((a) => a.player_id === id)?.validated,
             haunted: vision.haunts.filter((h) => h.ally_id === id).map((h) => players.find((p) => p.id === h.ghost_id)?.nickname ?? '?'),
           })) : undefined}
+          onDraft={draftNight}
           onValidate={choose}
           onCancel={unchoose}
         />
