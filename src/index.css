@@ -1,25 +1,98 @@
 @import "tailwindcss";
 
+/* ---------- Thème pixel art (sépia / nuit) ---------- */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Cinzel", Georgia, serif;
+  --font-sans: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Pixelify Sans", "Silkscreen", monospace;
+  --font-pixel: "Silkscreen", "Pixelify Sans", monospace;
 
-  /* Effet « brillance » quand le compteur de jetons change */
+  --color-ink: #1b1410;      /* contours */
+  --color-night: #101820;    /* fond */
+  --color-night-2: #182230;  /* panneaux */
+  --color-night-3: #22303f;  /* panneaux clairs / bordure interne */
+  --color-paper: #f1e6cc;    /* crème */
+  --color-paper-2: #e2d2ae;
+  --color-sand: #d9b98a;
+  --color-gold: #e6c25a;
+  --color-gold-d: #a8842b;
+  --color-blood: #a84a44;
+  --color-blood-d: #6e2b27;
+  --color-sea: #2f5068;
+  --color-moss: #2e6a5f;
+  --color-mist: #c9d3dc;
+  --color-mist-d: #8f9aa6;
+
   --animate-shine: shine 1.2s ease-out;
+  --animate-bob: bob 1.2s steps(2, jump-none) infinite;
+  --animate-pop: pop 260ms cubic-bezier(.2,1.6,.4,1) both;
+  --animate-rise: rise 320ms ease-out both;
+  --animate-blink-slow: blinkslow 1.2s steps(2) infinite;
+  --animate-shake: shake 420ms steps(6) both;
+  --animate-float: float 2.4s ease-in-out infinite;
+
   @keyframes shine {
-    0%   { filter: brightness(1);   box-shadow: 0 0 0 0 rgb(252 211 77 / 0.7); }
-    50%  { filter: brightness(1.5); box-shadow: 0 0 18px 6px rgb(252 211 77 / 0.5); }
-    100% { filter: brightness(1);   box-shadow: 0 0 0 0 rgb(252 211 77 / 0); }
+    0%   { filter: brightness(1); }
+    50%  { filter: brightness(1.6); }
+    100% { filter: brightness(1); }
   }
+  @keyframes bob { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes rise { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes blinkslow { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 }
 
 @layer base {
   html { color-scheme: dark; }
   body {
-    @apply bg-stone-950 font-sans text-amber-50 antialiased;
-    /* Lueur de bougie en haut de l'écran */
-    background-image: radial-gradient(ellipse at top, rgb(120 53 15 / 0.28), transparent 60%);
+    @apply bg-night font-sans text-paper antialiased;
+    /* Ciel de nuit en dégradé grossier (bandes), façon pixel */
+    background-image: linear-gradient(to bottom, #141c28 0, #141c28 160px, #101820 160px, #101820 420px, #0b1016 420px);
     background-attachment: fixed;
   }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0.02em; }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0.01em; }
+  ::selection { background: var(--color-gold); color: var(--color-ink); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@utility px-img {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Cadre pixel : bordure encre + liseré interne + ombre portée dure */
+@utility px-frame {
+  border: 3px solid var(--color-ink);
+  box-shadow: inset 0 0 0 2px var(--color-night-3), 4px 4px 0 0 var(--color-ink);
+  background-color: var(--color-night-2);
+}
+@utility px-frame-paper {
+  border: 3px solid var(--color-ink);
+  box-shadow: inset 0 0 0 2px #fff8e6, 4px 4px 0 0 var(--color-ink);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+@utility px-inset {
+  border: 3px solid var(--color-ink);
+  box-shadow: inset 3px 3px 0 0 rgb(0 0 0 / 0.35);
+}
+@utility px-press {
+  transition: transform 60ms steps(2), box-shadow 60ms steps(2);
+  &:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: inset 0 0 0 2px transparent, 0 0 0 0 var(--color-ink); }
+}
+/* Ticket perforé (cartes de rôle) : encoches rondes sur les côtés */
+@utility px-ticket {
+  --notch: 14px;
+  mask-image:
+    radial-gradient(circle at 0 var(--notch-y, 50%), transparent calc(var(--notch) / 2), #000 calc(var(--notch) / 2 + 1px)),
+    radial-gradient(circle at 100% var(--notch-y, 50%), transparent calc(var(--notch) / 2), #000 calc(var(--notch) / 2 + 1px));
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+/* Trame CRT très légère */
+@utility px-scan {
+  background-image: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
 }

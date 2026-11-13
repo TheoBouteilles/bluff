@@ -1,4 +1,4 @@
-import { AVATARS } from '../data/avatars'
+import { Avatar } from './Px'
 import { LOCATIONS } from '../data/locations'
 import type { GhostReport } from '../lib/api'
 import type { Player } from '../types'
@@ -23,17 +23,17 @@ type Props = {
 }
 
 const chip = (active: boolean) =>
-  `flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition ${
+  `flex items-center gap-2 border-2 px-3 py-2 text-left text-sm transition ${
     active
-      ? 'border-amber-500 bg-amber-900/20 text-amber-100'
-      : 'border-amber-800/40 bg-stone-900/80 hover:border-amber-600/60'
+      ? 'border-ink bg-paper text-ink'
+      : 'border-night-3 bg-night-2 hover:border-gold'
   }`
 
 export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint, tombCount, onTomb, namedCemetery, isSaboteur, allies, hauntPct, onHaunt, allyLocation }: Props) {
   const find = (id: string) => players.find((p) => p.id === id)
   const label = (id: string) => {
     const p = find(id)
-    return p ? `${AVATARS[p.avatar].emoji} ${p.nickname}` : 'Quelqu’un'
+    return p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
   }
   const locName = (id: string | null) => LOCATIONS.find((l) => l.id === id)?.name ?? 'nulle part'
   const alive = players.filter((p) => p.is_alive)
@@ -46,8 +46,8 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
   return (
     <div className="flex flex-col gap-3">
       <section className={`${panelClass} p-4`}>
-        <h2 className="text-lg font-bold text-amber-100">👻 Tu es un fantôme</h2>
-        <p className="mt-2 text-stone-400">
+        <h2 className="text-lg font-bold text-paper">👻 Tu es un fantôme</h2>
+        <p className="mt-2 text-mist-d">
           {haunter
             ? 'Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu restes un Saboteur : chaque nuit, tu peux hanter un allié encore en vie pour augmenter ses chances de meurtre.'
             : 'Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu peux observer les vivants et laisser un indice.'}
@@ -56,17 +56,17 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
 
       {mode === 'night' && !haunter && (
         <section className={`${panelClass} p-4`}>
-          <h2 className="text-lg font-bold text-amber-100">Qui observer cette nuit ?</h2>
-          <p className="mt-1 text-sm text-stone-400">À l’aube, tu sauras où il est allé. C’est gratuit.</p>
+          <h2 className="text-lg font-bold text-paper">Qui observer cette nuit ?</h2>
+          <p className="mt-1 text-sm text-mist-d">À l’aube, tu sauras où il est allé. C’est gratuit.</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {alive.map((p) => (
               <button key={p.id} type="button" onClick={() => onWatch(p.id)} className={chip(current === p.id)}>
-                <span className="text-xl">{AVATARS[p.avatar].emoji}</span>
+                <Avatar index={p.avatar} scale={2} />
                 <span className="font-semibold">{p.nickname}</span>
               </button>
             ))}
           </div>
-          <p className="mt-2 text-center text-sm text-stone-400">
+          <p className="mt-2 text-center text-sm text-mist-d">
             {current ? 'Choix enregistré. Tu peux encore le changer.' : 'Sans choix, tu n’observes personne.'}
           </p>
         </section>
@@ -74,23 +74,23 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
 
       {mode === 'night' && isSaboteur && hauntPct !== null && (
         <section className={`${panelClass} p-4`}>
-          <h2 className="text-lg font-bold text-red-300">💀 Hanter un allié</h2>
-          <p className="mt-1 text-sm text-stone-400">
+          <h2 className="text-lg font-bold text-[#f0b4ae]">💀 Hanter un allié</h2>
+          <p className="mt-1 text-sm text-mist-d">
             Suis un Saboteur vivant cette nuit : là où il va, la chance de meurtre gagne {hauntPct} points (cumulable entre fantômes).
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {allies.map((p) => (
               <button key={p.id} type="button" onClick={() => onHaunt(report?.haunt === p.id ? null : p.id)} className={chip(report?.haunt === p.id)}>
-                <span className="text-xl">{AVATARS[p.avatar].emoji}</span>
+                <Avatar index={p.avatar} scale={2} />
                 <span className="font-semibold">{p.nickname}</span>
                 {allyLocation && (
-                  <span className="ml-auto text-xs text-stone-400">{locName(allyLocation(p.id) ?? null) === 'nulle part' ? '…' : locName(allyLocation(p.id) ?? null)}</span>
+                  <span className="ml-auto text-xs text-mist-d">{locName(allyLocation(p.id) ?? null) === 'nulle part' ? '…' : locName(allyLocation(p.id) ?? null)}</span>
                 )}
               </button>
             ))}
           </div>
-          {allies.length === 0 && <p className="mt-2 text-sm text-stone-500">Aucun Saboteur vivant à accompagner.</p>}
-          <p className="mt-2 text-center text-sm text-stone-400">
+          {allies.length === 0 && <p className="mt-2 text-sm text-mist-d">Aucun Saboteur vivant à accompagner.</p>}
+          <p className="mt-2 text-center text-sm text-mist-d">
             {report?.haunt ? 'Hantise enregistrée (touche-le pour annuler).' : 'Tu ne hantes personne cette nuit.'}
           </p>
         </section>
@@ -98,12 +98,12 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
 
       {past.length > 0 && (
         <section className={`${panelClass} p-4`}>
-          <h2 className="text-lg font-bold text-amber-100">Tes observations</h2>
+          <h2 className="text-lg font-bold text-paper">Tes observations</h2>
           <ul className="mt-2 flex flex-col gap-1">
             {past.map((w) => (
               <li key={w.round}>
                 Nuit {w.round} : <strong>{label(w.target_id)}</strong> était{' '}
-                <strong className="text-amber-300">{w.location === null ? 'introuvable' : locName(w.location)}</strong>.
+                <strong className="text-gold">{w.location === null ? 'introuvable' : locName(w.location)}</strong>.
               </li>
             ))}
           </ul>
@@ -112,12 +112,12 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
 
       {!namedCemetery && (
       <section className={`${panelClass} p-4`}>
-        <h2 className="text-lg font-bold text-amber-100">Ta tombe</h2>
-        <p className="mt-1 text-sm text-stone-400">
+        <h2 className="text-lg font-bold text-paper">Ta tombe</h2>
+        <p className="mt-1 text-sm text-mist-d">
           Choisis en secret ta tombe au Cimetière. Un vivant qui choisit la même reçoit ton suspect. Le choix est définitif ; sans choix avant la prochaine nuit, elle est tirée au hasard.
         </p>
         {report?.tomb ? (
-          <p className="mt-3 text-center font-semibold text-amber-300">🪦 Ta tombe : n°{report.tomb} (définitive)</p>
+          <p className="mt-3 text-center font-semibold text-gold">🪦 Ta tombe : n°{report.tomb} (définitive)</p>
         ) : (
           <div className="mt-3 flex flex-wrap gap-2">
             {Array.from({ length: tombCount }, (_, i) => i + 1).map((n) => (
@@ -132,8 +132,8 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
 
       {!(namedCemetery && isSaboteur) && (
       <section className={`${panelClass} p-4`}>
-        <h2 className="text-lg font-bold text-amber-100">Ton suspect</h2>
-        <p className="mt-1 text-sm text-stone-400">
+        <h2 className="text-lg font-bold text-paper">Ton suspect</h2>
+        <p className="mt-1 text-sm text-mist-d">
           Désigne le méchant probable. {namedCemetery ? 'Un vivant qui t’interroge au Cimetière recevra ce nom.' : 'Un vivant qui trouvera ta tombe au Cimetière recevra ce nom.'} Tu peux le changer
           à tout moment, ou mentir.
         </p>
@@ -145,13 +145,13 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
               onClick={() => onHint(report?.suspect === p.id ? null : p.id)}
               className={chip(report?.suspect === p.id)}
             >
-              <span className="text-xl">{AVATARS[p.avatar].emoji}</span>
+              <Avatar index={p.avatar} scale={2} />
               <span className={`font-semibold ${p.is_alive ? '' : 'line-through opacity-60'}`}>{p.nickname}</span>
             </button>
           ))}
         </div>
-        <p className="mt-2 text-center text-sm text-stone-400">
-          {report?.suspect ? `Suspect actuel : ${label(report.suspect)} (touche-le pour l’effacer).` : 'Aucun suspect désigné.'}
+        <p className="mt-2 text-center text-sm text-mist-d">
+          {report?.suspect ? <>Suspect actuel : {label(report.suspect)} (touche-le pour l’effacer).</> : 'Aucun suspect désigné.'}
         </p>
       </section>
       )}

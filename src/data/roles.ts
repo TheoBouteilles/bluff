@@ -10,9 +10,9 @@ export type Role = {
 }
 
 export const TEAMS: { id: TeamId; label: string; text: string }[] = [
-  { id: 'villageois', label: 'Villageois (Gentils)', text: 'text-blue-400' },
-  { id: 'saboteurs', label: 'Saboteurs (Méchants)', text: 'text-red-500' },
-  { id: 'solitaires', label: 'Solitaires', text: 'text-emerald-500' },
+  { id: 'villageois', label: 'Villageois (Gentils)', text: 'text-[#7fb3e0]' },
+  { id: 'saboteurs', label: 'Saboteurs (Méchants)', text: 'text-[#e8847c]' },
+  { id: 'solitaires', label: 'Solitaires', text: 'text-[#8fd6c2]' },
 ]
 
 const V = 'Victoire des Villageois.'
@@ -33,9 +33,9 @@ export const ROLES: Role[] = [
 ]
 
 export const TEAM_STYLE: Record<TeamId, { label: string; text: string; border: string }> = {
-  villageois: { label: 'Villageois', text: 'text-blue-400', border: 'border-blue-500' },
-  saboteurs: { label: 'Saboteurs', text: 'text-red-500', border: 'border-red-600' },
-  solitaires: { label: 'Solitaire', text: 'text-emerald-500', border: 'border-emerald-600' },
+  villageois: { label: 'Villageois', text: 'text-[#7fb3e0]', border: 'border-sea' },
+  saboteurs: { label: 'Saboteurs', text: 'text-[#e8847c]', border: 'border-blood' },
+  solitaires: { label: 'Solitaire', text: 'text-[#8fd6c2]', border: 'border-moss' },
 }
 
 // Rôles de la version simplifiée (hors liste publique des rôles)

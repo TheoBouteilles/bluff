@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Button, Screen, inputClass } from '../components/ui'
+import { useNavigate, useParams } from 'react-router-dom'
+import BackLink from '../components/BackLink'
+import { Button, Label, Note, Screen, TitleBar, inputClass } from '../components/ui'
 import { errorMessage, joinRoom, saveLastRoom } from '../lib/api'
 
 export default function JoinRoom() {
@@ -28,24 +29,23 @@ export default function JoinRoom() {
 
   return (
     <Screen>
-      <Link to="/" className="text-stone-400 hover:text-white">← Retour</Link>
-      <h1 className="text-3xl font-bold">Rejoindre une partie</h1>
-      <form onSubmit={submit} className="flex flex-col gap-4">
-        <input
-          className={`${inputClass} text-center text-3xl tracking-[0.4em] uppercase`}
-          placeholder="CODE"
-          maxLength={4}
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
-        />
-        <input
-          className={inputClass}
-          placeholder="Ton pseudo"
-          maxLength={20}
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        {error && <p className="text-red-400">{error}</p>}
+      <TitleBar title="Rejoindre" left={<BackLink to="/" />} />
+      <form onSubmit={submit} className="px-frame flex flex-col gap-4 p-4">
+        <div className="flex flex-col gap-2">
+          <Label>Code du salon</Label>
+          <input
+            className={`${inputClass} text-center font-display text-4xl font-bold uppercase tracking-[0.4em]`}
+            placeholder="ABCD"
+            maxLength={4}
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label>Ton pseudo</Label>
+          <input className={inputClass} placeholder="Ex. Marcel" maxLength={20} value={nickname} onChange={(e) => setNickname(e.target.value)} />
+        </div>
+        {error && <Note tone="danger">{error}</Note>}
         <Button type="submit" disabled={busy || code.length !== 4 || nickname.trim().length === 0}>
           {busy ? 'Connexion…' : 'Rejoindre'}
         </Button>

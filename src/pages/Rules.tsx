@@ -10,9 +10,9 @@ export default function Rules() {
   const cfg = useRoomSettings(room?.id)
   return (
     <Screen>
-      <h1 className="font-display text-2xl font-bold text-amber-100">Règles du jeu</h1>
+      <h1 className="font-display text-2xl font-bold text-paper">Règles du jeu</h1>
       <RulesPanel settings={cfg.settings} />
-      <Link to={code ? `/salon/${code}` : '/'} className="text-center text-sm text-stone-400 hover:text-white">← Retour</Link>
+      <Link to={code ? `/salon/${code}` : '/'} className="text-center text-sm text-mist-d hover:text-white">← Retour</Link>
     </Screen>
   )
 }

@@ -7,8 +7,8 @@ type Props = { settings: Record<string, number> }
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className={`${panelClass} p-4`}>
-      <h2 className="font-display text-lg font-bold text-amber-100">{title}</h2>
-      <div className="mt-2 flex flex-col gap-2 text-sm text-stone-300">{children}</div>
+      <h2 className="font-display text-lg font-bold text-paper">{title}</h2>
+      <div className="mt-2 flex flex-col gap-2 text-sm text-mist">{children}</div>
     </section>
   )
 }
@@ -66,12 +66,12 @@ export default function RulesPanel({ settings }: Props) {
       <Section title="Les lieux">
         <div className="flex flex-col gap-3">
           {LOCATIONS.map((l) => (
-            <div key={l.id} className="rounded-lg border border-amber-900/40 bg-stone-950/50 p-3">
-              <p className="flex items-center gap-2 font-semibold text-amber-100">
-                <l.icon size={18} className="text-amber-500" /> {l.name}
+            <div key={l.id} className="border border-night-3 bg-night p-3">
+              <p className="flex items-center gap-2 font-semibold text-paper">
+                <l.icon size={18} className="text-gold" /> {l.name}
               </p>
-              <p className="mt-1 text-stone-400">{l.description}</p>
-              {costs[l.id] && <p className="mt-1 text-amber-300">{costs[l.id]}</p>}
+              <p className="mt-1 text-mist-d">{l.description}</p>
+              {costs[l.id] && <p className="mt-1 text-gold">{costs[l.id]}</p>}
               <List items={l.rules} />
             </div>
           ))}

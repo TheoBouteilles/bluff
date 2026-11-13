@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { AVATARS } from '../data/avatars'
+import { Avatar } from './Px'
 import { COSTS, isSmallGame, rumeurCost } from '../data/costs'
 import { LOCATIONS } from '../data/locations'
 import VillageMap from './VillageMap'
@@ -25,14 +25,14 @@ type Props = {
 }
 
 const chip = (active: boolean, disabled = false) =>
-  `rounded-full px-3 py-1 text-sm transition ${
-    active ? 'bg-amber-600 text-stone-950' : 'bg-stone-800 text-stone-200 hover:bg-stone-700'
+  `border-2 px-3 py-1 font-sans text-sm transition ${
+    active ? 'border-ink bg-paper text-ink' : 'border-night-3 bg-night text-mist hover:text-paper'
   } ${disabled ? 'cursor-not-allowed opacity-40' : ''}`
 
 function Options({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="-mt-1 flex flex-col gap-2 rounded-xl border border-amber-800/40 bg-stone-950/60 p-3">
-      <p className="text-xs uppercase tracking-wider text-stone-500">{title}</p>
+    <div className="-mt-1 flex flex-col gap-2 border border-night-3 bg-night p-3">
+      <p className="text-xs uppercase tracking-wider text-mist-d">{title}</p>
       {children}
     </div>
   )
@@ -72,7 +72,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
 
   const playerChip = (p: Player, active: boolean, onClick: () => void) => (
     <button key={p.id} type="button" onClick={onClick} className={chip(active)}>
-      {AVATARS[p.avatar].emoji} {p.nickname}
+      <Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}
     </button>
   )
 
@@ -97,7 +97,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               </button>
             ))}
           </div>
-          <p className="text-xs text-stone-500">Perdu : la mise est perdue. Gagné : tu récupères le double.</p>
+          <p className="text-xs text-mist-d">Perdu : la mise est perdue. Gagné : tu récupères le double.</p>
         </Options>
       )
     }
@@ -141,7 +141,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
 
           {action === 'don' && (
             <>
-              <p className="text-xs text-stone-500">Cadeau secret, reçu seulement si le receveur est aussi à la Taverne cette nuit. Sinon il échoue (jeton conservé).</p>
+              <p className="text-xs text-mist-d">Cadeau secret, reçu seulement si le receveur est aussi à la Taverne cette nuit. Sinon il échoue (jeton conservé).</p>
               <div className="flex flex-wrap gap-2">
                 {others.map((p) => playerChip(p, params.target === p.id, () => onChoose('taverne', { action: 'don', target: p.id })))}
               </div>
@@ -174,8 +174,8 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               tokens < COSTS.posteGarde ? null : playerChip(p, params.target === p.id, () => onChoose('poste_garde', { target: p.id })),
             )}
           </div>
-          {tokens < COSTS.posteGarde && <p className="text-xs text-stone-500">Il te faut {COSTS.posteGarde} jetons pour enquêter.</p>}
-          <p className="text-xs text-stone-500">Tu apprends où ce joueur a passé la nuit.</p>
+          {tokens < COSTS.posteGarde && <p className="text-xs text-mist-d">Il te faut {COSTS.posteGarde} jetons pour enquêter.</p>}
+          <p className="text-xs text-mist-d">Tu apprends où ce joueur a passé la nuit.</p>
         </Options>
       )
     }
@@ -206,11 +206,11 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
           </div>
           {rig === 'boost' && (
             <div className="flex flex-wrap gap-2">
-              {!params.target && <p className="w-full text-xs text-amber-400">Choisis le joueur visé :</p>}
+              {!params.target && <p className="w-full text-xs text-gold">Choisis le joueur visé :</p>}
               {others.map((p) => playerChip(p, params.target === p.id, () => onChoose('mairie', { rig: 'boost', target: p.id })))}
             </div>
           )}
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-mist-d">
             Échec (jetons perdus) si un autre joueur est aussi à la Mairie cette nuit.
           </p>
         </Options>
@@ -237,7 +237,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               </button>
             ))}
           </div>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-mist-d">
             Casino : mises perdues. Taverne : rumeurs fausses. Poste de Garde : lieu faux. Mairie : le tricheur reçoit une voix contre lui. Le meurtre de la Planque passe d’abord : échec (jetons perdus) si un joueur hors Saboteurs y reste en vie. Deux Saboteurs sur le même lieu : un seul paie.
           </p>
         </Options>
@@ -253,13 +253,13 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             </button>
             {ghosts.map((g) => (
               <button key={g.id} type="button" disabled={!canPay} onClick={() => onChoose('cimetiere', { ghost: g.id })} className={chip(params.ghost === g.id, !canPay)}>
-                🪦 {AVATARS[g.avatar].emoji} {g.nickname}
+                🪦 <Avatar index={g.avatar} scale={1} className="mx-1 inline align-middle" />{g.nickname}
               </button>
             ))}
           </div>
-          {ghosts.length === 0 && <p className="text-xs text-stone-500">Aucun fantôme à interroger (les Saboteurs éliminés ne parlent pas).</p>}
-          {!canPay && <p className="text-xs text-stone-500">Il te faut {COSTS.cimetiere} jeton pour interroger un fantôme.</p>}
-          <p className="text-xs text-stone-500">Un fantôme peut mentir.</p>
+          {ghosts.length === 0 && <p className="text-xs text-mist-d">Aucun fantôme à interroger (les Saboteurs éliminés ne parlent pas).</p>}
+          {!canPay && <p className="text-xs text-mist-d">Il te faut {COSTS.cimetiere} jeton pour interroger un fantôme.</p>}
+          <p className="text-xs text-mist-d">Un fantôme peut mentir.</p>
         </Options>
       )
     }
@@ -284,7 +284,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               </button>
             ))}
           </div>
-          {!canPay && <p className="text-xs text-stone-500">Il te faut {COSTS.cimetiere} jeton pour choisir une tombe.</p>}
+          {!canPay && <p className="text-xs text-mist-d">Il te faut {COSTS.cimetiere} jeton pour choisir une tombe.</p>}
         </Options>
       )
     }
@@ -293,26 +293,26 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-stone-400">
+      <p className="font-sans text-sm text-mist-d">
         {player.is_bot ? `Nuit de ${player.nickname} (bot) : ` : ''}
-        choisis où passer la nuit. Ton choix est secret.
+        Choisis où passer la nuit. Ton choix est secret.
       </p>
 
       {closed.length > 0 && (
-        <p className="rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-sm text-red-300">
+        <p className="border border-blood bg-blood/15 p-3 text-sm text-[#f0b4ae]">
           Fermé cette nuit : {closed.map((c) => LOCATIONS.find((l) => l.id === c)?.name ?? c).join(', ')}.
         </p>
       )}
 
       {allyInfo && allyInfo.length > 0 && (
-        <div className="rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-sm text-red-200">
-          <p className="text-xs uppercase tracking-wider text-red-300/70">Tes alliés cette nuit</p>
+        <div className="border border-blood bg-blood/15 p-3 text-sm text-[#f0b4ae]">
+          <p className="text-xs uppercase tracking-wider text-[#f0b4ae]/70">Tes alliés cette nuit</p>
           <ul className="mt-1">
             {allyInfo.map((a) => (
               <li key={a.name}>
                 💀 {a.name} : <strong>{a.location ? LOCATIONS.find((l) => l.id === a.location)?.name ?? a.location : 'pas encore décidé'}</strong>
-                {a.location && !a.validated && <span className="text-red-300/70"> (hésite encore…)</span>}
-                {a.haunted.length > 0 && <span className="text-red-300/80"> · hanté par {a.haunted.join(', ')}</span>}
+                {a.location && !a.validated && <span className="text-[#f0b4ae]/70"> (hésite encore…)</span>}
+                {a.haunted.length > 0 && <span className="text-[#f0b4ae]/80"> · hanté par {a.haunted.join(', ')}</span>}
               </li>
             ))}
           </ul>
@@ -332,14 +332,14 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
       />
 
       {rulesInfo && (
-        <section className="flex flex-col gap-2 rounded-xl border border-amber-800/40 bg-stone-950/70 p-4">
+        <section className="flex flex-col gap-2 border border-night-3 bg-night p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-bold text-amber-100">Règles : {rulesInfo.name}</h3>
-            <button type="button" onClick={() => setRulesOpen(null)} className="text-sm text-stone-400 underline hover:text-amber-200">
+            <h3 className="font-display text-lg font-bold text-paper">Règles : {rulesInfo.name}</h3>
+            <button type="button" onClick={() => setRulesOpen(null)} className="text-sm text-mist-d underline hover:text-paper">
               Fermer
             </button>
           </div>
-          <ul className="list-disc pl-5 text-sm text-stone-300">
+          <ul className="list-disc pl-5 text-sm text-mist">
             {rulesInfo.rules.map((r) => (
               <li key={r}>{r}</li>
             ))}
@@ -353,12 +353,12 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
       )}
 
       {selectedLoc ? (
-        <section className="flex items-start gap-3 rounded-xl border border-amber-500 bg-amber-900/20 p-4">
-          <selectedLoc.icon className="mt-0.5 shrink-0 text-amber-500" size={26} />
+        <section className="flex items-start gap-3 border border-gold bg-gold/10 p-4">
+          <selectedLoc.icon className="mt-0.5 shrink-0 text-gold" size={26} />
           <div>
-            <p className="font-display text-lg font-bold text-amber-100">{selectedLoc.name}</p>
-            <p className="text-sm text-stone-300">{selectedLoc.description}</p>
-            <p className="mt-1 text-xs text-stone-500">
+            <p className="font-display text-lg font-bold text-paper">{selectedLoc.name}</p>
+            <p className="text-sm text-mist">{selectedLoc.description}</p>
+            <p className="mt-1 text-xs text-mist-d">
               {selectedLoc.visibleCrossing
                 ? 'Tu verras qui s’y trouve, et ils te verront.'
                 : 'Discret : personne ne te voit, et tu ne vois personne.'}
@@ -366,17 +366,17 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
           </div>
         </section>
       ) : (
-        <p className="text-center text-sm text-stone-400">Touche un bâtiment pour y passer la nuit. Le « i » affiche les règles du lieu.</p>
+        <p className="text-center text-sm text-mist-d">Touche un bâtiment pour y passer la nuit. Le « i » affiche les règles du lieu.</p>
       )}
 
       {loc && <div className={validated ? 'pointer-events-none opacity-60' : ''}>{options(loc)}</div>}
 
       {validated ? (
         <div className="flex flex-col gap-2">
-          <p className="rounded-xl border border-emerald-800/60 bg-emerald-950/30 p-3 text-center text-sm text-emerald-200">
+          <p className="border border-moss bg-moss/20 p-3 text-center text-sm text-[#bfe9dc]">
             ✅ Choix validé : {selectedLoc?.name}. En attente des autres joueurs…
           </p>
-          <button type="button" onClick={back} disabled={busy} className="rounded-xl border border-amber-800/40 px-4 py-3 font-semibold text-amber-100 hover:border-amber-600/60 disabled:opacity-40">
+          <button type="button" onClick={back} disabled={busy} className="px-frame px-press px-4 py-3 font-pixel text-[13px] uppercase tracking-wide text-paper hover:!bg-night-3 disabled:opacity-40">
             ↩ Retour (modifier mon choix)
           </button>
         </div>
@@ -385,7 +385,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
           type="button"
           onClick={validate}
           disabled={!loc || busy || (loc === 'taverne' && rumOpen && params.action !== 'rumeur') || (params.action === 'don' && !params.target) || (params.rig === 'boost' && !params.target)}
-          className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 font-semibold text-stone-950 disabled:cursor-not-allowed disabled:opacity-40"
+          className="px-frame px-press !bg-paper px-4 py-3 font-pixel text-[13px] uppercase tracking-wide text-ink [box-shadow:inset_0_0_0_2px_#fff8e6,4px_4px_0_0_var(--color-ink)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {!loc ? 'Choisis un lieu pour valider' : (params.action === 'don' || params.rig === 'boost') && !params.target ? 'Choisis le joueur visé' : `Valider : ${selectedLoc?.name}`}
         </button>
@@ -415,7 +415,7 @@ function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, 
   const cost = valid ? rumeurCost(n, totalPlayers) : small ? COSTS.rumeurSmall : COSTS.rumeur3
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-stone-500">
+      <p className="text-xs text-mist-d">
         {small
           ? `Petite partie : choisis exactement 3 joueurs, tu sauras si au moins un Saboteur se cache parmi eux (${COSTS.rumeurSmall} jetons).`
           : `Choisis 2 ou 3 joueurs : tu sauras si au moins un Saboteur se cache parmi eux. Groupe de 3 : ${COSTS.rumeur3} jeton, groupe de 2 : ${COSTS.rumeur2} jetons.`}
@@ -431,7 +431,7 @@ function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, 
       >
         {valid ? `Choisir cette rumeur (${cost} jeton${cost > 1 ? 's' : ''})` : small ? 'Choisis 3 joueurs' : 'Choisis 2 ou 3 joueurs'}
       </button>
-      {active && savedTargets && <p className="text-xs text-amber-400">Rumeur sélectionnée.</p>}
+      {active && savedTargets && <p className="text-xs text-gold">Rumeur sélectionnée.</p>}
     </div>
   )
 }

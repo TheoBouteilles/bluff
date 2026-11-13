@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AVATARS } from '../data/avatars'
+import { Avatar } from './Px'
 import type { Player } from '../types'
 import { panelClass } from './ui'
 
@@ -13,10 +13,10 @@ type Props = {
 }
 
 const chip = (active: boolean) =>
-  `flex items-center gap-2 rounded-xl border px-4 py-3 text-left transition ${
+  `flex items-center gap-2 border-2 px-4 py-3 text-left transition ${
     active
-      ? 'border-amber-500 bg-amber-900/20 text-amber-100'
-      : 'border-amber-800/40 bg-stone-900/80 hover:border-amber-600/60'
+      ? 'border-ink bg-paper text-ink'
+      : 'border-night-3 bg-night-2 hover:border-gold'
   }`
 
 export default function VotePanel({ player, others, runoff, choice, onVote, onCancel }: Props) {
@@ -39,26 +39,26 @@ export default function VotePanel({ player, others, runoff, choice, onVote, onCa
   if (!player.is_alive) {
     return (
       <section className={`${panelClass} p-4`}>
-        <h2 className="text-lg font-bold text-amber-100">Tu es spectateur</h2>
-        <p className="mt-2 text-stone-400">Les éliminés ne votent plus. Observe la fin de la partie.</p>
+        <h2 className="text-lg font-bold text-paper">Tu es spectateur</h2>
+        <p className="mt-2 text-mist-d">Les éliminés ne votent plus. Observe la fin de la partie.</p>
       </section>
     )
   }
   return (
     <div className="flex flex-col gap-3">
       {runoff && (
-        <p className="rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-sm text-red-200">
+        <p className="border border-blood bg-blood/15 p-3 text-sm text-[#f0b4ae]">
           ⚖️ Égalité ! Nouveau vote (départage n°{runoff.step}) entre <strong>{runoff.names.join(' et ')}</strong>.
         </p>
       )}
-      <p className="text-sm text-stone-400">
+      <p className="font-sans text-sm text-mist-d">
         {player.is_bot ? `Vote de ${player.nickname} (bot) : ` : ''}
-        qui veux-tu éliminer ? Ton vote est secret. Le plus voté est éliminé ; en cas d’égalité, on revote entre les ex æquo.
+        Qui veux-tu éliminer ? Ton vote est secret. Le plus voté est éliminé ; en cas d’égalité, on revote entre les ex æquo.
       </p>
       <div className="grid grid-cols-1 gap-2">
         {others.map((p) => (
           <button key={p.id} type="button" onClick={() => pick(p.id)} className={chip(current === p.id)}>
-            <span className="text-xl">{AVATARS[p.avatar].emoji}</span>
+            <Avatar index={p.avatar} scale={2} />
             <span className="font-semibold">{p.nickname}</span>
           </button>
         ))}
@@ -69,10 +69,10 @@ export default function VotePanel({ player, others, runoff, choice, onVote, onCa
       </div>
       {validated ? (
         <div className="flex flex-col gap-2">
-          <p className="rounded-xl border border-emerald-800/60 bg-emerald-950/30 p-3 text-center text-sm text-emerald-200">
+          <p className="border border-moss bg-moss/20 p-3 text-center text-sm text-[#bfe9dc]">
             ✅ Vote validé. En attente des autres joueurs…
           </p>
-          <button type="button" onClick={back} disabled={busy} className="rounded-xl border border-amber-800/40 px-4 py-3 font-semibold text-amber-100 hover:border-amber-600/60 disabled:opacity-40">
+          <button type="button" onClick={back} disabled={busy} className="px-frame px-press px-4 py-3 font-pixel text-[13px] uppercase tracking-wide text-paper hover:!bg-night-3 disabled:opacity-40">
             ↩ Retour (modifier mon vote)
           </button>
         </div>
@@ -81,7 +81,7 @@ export default function VotePanel({ player, others, runoff, choice, onVote, onCa
           type="button"
           onClick={validate}
           disabled={current === undefined || busy}
-          className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 font-semibold text-stone-950 disabled:cursor-not-allowed disabled:opacity-40"
+          className="px-frame px-press !bg-paper px-4 py-3 font-pixel text-[13px] uppercase tracking-wide text-ink [box-shadow:inset_0_0_0_2px_#fff8e6,4px_4px_0_0_var(--color-ink)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {current === undefined ? 'Choisis pour valider' : 'Valider mon vote'}
         </button>

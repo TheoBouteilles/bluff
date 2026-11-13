@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { Moon, Sun } from 'lucide-react'
 import DayPanel from '../components/DayPannel'
 import EndPanel from '../components/EndPannel'
 import GhostPanel from '../components/GhostPannel'
@@ -10,8 +9,8 @@ import ResultPanel from '../components/ResultPannel'
 import RoleCard from '../components/RoleCard'
 import RulesPanel from '../components/RulesPanel'
 import VotePanel from '../components/VotePannel'
-import { Button, Screen, TokenBadge, panelClass } from '../components/ui'
-import { AVATARS } from '../data/avatars'
+import { Button, Note, Screen, Tabs, TokenBadge, panelClass } from '../components/ui'
+import { Avatar, Px } from '../components/Px'
 import { getRole } from '../data/roles'
 import { useAllies } from '../hooks/useAllies'
 import { useCountdown } from '../hooks/useCountdown'
@@ -83,7 +82,7 @@ export default function Game() {
   }, [room?.phase, room?.round])
 
   if (state === 'loading') {
-    return <Screen><p className="mt-24 text-center text-stone-400">Chargement…</p></Screen>
+    return <Screen><p className="mt-24 text-center text-mist-d">Chargement…</p></Screen>
   }
   if (state === 'notfound' || !room || !me || !target) {
     return <Navigate to={`/rejoindre/${code}`} replace />
@@ -197,23 +196,19 @@ export default function Game() {
 
   return (
     <Screen>
-      <div className={`${panelClass} flex items-center justify-between px-4 py-3`}>
+      <div className={`${panelClass} flex items-center justify-between px-3 py-2`}>
         <div className="flex items-center gap-3">
-          {room.phase === 'night' ? (
-            <Moon className="text-amber-400" />
-          ) : (
-            <Sun className="text-amber-400" />
-          )}
+          <Px name={room.phase === 'night' ? 'moon' : 'sun'} scale={3} className="animate-float" />
           <div>
-            <p className="text-xs uppercase tracking-widest text-stone-400">Manche {room.round}</p>
-            <p className="font-display text-xl font-bold text-amber-100">
+            <p className="font-pixel text-[10px] uppercase tracking-[0.2em] text-mist-d">Manche {room.round}</p>
+            <p className="font-display text-2xl font-bold uppercase leading-none tracking-wider text-paper">
               {PHASE_LABEL[room.phase] ?? room.phase}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {room.phase_ends_at && (
-            <span className={`font-mono text-xl tabular-nums ${secondsLeft <= 10 ? 'text-red-400' : ''}`}>
+            <span className={`font-display text-2xl tabular-nums ${secondsLeft <= 10 ? 'animate-blink-slow text-blood' : 'text-sand'}`}>
               {mm}:{ss}
             </span>
           )}
@@ -222,55 +217,53 @@ export default function Game() {
       </div>
 
       {room.sudden_death && room.phase !== 'ended' && (
-        <p className="rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-sm text-red-200">
+        <p className="animate-shake border-2 border-blood bg-blood/15 p-3 font-sans text-sm text-[#f0b4ae]">
           ⚠️ Mort subite : les Saboteurs sont aussi nombreux que les autres. Si aucun Saboteur n’est éliminé au prochain vote, ils gagnent.
         </p>
       )}
 
       {debugHost && (
-        <div className="rounded-xl bg-stone-900 p-3">
-          <p className="mb-2 text-xs uppercase tracking-wider text-stone-500">Debug : voir en tant que</p>
+        <div className="bg-night-2 p-3">
+          <p className="mb-2 text-xs uppercase tracking-wider text-mist-d">Debug : voir en tant que</p>
           <div className="flex flex-wrap gap-2">
             {viewable.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setViewAs(p.id)}
-                className={`rounded-full px-3 py-1 text-sm ${
-                  p.id === targetId ? 'bg-amber-600 text-stone-950' : 'bg-stone-800'
+                className={`px-3 py-1 text-sm ${
+                  p.id === targetId ? 'bg-paper text-ink' : 'bg-night'
                 }`}
               >
-                {AVATARS[p.avatar].emoji} {p.id === me.id ? 'Moi' : p.nickname}
+                <Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" /> {p.id === me.id ? 'Moi' : p.nickname}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2">
-        <Button variant={tab === 'role' ? 'primary' : 'secondary'} onClick={() => setTab('role')}>
-          Mon rôle
-        </Button>
-        <Button variant={tab === 'action' ? 'primary' : 'secondary'} onClick={() => setTab('action')}>
-          {TAB_LABEL[room.phase] ?? 'Action'}
-        </Button>
-        <Button variant={tab === 'rules' ? 'primary' : 'secondary'} onClick={() => setTab('rules')}>
-          Règles
-        </Button>
-      </div>
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        items={[
+          { id: 'role', label: 'Mon rôle' },
+          { id: 'action', label: TAB_LABEL[room.phase] ?? 'Action' },
+          { id: 'rules', label: 'Règles' },
+        ]}
+      />
 
       {tab === 'rules' ? (
         <RulesPanel settings={cfg.settings} />
       ) : tab === 'role' ? (
         !ready ? (
-          <p className="text-center text-stone-400">Chargement…</p>
+          <p className="text-center text-mist-d">Chargement…</p>
         ) : !secret || !role ? (
           <div className="flex flex-col items-center gap-3 text-center">
-            <p className="text-stone-400">Rôle introuvable pour le moment.</p>
+            <p className="text-mist-d">Rôle introuvable pour le moment.</p>
             <Button variant="secondary" onClick={reload}>Réessayer</Button>
           </div>
         ) : target.is_bot ? (
           <div className="flex flex-col gap-2">
-            <p className="text-center text-sm text-stone-500">Vue debug de {target.nickname} (affichage direct)</p>
+            <p className="text-center text-sm text-mist-d">Vue debug de {target.nickname} (affichage direct)</p>
             <RoleCard role={role} tokens={secret.tokens} allies={allies} />
           </div>
         ) : (
@@ -324,16 +317,16 @@ export default function Game() {
         <GhostPanel mode="info" round={room.round} self={target} report={ghost.report} players={players} onWatch={watchGhost} onHint={hintGhost} tombCount={cfg.settings.tomb_count ?? 3} onTomb={tombGhost} {...ghostExtra} />
       )}
 
-      {error && <p className="text-red-400">{error}</p>}
+      {error && <Note tone="danger">{error}</Note>}
 
-      <section className="mt-2">
-        <h2 className="mb-2 font-semibold">Joueurs ({players.length})</h2>
+      <section className={`${panelClass} mt-2 p-3`}>
+        <p className="mb-2 font-pixel text-[10px] uppercase tracking-[0.2em] text-mist-d">Joueurs ({players.length})</p>
         <ul className="flex flex-wrap gap-2">
           {players.map((p) => (
-            <li key={p.id} className={`flex items-center gap-2 rounded-full bg-stone-900 px-3 py-1 text-sm ${p.is_alive ? '' : 'opacity-60'}`}>
-              <span>{AVATARS[p.avatar].emoji}</span>
-              <span className={p.is_alive ? '' : 'line-through'}>{p.nickname}</span>
-              {!p.is_alive && <span className="text-xs text-stone-400">mort{teamRevealed(p.id) ? ` · ${teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'}` : ''}</span>}
+            <li key={p.id} className={`flex items-center gap-2 border-2 border-night-3 bg-night px-2 py-1 font-sans text-sm ${p.is_alive ? '' : 'opacity-70'}`}>
+              {p.is_alive ? <Avatar index={p.avatar} scale={1} /> : <Px name="ghost" scale={1} />}
+              <span className={p.is_alive ? 'text-paper' : 'text-mist-d line-through'}>{p.nickname}</span>
+              {!p.is_alive && teamRevealed(p.id) && <Px name={`team_${teamRevealed(p.id)}`} scale={1} title={teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'} />}
             </li>
           ))}
         </ul>

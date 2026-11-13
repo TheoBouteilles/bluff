@@ -1,24 +1,23 @@
-import { useNavigate } from 'react-router-dom'
-import { Screen } from '../components/ui'
-import { ROLES, TEAMS } from '../data/roles'
+import BackLink from '../components/BackLink'
+import { Px } from '../components/Px'
+import { Screen, TitleBar } from '../components/ui'
+import { ROLES, TEAMS, TEAM_STYLE } from '../data/roles'
 
 export default function RolesList() {
-  const navigate = useNavigate()
-  const back = () => (window.history.length > 1 ? navigate(-1) : navigate('/'))
-
   return (
     <Screen>
-      <button onClick={back} className="self-start text-stone-400 hover:text-white">← Retour</button>
-      <h1 className="text-3xl font-bold">Les rôles</h1>
+      <TitleBar title="Les rôles" left={<BackLink />} />
       {TEAMS.map((t) => (
         <section key={t.id} className="flex flex-col gap-3">
-          <h2 className={`text-lg font-bold ${t.text}`}>{t.label}</h2>
+          <h2 className={`flex items-center gap-2 font-display text-xl font-bold uppercase tracking-wider ${TEAM_STYLE[t.id].text}`}>
+            <Px name={`team_${t.id}`} scale={1} /> {t.label}
+          </h2>
           {ROLES.filter((r) => r.team === t.id).map((r) => (
-            <article key={r.id} className="rounded-2xl border border-stone-800 bg-stone-900 p-4">
-              <h3 className="text-lg font-semibold">{r.name}</h3>
-              <p className="text-sm text-stone-400">{r.description}</p>
-              <p className="mt-2 text-sm"><span className="text-stone-500">Pouvoir : </span>{r.power}</p>
-              <p className="mt-1 text-sm"><span className="text-stone-500">Victoire : </span>{r.victory}</p>
+            <article key={r.id} className={`px-frame border-l-8 p-4 ${TEAM_STYLE[t.id].border}`}>
+              <h3 className="font-display text-lg font-bold text-paper">{r.name}</h3>
+              <p className="font-sans text-sm italic text-mist-d">{r.description}</p>
+              <p className="mt-2 font-sans text-sm"><span className="font-pixel text-[10px] uppercase tracking-wider text-gold">Pouvoir </span>{r.power}</p>
+              <p className="mt-1 font-sans text-sm"><span className="font-pixel text-[10px] uppercase tracking-wider text-gold">Victoire </span>{r.victory}</p>
             </article>
           ))}
         </section>

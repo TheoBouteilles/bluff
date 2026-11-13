@@ -34,7 +34,7 @@ export default function VillageMap({ selected, closed, onSelect, onInfo, marks =
   return (
     <svg
       viewBox="0 0 864 1222"
-      className="w-full select-none rounded-2xl border border-amber-800/40 bg-stone-950"
+      className="w-full select-none border border-night-3 bg-night"
       role="group"
       aria-label="Carte du village : choisis où passer la nuit"
     >

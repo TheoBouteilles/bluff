@@ -1,4 +1,4 @@
-import { AVATARS } from '../data/avatars'
+import { Avatar } from './Px'
 import { TEAM_STYLE } from '../data/roles'
 import type { TeamId } from '../data/roles'
 import type { VoteResult } from '../lib/api'
@@ -8,10 +8,10 @@ import { panelClass } from './ui'
 type Props = { result: VoteResult | undefined; players: Player[] }
 
 export default function ResultPanel({ result, players }: Props) {
-  if (!result) return <p className="text-center text-stone-400">Chargement…</p>
+  if (!result) return <p className="text-center text-mist-d">Chargement…</p>
   const nameOf = (id: string) => {
     const p = players.find((x) => x.id === id)
-    return p ? `${AVATARS[p.avatar].emoji} ${p.nickname}` : 'Quelqu’un'
+    return p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
   }
   const eliminated = result.eliminated_id ? nameOf(result.eliminated_id) : null
   const team = result.eliminated_team ? TEAM_STYLE[result.eliminated_team as TeamId] : undefined
@@ -20,14 +20,14 @@ export default function ResultPanel({ result, players }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <section className={`${panelClass} p-4`}>
-        <h2 className="text-lg font-bold text-amber-100">Résultat du vote</h2>
+        <h2 className="text-lg font-bold text-paper">Résultat du vote</h2>
         {eliminated ? (
           <>
             <p className="mt-2">
-              <strong className="text-amber-300">{eliminated}</strong> est éliminé.
+              <strong className="text-gold">{eliminated}</strong> est éliminé.
             </p>
             {result.runoffs > 0 && (
-              <p className="mt-1 text-sm text-stone-400">
+              <p className="mt-1 text-sm text-mist-d">
                 Après {result.runoffs} revote{result.runoffs > 1 ? 's' : ''} pour départager des égalités
                 {result.drawn ? ' puis un tirage au sort entre les derniers ex æquo.' : '.'}
               </p>
@@ -39,7 +39,7 @@ export default function ResultPanel({ result, players }: Props) {
             )}
           </>
         ) : (
-          <p className="mt-2 text-stone-300">
+          <p className="mt-2 text-mist">
             {result.tied ? 'Égalité : personne n’est éliminé.' : 'Aucun vote exprimé : personne n’est éliminé.'}
           </p>
         )}
@@ -47,16 +47,16 @@ export default function ResultPanel({ result, players }: Props) {
 
       {tally.length > 0 && (
         <section className={`${panelClass} p-4`}>
-          <h2 className="text-lg font-bold text-amber-100">Voix reçues</h2>
+          <h2 className="text-lg font-bold text-paper">Voix reçues</h2>
           <ul className="mt-2 flex flex-col gap-1">
             {tally.map(([id, n]) => (
               <li key={id} className="flex justify-between">
                 <span>{nameOf(id)}</span>
-                <span className="text-amber-300">{n} voix</span>
+                <span className="text-gold">{n} voix</span>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-stone-500">Les votes restent secrets : seul le total par joueur est public.</p>
+          <p className="mt-2 text-xs text-mist-d">Les votes restent secrets : seul le total par joueur est public.</p>
         </section>
       )}
     </div>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import SettingsPanel from '../components/SettingsPanel'
-import { Button, Screen } from '../components/ui'
-import { AVATARS } from '../data/avatars'
+import BackLink from '../components/BackLink'
+import { Avatar, Px } from '../components/Px'
+import { Button, Label, Note, Screen, TitleBar } from '../components/ui'
 import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { addBot, clearLastRoom, errorMessage, leaveRoom, removeBot, resetRoomSettings, startGame, updateRoomSettings } from '../lib/api'
@@ -20,7 +21,7 @@ export default function Lobby() {
   }, [room?.status, code, navigate])
 
   if (state === 'loading') {
-    return <Screen><p className="text-center text-stone-400 mt-24">Chargement…</p></Screen>
+    return <Screen><p className="text-center text-mist-d mt-24">Chargement…</p></Screen>
   }
   if (state === 'notfound' || !room) return <Navigate to={`/rejoindre/${code}`} replace />
 
@@ -57,45 +58,52 @@ export default function Lobby() {
 
   return (
     <Screen>
-      <div className="text-center mt-4">
-        <p className="text-stone-400 text-sm">Code du salon</p>
-        <p className="text-6xl font-bold tracking-[0.25em] mt-1">{room.code}</p>
-        <button onClick={share} className="mt-3 text-amber-400 hover:text-amber-300">
+      <TitleBar
+        title="Salon"
+        left={<BackLink label="Quitter" onClick={leave} />}
+        right={
+          <>
+            <Link to={`/regles?salon=${room.code}`} className="font-pixel text-[11px] uppercase tracking-wider text-gold underline decoration-2 underline-offset-4">Règles</Link>
+            <Link to="/roles" className="font-pixel text-[11px] uppercase tracking-wider text-mist underline decoration-2 underline-offset-4">Rôles</Link>
+          </>
+        }
+      />
+
+      <div className="px-frame-paper flex flex-col items-center gap-1 px-4 py-4 text-center">
+        <Label className="!text-ink/60">Code du salon</Label>
+        <p className="font-display text-6xl font-bold tracking-[0.25em] [text-shadow:3px_3px_0_var(--color-sand)]">{room.code}</p>
+        <button onClick={share} className="mt-1 font-pixel text-[11px] uppercase tracking-wider text-sea underline decoration-2 underline-offset-4">
           {copied ? 'Lien copié ✓' : 'Partager le lien'}
         </button>
       </div>
 
-      <div className="flex items-center justify-between mt-2">
-        <h2 className="font-semibold">Joueurs ({players.length}/10)</h2>
-        <span className="flex gap-3">
-          <Link to={`/regles?salon=${room.code}`} className="text-sm text-amber-400 hover:text-amber-300">Règles</Link>
-          <Link to="/roles" className="text-sm text-stone-400 hover:text-white">Rôles</Link>
-        </span>
-      </div>
-
-      <ul className="flex flex-col gap-2">
-        {players.map((p) => {
-          const a = AVATARS[p.avatar]
-          return (
-            <li key={p.id} className="flex items-center gap-3 rounded-xl bg-stone-900 px-4 py-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full text-xl" style={{ backgroundColor: a.color }}>
-                {a.emoji}
+      <div className="px-frame p-3">
+        <Label className="mb-2">Joueurs ({players.length}/10)</Label>
+        <ul className="grid grid-cols-2 gap-2">
+          {players.map((p) => (
+            <li key={p.id} className="flex items-center gap-2 border-2 border-night-3 bg-night px-2 py-2 animate-rise">
+              <Avatar index={p.avatar} kind="body" scale={2} />
+              <span className="min-w-0 flex-1 font-sans text-sm leading-tight">
+                <span className="block truncate font-semibold text-paper">{p.nickname}</span>
+                <span className="block font-pixel text-[9px] uppercase tracking-wider text-mist-d">
+                  {p.is_host ? 'Hôte' : p.is_bot ? 'Bot' : p.id === me?.id ? 'Toi' : 'Joueur'}
+                </span>
               </span>
-              <span className="flex-1 font-medium">
-                {p.nickname}
-                {p.id === me?.id && <span className="text-stone-500"> (toi)</span>}
-                {p.is_bot && <span className="ml-2 rounded bg-stone-700 px-1.5 py-0.5 text-xs text-stone-300">bot</span>}
-              </span>
-              {p.is_host && <span title="Hôte">👑</span>}
+              {p.is_host && <Px name="crown" scale={1} title="Hôte" />}
               {p.is_bot && me?.is_host && (
-                <button onClick={() => run(() => removeBot(p.id))} aria-label="Retirer le bot" className="text-stone-500 hover:text-white">
+                <button onClick={() => run(() => removeBot(p.id))} aria-label="Retirer le bot" className="font-pixel text-xs text-mist-d hover:text-blood">
                   ✕
                 </button>
               )}
             </li>
-          )
-        })}
-      </ul>
+          ))}
+          {Array.from({ length: Math.max(0, 4 - players.length) }).map((_, i) => (
+            <li key={`empty-${i}`} className="flex items-center justify-center border-2 border-dashed border-night-3 px-2 py-3 font-pixel text-[9px] uppercase tracking-wider text-mist-d">
+              en attente…
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {room.debug && me?.is_host && (
         <Button variant="secondary" disabled={players.length >= 10} onClick={() => run(() => addBot(room.id))}>
@@ -113,18 +121,16 @@ export default function Lobby() {
         onReset={() => run(() => resetRoomSettings(room.id).then(cfg.apply))}
       />
 
-      {error && <p className="text-red-400">{error}</p>}
+      {error && <Note tone="danger">{error}</Note>}
 
       {me?.is_host ? (
         <Button disabled={!canStart} onClick={() => run(() => startGame(room.id))}>
           Lancer la partie
         </Button>
       ) : (
-        <p className="text-center text-stone-400">En attente de l’hôte…</p>
+        <p className="animate-blink-slow text-center font-pixel text-[11px] uppercase tracking-[0.2em] text-mist-d">En attente de l’hôte…</p>
       )}
-      {!canStart && <p className="text-center text-sm text-stone-500">Il faut au moins 4 joueurs pour commencer.</p>}
-
-      <Button variant="ghost" onClick={leave}>Quitter le salon</Button>
+      {!canStart && <p className="text-center font-sans text-sm text-mist-d">Il faut au moins 4 joueurs pour commencer.</p>}
     </Screen>
   )
 }
