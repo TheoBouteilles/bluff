@@ -23,6 +23,7 @@ function Strip({ it, mode }: { it: LifeItem; mode: 'day' | 'night' }) {
   )
   const vars = {
     ['--dx' as string]: `${it.dx ?? 0}px`,
+    ['--fw' as string]: `${it.w * SCALE}px`,
     ['--tx' as string]: `${it.tx ?? 0}px`,
     ['--ty' as string]: `${it.ty ?? 0}px`,
     animationDuration: `${it.period ?? 10000}ms`,

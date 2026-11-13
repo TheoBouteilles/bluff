@@ -7,15 +7,14 @@ type Props = {
   selected?: string
   closed?: string[]
   mode?: 'day' | 'night'
-  readonly?: boolean // carte décorative (ex. rapport d'aube) : pas de clic, pas de bouton règles
+  readonly?: boolean // carte décorative (ex. rapport d'aube) : pas de clic
   onSelect?: (locationId: string) => void
-  onInfo?: (locationId: string) => void
   marks?: Record<string, { count: number; validated: boolean }> // alliés Saboteurs par lieu (plein = validé, pâle = indécis)
 }
 
 // Carte du village en pixel art : décor fixe public/px/village2/base_<mode>.png (216 x 306 agrandie x4)
 // + couche vivante (VillageLife). Zones cliquables : src/data/villageSpots.ts (généré par tools/px/village2.py).
-export default function VillageMap({ selected, closed = [], mode = 'night', readonly = false, onSelect, onInfo, marks = {} }: Props) {
+export default function VillageMap({ selected, closed = [], mode = 'night', readonly = false, onSelect, marks = {} }: Props) {
   const { w: VW, h: VH } = VILLAGE_SIZE
   const keyHandler = (id: string, enabled: boolean) => (e: KeyboardEvent) => {
     if (enabled && (e.key === 'Enter' || e.key === ' ')) {
@@ -79,13 +78,13 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
                 className={isSelected ? 'village-march' : undefined}
               />
               {isSelected && (
-                <text x={cx} y={Number(s.poly.split(' ')[0].split(',')[1]) + 4} textAnchor="middle" fontSize="54" fill="#e6c25a" stroke="#1b1410" strokeWidth="8" paintOrder="stroke" className="village-arrow" fontFamily="Silkscreen, monospace">▼</text>
+                <text x={cx} y={Number(s.poly.split(' ')[0].split(',')[1]) + 4} textAnchor="middle" fontSize="54" fill="#e6c25a" stroke="#1b1410" strokeWidth="8" paintOrder="stroke" className="village-arrow" fontFamily="'Bluff Pixel', monospace">▼</text>
               )}
               {isClosed && (
                 <>
                   <line x1={cx - 50} y1={cy - 50} x2={cx + 50} y2={cy + 50} stroke="#a84a44" strokeWidth="18" />
                   <line x1={cx + 50} y1={cy - 50} x2={cx - 50} y2={cy + 50} stroke="#a84a44" strokeWidth="18" />
-                  <text x={cx} y={cy + 100} textAnchor="middle" fontSize="36" fill="#f0b4ae" stroke="#1b1410" strokeWidth="8" paintOrder="stroke" fontFamily="Silkscreen, monospace">FERMÉ</text>
+                  <text x={cx} y={cy + 100} textAnchor="middle" fontSize="36" fill="#f0b4ae" stroke="#1b1410" strokeWidth="8" paintOrder="stroke" fontFamily="'Bluff Pixel', monospace">FERMÉ</text>
                 </>
               )}
             </g>
@@ -93,32 +92,17 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
             {/* étiquette */}
             <g pointerEvents="none">
               <rect x={lx - lw / 2} y={ly - 28} width={lw} height={40} fill={isSelected ? '#e6c25a' : '#f1e6cc'} stroke="#1b1410" strokeWidth="5" />
-              <text x={lx} y={ly + 2} textAnchor="middle" fontSize="26" fill="#1b1410" fontFamily="Silkscreen, monospace">{label.toUpperCase()}</text>
+              <text x={lx} y={ly + 2} textAnchor="middle" fontSize="26" fill="#1b1410" fontFamily="'Bluff Pixel', monospace">{label.toUpperCase()}</text>
             </g>
 
             {marks[l.id] && (
               <g pointerEvents="none">
                 <rect x={cx - 34} y={cy - 104} width="68" height="68" fill="#6e2b27" fillOpacity={marks[l.id].validated ? 0.95 : 0.6} stroke="#e8847c" strokeWidth="5" strokeDasharray={marks[l.id].validated ? undefined : '12 8'} />
                 <text x={cx} y={cy - 56} textAnchor="middle" fontSize="38" opacity={marks[l.id].validated ? 1 : 0.65}>💀</text>
-                {marks[l.id].count > 1 && <text x={cx + 44} y={cy - 92} textAnchor="middle" fontSize="30" fill="#f0b4ae" stroke="#1b1410" strokeWidth="6" paintOrder="stroke" fontFamily="Silkscreen, monospace">×{marks[l.id].count}</text>}
+                {marks[l.id].count > 1 && <text x={cx + 44} y={cy - 92} textAnchor="middle" fontSize="30" fill="#f0b4ae" stroke="#1b1410" strokeWidth="6" paintOrder="stroke" fontFamily="'Bluff Pixel', monospace">×{marks[l.id].count}</text>}
               </g>
             )}
 
-            {/* bouton règles (n'effectue pas de choix) */}
-            {!readonly && onInfo && (
-              <g
-                role="button"
-                tabIndex={0}
-                aria-label={`Lire les règles : ${l.name}`}
-                onClick={(e) => { e.stopPropagation(); onInfo(l.id) }}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInfo(l.id) } }}
-                style={{ cursor: 'pointer', outline: 'none' }}
-              >
-                <rect x={s.i[0] - 24} y={s.i[1] - 24} width="48" height="48" fill="#182230" stroke="#1b1410" strokeWidth="5" />
-                <rect x={s.i[0] - 19} y={s.i[1] - 19} width="38" height="38" fill="none" stroke="#e6c25a" strokeWidth="3" />
-                <text x={s.i[0]} y={s.i[1] + 11} textAnchor="middle" fontSize="30" fill="#e6c25a" fontFamily="Silkscreen, monospace">i</text>
-              </g>
-            )}
           </g>
         )
       })}

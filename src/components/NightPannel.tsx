@@ -64,10 +64,8 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
   }
   const [rumTargets, setRumTargets] = useState<string[]>([])
   const [rumOpen, setRumOpen] = useState(false)
-  const [rulesOpen, setRulesOpen] = useState<string | null>(null)
   const loc = current?.location
   const selectedLoc = LOCATIONS.find((l) => l.id === loc)
-  const rulesInfo = LOCATIONS.find((l) => l.id === rulesOpen)
   const params = current?.params ?? {}
 
   const playerChip = (p: Player, active: boolean, onClick: () => void) => (
@@ -328,29 +326,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
         selected={loc}
         closed={closed}
         onSelect={(id) => onChoose(id, {})}
-        onInfo={(id) => setRulesOpen(rulesOpen === id ? null : id)}
       />
-
-      {rulesInfo && (
-        <section className="flex flex-col gap-2 border border-night-3 bg-night p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-bold text-paper">Règles : {rulesInfo.name}</h3>
-            <button type="button" onClick={() => setRulesOpen(null)} className="text-sm text-mist-d underline hover:text-paper">
-              Fermer
-            </button>
-          </div>
-          <ul className="list-disc pl-5 text-sm text-mist">
-            {rulesInfo.rules.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-          {!closed.includes(rulesInfo.id) && loc !== rulesInfo.id && (
-            <button type="button" onClick={() => onChoose(rulesInfo.id, {})} className={chip(false)}>
-              Aller à : {rulesInfo.name}
-            </button>
-          )}
-        </section>
-      )}
 
       {selectedLoc ? (
         <section className="flex items-start gap-3 border border-gold bg-gold/10 p-4">
@@ -370,6 +346,20 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
       )}
 
       {loc && <div className={validated ? 'pointer-events-none opacity-60' : ''}>{options(loc)}</div>}
+
+      {selectedLoc && (
+        <details key={selectedLoc.id} className="group px-frame">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 font-pixel text-[11px] uppercase tracking-wide text-paper [&::-webkit-details-marker]:hidden">
+            <span>Règles : {selectedLoc.name}</span>
+            <span className="text-gold transition-transform group-open:rotate-90">▸</span>
+          </summary>
+          <ul className="list-disc space-y-1 border-t-2 border-night-3 px-4 py-3 pl-8 font-sans text-sm text-mist">
+            {selectedLoc.rules.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       {validated ? (
         <div className="flex flex-col gap-2">

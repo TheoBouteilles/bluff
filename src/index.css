@@ -1,10 +1,41 @@
 @import "tailwindcss";
 
-/* ---------- Thème pixel art (sépia / nuit) ---------- */
+/* Polices pixel lisibles (2/Z, B/8, 0/O distincts, accents corrects) :
+   Jersey 10 pour les titres et les nombres, VT323 pour les boutons et étiquettes.
+   size-adjust les ramène à la taille des anciennes polices. */
+@font-face {
+  font-family: "Bluff Display";
+  src: url("/fonts/jersey-10-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  size-adjust: 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bluff Display";
+  src: url("/fonts/jersey-10-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  size-adjust: 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bluff Pixel";
+  src: url("/fonts/vt323-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  size-adjust: 135%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bluff Pixel";
+  src: url("/fonts/vt323-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  size-adjust: 135%;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: "IBM Plex Mono", ui-monospace, monospace;
-  --font-display: "Pixelify Sans", "Silkscreen", monospace;
-  --font-pixel: "Silkscreen", "Pixelify Sans", monospace;
+  --font-display: "Bluff Display", monospace;
+  --font-pixel: "Bluff Pixel", monospace;
 
   --color-ink: #1b1410;      /* contours */
   --color-night: #101820;    /* fond */
@@ -108,8 +139,9 @@
 
 .vl-walk { animation: vlwalk 10s ease-in-out infinite; }
 @keyframes vlwalk { 0%, 8% { transform: translateX(0); } 46%, 54% { transform: translateX(var(--dx)); } 92%, 100% { transform: translateX(0); } }
-.vl-flip { animation: vlflip 10s steps(1) infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes vlflip { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
+.vl-flip { animation: vlflip 10s steps(1) infinite; }
+/* miroir autour du centre du sprite : translateX(largeur) puis scaleX(-1), origine en 0,0 */
+@keyframes vlflip { 0% { transform: translateX(0) scaleX(1); } 50% { transform: translateX(var(--fw)) scaleX(-1); } }
 
 .vl-fly { animation: vlfly 16s linear infinite; }
 @keyframes vlfly { 0% { transform: translate(0, 0); } 60%, 100% { transform: translate(var(--tx), var(--ty)); } }
