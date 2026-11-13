@@ -7,6 +7,7 @@ import Rules from './pages/Rules'
 import Demo from './pages/Demo'
 import RolesList from './pages/RolesList'
 import Game from './pages/Game'
+import Stats from './pages/Stats'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         {import.meta.env.DEV && <Route path="/demo" element={<Demo />} />}
         <Route path="/regles" element={<Rules />} />
         <Route path="/roles" element={<RolesList />} />
+        <Route path="/stats" element={<Stats />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

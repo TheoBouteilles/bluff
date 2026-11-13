@@ -27,7 +27,10 @@ export default function Home() {
         )}
         <Link to="/creer" className={styles.primary}>Créer une partie</Link>
         <Link to="/rejoindre" className={styles.secondary}>Rejoindre une partie</Link>
-        <Link to="/roles" className={styles.ghost}>Voir les rôles</Link>
+        <div className="flex justify-center gap-2">
+          <Link to="/roles" className={styles.ghost}>Voir les rôles</Link>
+          <Link to="/stats" className={styles.ghost}>Statistiques</Link>
+        </div>
       </div>
 
       <p className="mt-2 text-center font-pixel text-[10px] uppercase tracking-widest text-mist-d">

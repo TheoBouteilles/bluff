@@ -2,7 +2,7 @@
 
 Jeu de société mobile (Web App) à rôles cachés, 4 à 10 joueurs, en présentiel, entre amis.
 Stack 100 % gratuite : React + TypeScript + Tailwind (Vite), Supabase (Postgres + Realtime + auth anonyme), Vercel.
-Dépôt GitHub privé. Pas de Claude Code : le code est fourni par fichiers complets à copier dans VS Code.
+Dépôt GitHub privé. Le code est édité directement dans le dépôt avec Claude Code (app Claude, onglet Code) : toujours faire `git pull` avant de commencer, des changements peuvent avoir été poussés depuis Claude. Les migrations SQL sont à exécuter dans Supabase > SQL Editor (ou via le connecteur Supabase si demandé).
 
 ## Règles de jeu validées
 - Salon avec code de 4 lettres (alphabet sans voyelles) + lien direct. Pseudo + session anonyme, reconnexion possible.
@@ -190,3 +190,11 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - `SettingsPanel` : réglages fermés par défaut (aussi pour l’hôte).
 - Page Règles : barre de titre collée en haut (`sticky`) avec le bouton retour.
 - Touffes d’herbe animées (`tools/px/village_life.py`) : placées automatiquement sur de l’herbe dégagée de la carte de base (jamais sur bâtiment, chemin, arbre ou couronne) et dessinées avant les couronnes d’arbres.
+
+## Statistiques et trophées (migration 0017_stats.sql, appliquée)
+- Faits marquants figés à la fin de partie par le trigger `rooms_record_stats` (passage de `rooms.phase` à `ended`) → `record_game_stats(room)`, avant que `reset_room` n'efface les données. Une erreur dans les stats est attrapée (warning) et ne bloque jamais la fin de partie.
+- Tables : `game_history` (une ligne par partie, sans clé étrangère vers rooms), `player_game_stats` (une ligne par joueur humain et par partie, clé `user_id` = auth.uid()), `player_trophies` (user_id, trophy_id, game_id). RLS sans policy : lecture uniquement via RPC.
+- Parties en mode debug et bots jamais comptés. Après un départage, seul le dernier tour de vote de la manche compte pour le « flair ».
+- RPC : `get_my_stats()` (agrégats, séries, lieux, trophées, 10 dernières parties), `get_new_trophies(room)` (trophées débloqués à la dernière partie du salon). Réservées au rôle authenticated.
+- Front : `src/pages/Stats.tsx` (route `/stats`, lien sur l'accueil), `src/data/trophies.ts` (ids alignés sur `record_game_stats`), `EndPannel.tsx` (« Trophées débloqués »).
+- Identité = session anonyme Supabase, donc liée à l'appareil. Prévu : création de compte en convertissant la session anonyme (même user_id, stats conservées).

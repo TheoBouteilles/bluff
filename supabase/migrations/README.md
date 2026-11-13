@@ -2,3 +2,5 @@ Historique des migrations SQL de Bluff (à exécuter dans l'ordre dans Supabase 
 0001 à 0003 ont déjà été exécutées (phases 1, 2, 3a). 0004 : effets des lieux (3b). 0005 : phases manuelles + règle taverne (3c).
 0006 : phase 4 (vote, élimination, victoire).
 0007 : la Mairie (trucage du vote).
+0008 à 0016 : voir les fichiers (meurtres, réglages, fantômes, cimetière, équilibrage, ajustements, validation, planque/fantômes, vision directe).
+0017 : statistiques et trophées (trigger de fin de partie, get_my_stats, get_new_trophies). Déjà appliquée.

@@ -165,3 +165,49 @@ export const getSaboteurVision = (roomId: string, playerId?: string) =>
   rpc<SaboteurVision>('get_saboteur_vision', { p_room_id: roomId, p_player_id: playerId ?? null })
 export const setGhostTomb = (roomId: string, tomb: number, playerId?: string) =>
   rpc<void>('set_ghost_tomb', { p_room_id: roomId, p_tomb: tomb, p_player_id: playerId ?? null })
+
+// Statistiques et trophées (migration 0017_stats.sql)
+export type RecentGame = {
+  ended_at: string
+  room_code: string
+  rounds: number
+  team: string
+  role_id: string
+  won: boolean
+  alive_at_end: boolean
+}
+export type MyStats = {
+  games: number
+  wins: number
+  villageois_games: number
+  villageois_wins: number
+  saboteurs_games: number
+  saboteurs_wins: number
+  current_streak: number
+  best_streak: number
+  nights_survived: number
+  killed: number
+  eliminated: number
+  alive_at_end: number
+  votes_cast: number
+  votes_on_saboteur: number
+  wrongly_eliminated: number
+  casino_bets: number
+  casino_wins: number
+  casino_net: number
+  casino_best_win: number
+  gifts_given: number
+  gifts_received: number
+  mairie_success: number
+  mairie_fail: number
+  kills: number
+  sabotages_ok: number
+  ghost_games: number
+  ghost_right: number
+  cemetery_good_hints: number
+  locations: Record<string, number>
+  trophies: { id: string; unlocked_at: string }[]
+  recent: RecentGame[]
+}
+export const getMyStats = () => rpc<MyStats>('get_my_stats', {})
+export const getNewTrophies = (roomId: string) => rpc<string[]>('get_new_trophies', { p_room_id: roomId })
