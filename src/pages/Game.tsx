@@ -326,7 +326,7 @@ export default function Game() {
             <li key={p.id} className={`flex items-center gap-2 border-2 border-night-3 bg-night px-2 py-1 font-sans text-sm ${p.is_alive ? '' : 'opacity-70'}`}>
               {p.is_alive ? <Avatar index={p.avatar} scale={1} /> : <Px name="ghost" scale={1} />}
               <span className={p.is_alive ? 'text-paper' : 'text-mist-d line-through'}>{p.nickname}</span>
-              {!p.is_alive && teamRevealed(p.id) && <Px name={`team_${teamRevealed(p.id)}`} scale={1} title={teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'} />}
+              {!p.is_alive && teamRevealed(p.id) && <Px name={`team_${teamRevealed(p.id)}_s`} scale={1} title={teamRevealed(p.id) === 'saboteurs' ? 'Saboteur' : teamRevealed(p.id) === 'villageois' ? 'Villageois' : 'Solitaire'} />}
             </li>
           ))}
         </ul>

@@ -165,3 +165,10 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - **Écrans** : Home, CreateRoom, JoinRoom, Lobby, RolesList, RoleCard (ticket perforé par camp), HoldToReveal, en-tête/onglets/liste de joueurs de Game ; anciens panneaux migrés vers les nouvelles classes (emoji → `<Avatar>`).
 - **Vitrine** : route `/demo` (dev seulement, `npm run dev` puis http://localhost:5173/demo) pour vérifier les composants avec des données factices sans Supabase. Capture mobile : Playwright 390 px.
 - À faire (étape 2) : carte du village jour/nuit en pixel art, intérieurs des lieux, écrans Aube/Résultat/Fin plus animés.
+
+## Refonte pixel art (étape 2 : logos, carte du village)
+- `HoldToReveal` : bouton au-dessus de la carte (plus de décalage sous la souris) + `setPointerCapture` ; relâchement n'importe où (window pointerup) masque.
+- Logos de camp : blasons 32x32 générés par `tools/px/logos.py` (`team_<camp>.png`) + versions 12x12 (`team_<camp>_s.png`) pour les listes.
+- Carte du village : `tools/px/village.py` dessine la carte 144x204 (vue 3/4, 7 lieux aux emplacements de l'ancienne carte, fontaine, lampadaires, arbres). Une seule grille de clés, deux palettes : jour (`DAY`) et nuit (`NIGHT` = teinte bleutée + fenêtres/flammes/sol des lampadaires allumés, feux follets au cimetière). 2 images par mode (flammes/eau inversées) → `public/px/village/{day,night}_{0,1}.png`, alternées en CSS (`.village-flicker`). Zones cliquables générées dans `src/data/villageSpots.ts` (repère 864x1224 ; poly, c centre, i bouton règles, l étiquette).
+- `VillageMap` : props `mode` ('day'|'night'), `readonly`, sélection = lieu découpé dans un voile sombre + cadre or en pointillés animés + flèche ▼ ; étiquettes en plaques crème. La carte de jour (lecture seule, lieu de la nuit surligné) est affichée dans le rapport d'aube (DayPannel).
+- Pour modifier la carte : éditer `tools/px/village.py`, `python3 tools/px/build.py` ; aperçus `tools/px/village_day.png` / `village_night.png` (x4).

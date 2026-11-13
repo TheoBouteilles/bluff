@@ -5,6 +5,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from px import render, strip, save, OUT
 import avatars as av
 import icons as ic
+import logos
+import village
 from PIL import Image
 
 def main():
@@ -13,12 +15,16 @@ def main():
         save(render(av.face_grid(a), pal), f'avatars/{aid}_face.png')
         save(strip([render(av.body_grid(a, f), pal) for f in (0, 1)]), f'avatars/{aid}_body.png')
     for name, grid in ic.ICONS.items():
-        save(render(grid, ic.P), f'icons/{name}.png')
+        if not name.startswith('team_'):
+            save(render(grid, ic.P), f'icons/{name}.png')
+    logos.build(save)
+    prev = village.build(save)
+    prev[0].save(OUT.parent.parent / 'tools' / 'px' / 'village_day.png'); prev[1].save(OUT.parent.parent / 'tools' / 'px' / 'village_night.png')
     # Planche de contrôle (x6) pour vérification visuelle
     faces = [render(av.face_grid(a), av.palette(a)) for a in av.A.values()]
     bodies = [render(av.body_grid(a, 0), av.palette(a)) for a in av.A.values()]
-    icons = [render(g, ic.P) for g in ic.ICONS.values()]
-    sheet = Image.new('RGBA', (16 * len(faces) + 4, 16 + 24 + 24 + 12), (16, 24, 32, 255))
+    icons = [Image.open(OUT / 'icons' / f'{n}.png') for n in ['coin','crown','ghost','moon','sun','skull','check','lock','team_villageois','team_saboteurs','team_solitaires','team_villageois_s','team_saboteurs_s','team_solitaires_s']]
+    sheet = Image.new('RGBA', (max(16 * len(faces) + 4, 260), 16 + 24 + 40 + 4), (16, 24, 32, 255))
     for i, (f, b) in enumerate(zip(faces, bodies)):
         sheet.paste(f, (2 + i * 16, 2), f); sheet.paste(b, (2 + i * 16, 20), b)
     x = 2

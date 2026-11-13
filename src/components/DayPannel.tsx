@@ -4,6 +4,7 @@ import { LOCATIONS } from '../data/locations'
 import type { DawnReport } from '../lib/api'
 import type { Player } from '../types'
 import { panelClass } from './ui'
+import VillageMap from './VillageMap'
 
 type Props = { report: DawnReport | null; players: Player[] }
 
@@ -123,6 +124,7 @@ export default function DayPanel({ report, players }: Props) {
           </ul>
         </section>
       )}
+      <VillageMap mode="day" readonly selected={report?.location ?? undefined} />
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-paper">Rapport de l’aube</h2>
         {!report ? (

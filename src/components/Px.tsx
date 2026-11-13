@@ -4,7 +4,8 @@ import { AVATARS } from '../data/avatars'
 // Taille native (px) de chaque icône de public/px/icons
 const ICON_SIZE: Record<string, [number, number]> = {
   coin: [12, 12], crown: [12, 8], ghost: [12, 12], moon: [12, 12], sun: [12, 12], skull: [12, 9], check: [12, 9], lock: [10, 9],
-  team_villageois: [24, 24], team_saboteurs: [24, 24], team_solitaires: [24, 24],
+  team_villageois: [32, 32], team_saboteurs: [32, 32], team_solitaires: [32, 32],
+  team_villageois_s: [12, 12], team_saboteurs_s: [12, 12], team_solitaires_s: [12, 12],
 }
 
 // Icône pixel art agrandie sans flou

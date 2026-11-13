@@ -20,13 +20,13 @@ export default function RoleCard({ role, tokens, allies = [] }: Props) {
       <div className={`px-ticket border-3 border-ink ${bg}`} style={{ ['--notch-y' as string]: '112px' }}>
         <div className={`flex items-center justify-between gap-3 border-b-3 border-ink px-4 py-2 ${band}`}>
           <p className="flex items-center gap-2 font-pixel text-[11px] uppercase tracking-[0.2em]">
-            <Px name={`team_${role.team}`} scale={1} /> Camp {t.label}
+            <Px name={`team_${role.team}_s`} scale={2} /> Camp {t.label}
           </p>
           <TokenBadge count={tokens} />
         </div>
 
         <div className="flex items-start gap-3 px-4 pt-4 pb-3">
-          <Px name={`team_${role.team}`} scale={3} className="animate-float shrink-0" />
+          <Px name={`team_${role.team}`} scale={2} className="animate-float shrink-0" />
           <div>
             <h2 className="font-display text-3xl font-bold leading-none">{role.name}</h2>
             <p className={`mt-2 font-sans text-sm italic ${muted}`}>{role.description}</p>

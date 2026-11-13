@@ -96,3 +96,11 @@
 @utility px-scan {
   background-image: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
 }
+
+/* Carte du village : alternance des 2 images (flammes, fontaine), pointillés qui défilent, flèche qui rebondit */
+.village-flicker { animation: villageflicker 1.1s steps(1) infinite; }
+@keyframes villageflicker { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+.village-march { animation: villagemarch 0.8s steps(4) infinite; }
+@keyframes villagemarch { to { stroke-dashoffset: -36; } }
+.village-arrow { animation: villagearrow 0.9s steps(2) infinite; }
+@keyframes villagearrow { 50% { transform: translateY(10px); } }
