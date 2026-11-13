@@ -97,10 +97,51 @@
   background-image: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
 }
 
-/* Carte du village : alternance des 2 images (flammes, fontaine), pointillés qui défilent, flèche qui rebondit */
-.village-flicker { animation: villageflicker 1.1s steps(1) infinite; }
-@keyframes villageflicker { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 .village-march { animation: villagemarch 0.8s steps(4) infinite; }
 @keyframes villagemarch { to { stroke-dashoffset: -36; } }
 .village-arrow { animation: villagearrow 0.9s steps(2) infinite; }
 @keyframes villagearrow { 50% { transform: translateY(10px); } }
+
+/* ---------- Carte v2 : couche vivante ---------- */
+.vl-strip { animation: vlstrip 1s steps(var(--n)) infinite; }
+@keyframes vlstrip { from { transform: translateX(0); } to { transform: translateX(var(--sw)); } }
+
+.vl-walk { animation: vlwalk 10s ease-in-out infinite; }
+@keyframes vlwalk { 0%, 8% { transform: translateX(0); } 46%, 54% { transform: translateX(var(--dx)); } 92%, 100% { transform: translateX(0); } }
+.vl-flip { animation: vlflip 10s steps(1) infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes vlflip { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
+
+.vl-fly { animation: vlfly 16s linear infinite; }
+@keyframes vlfly { 0% { transform: translate(0, 0); } 60%, 100% { transform: translate(var(--tx), var(--ty)); } }
+
+.vl-flutter { animation: vlflutter 10s ease-in-out infinite; }
+@keyframes vlflutter {
+  0%, 100% { transform: translate(0, 0); } 20% { transform: translate(36px, -24px); } 40% { transform: translate(64px, 8px); }
+  60% { transform: translate(28px, 30px); } 80% { transform: translate(-20px, 6px); }
+}
+.vl-bat { animation: vlbat 10s ease-in-out infinite; }
+@keyframes vlbat {
+  0%, 100% { transform: translate(0, 0); } 25% { transform: translate(140px, -60px); } 50% { transform: translate(260px, 10px); }
+  75% { transform: translate(120px, 70px); }
+}
+.vl-wisp { animation: vlwisp 5s ease-in-out infinite; }
+@keyframes vlwisp { 0% { transform: translate(0, 0); opacity: 0; } 25% { opacity: 0.9; } 70% { opacity: 0.6; } 100% { transform: translate(14px, -70px); opacity: 0; } }
+
+.vl-smoke { animation: vlsmoke 3.6s ease-out infinite; transform-box: fill-box; transform-origin: center; opacity: 0; }
+@keyframes vlsmoke { 0% { transform: translate(0, 0) scale(0.6); opacity: 0.75; } 100% { transform: translate(34px, -86px) scale(1.8); opacity: 0; } }
+
+.vl-firefly { animation: vlfirefly 3.6s ease-in-out infinite; }
+@keyframes vlfirefly {
+  0%, 100% { transform: translate(0, 0); opacity: 0.1; } 30% { opacity: 1; } 50% { transform: translate(18px, -14px); opacity: 0.4; }
+  70% { opacity: 1; } 85% { transform: translate(-10px, -6px); }
+}
+.vl-leaf { animation: vlleaf 13s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes vlleaf {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; } 5% { opacity: 1; } 25% { transform: translate(230px, 40px) rotate(160deg); }
+  50% { transform: translate(450px, 10px) rotate(320deg); } 75% { transform: translate(680px, 60px) rotate(480deg); }
+  95% { opacity: 1; } 100% { transform: translate(920px, 30px) rotate(640deg); opacity: 0; }
+}
+.vl-clouds { animation: vlclouds 70s linear infinite; }
+@keyframes vlclouds { from { transform: translateX(0); } to { transform: translateX(1500px); } }
+.vl-glow { animation: vlglow 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes vlglow { 0%, 100% { opacity: 0.85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }

@@ -1,12 +1,12 @@
-// Fichier généré par tools/px/village.py : ne pas modifier à la main.
-// Repère : 864 x 1224 (image 144 x 204 agrandie x6). poly = contour, c = centre, i = bouton règles, l = étiquette.
+// Fichier généré par tools/px/village2.py : ne pas modifier à la main.
+// Repère : 864 x 1224 (image 216 x 306 agrandie x4). poly = contour, c = centre, i = bouton règles, l = étiquette.
 export const VILLAGE_SIZE = { w: 864, h: 1224 }
 export const VILLAGE_SPOTS: Record<string, { poly: string; c: [number, number]; i: [number, number]; l: [number, number] }> = {
-  mairie: { poly: '264,0 600,0 600,306 264,306', c: [432, 153], i: [568, 32], l: [432, 332] },
-  casino: { poly: '12,180 276,180 276,408 12,408', c: [144, 294], i: [244, 212], l: [144, 434] },
-  taverne: { poly: '564,102 864,102 864,396 564,396', c: [714, 249], i: [832, 134], l: [714, 422] },
-  poste_garde: { poly: '60,468 336,468 336,774 60,774', c: [198, 621], i: [304, 500], l: [198, 800] },
-  planque: { poly: '600,552 828,552 828,768 600,768', c: [714, 660], i: [796, 584], l: [714, 794] },
-  cimetiere: { poly: '12,834 420,834 420,1158 12,1158', c: [216, 996], i: [388, 866], l: [216, 1184] },
-  maison: { poly: '564,864 828,864 828,1146 564,1146', c: [696, 1005], i: [796, 896], l: [696, 1172] },
+  mairie: { poly: '272,0 592,0 592,288 272,288', c: [432, 144], i: [564, 28], l: [432, 320] },
+  casino: { poly: '16,176 272,176 272,408 16,408', c: [144, 292], i: [244, 204], l: [136, 424] },
+  taverne: { poly: '568,120 864,120 864,400 568,400', c: [716, 260], i: [836, 148], l: [728, 416] },
+  poste_garde: { poly: '24,416 304,416 304,776 24,776', c: [164, 596], i: [276, 444], l: [136, 792] },
+  planque: { poly: '608,544 856,544 856,784 608,784', c: [732, 664], i: [828, 572], l: [712, 800] },
+  cimetiere: { poly: '16,792 440,792 440,1160 16,1160', c: [228, 976], i: [412, 820], l: [208, 1184] },
+  maison: { poly: '592,840 856,840 856,1168 592,1168', c: [724, 1004], i: [828, 868], l: [720, 1184] },
 }

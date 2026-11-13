@@ -6,7 +6,6 @@ from px import render, strip, save, OUT
 import avatars as av
 import icons as ic
 import logos
-import village
 from PIL import Image
 
 def main():
@@ -18,8 +17,6 @@ def main():
         if not name.startswith('team_'):
             save(render(grid, ic.P), f'icons/{name}.png')
     logos.build(save)
-    prev = village.build(save)
-    prev[0].save(OUT.parent.parent / 'tools' / 'px' / 'village_day.png'); prev[1].save(OUT.parent.parent / 'tools' / 'px' / 'village_night.png')
     # Planche de contrôle (x6) pour vérification visuelle
     faces = [render(av.face_grid(a), av.palette(a)) for a in av.A.values()]
     bodies = [render(av.body_grid(a, 0), av.palette(a)) for a in av.A.values()]

@@ -1,6 +1,7 @@
 import type { KeyboardEvent } from 'react'
 import { LOCATIONS } from '../data/locations'
 import { VILLAGE_SIZE, VILLAGE_SPOTS } from '../data/villageSpots'
+import VillageLife from './VillageLife'
 
 type Props = {
   selected?: string
@@ -12,8 +13,8 @@ type Props = {
   marks?: Record<string, { count: number; validated: boolean }> // alliés Saboteurs par lieu (plein = validé, pâle = indécis)
 }
 
-// Carte du village en pixel art (public/px/village/<mode>_<frame>.png, 144 x 204 agrandie x6).
-// Deux images alternent pour animer flammes, fenêtres et fontaine. Zones cliquables : src/data/villageSpots.ts (généré).
+// Carte du village en pixel art : décor fixe public/px/village2/base_<mode>.png (216 x 306 agrandie x4)
+// + couche vivante (VillageLife). Zones cliquables : src/data/villageSpots.ts (généré par tools/px/village2.py).
 export default function VillageMap({ selected, closed = [], mode = 'night', readonly = false, onSelect, onInfo, marks = {} }: Props) {
   const { w: VW, h: VH } = VILLAGE_SIZE
   const keyHandler = (id: string, enabled: boolean) => (e: KeyboardEvent) => {
@@ -33,11 +34,19 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
       aria-label={readonly ? 'Carte du village' : 'Carte du village : choisis où passer la nuit'}
       shapeRendering="crispEdges"
     >
-      <image href={`/px/village/${mode}_0.png`} x="0" y="0" width={VW} height={VH} style={{ imageRendering: 'pixelated' }} />
-      <image href={`/px/village/${mode}_1.png`} x="0" y="0" width={VW} height={VH} className="village-flicker" style={{ imageRendering: 'pixelated' }} />
+      <image href={`/px/village2/base_${mode}.png`} x="0" y="0" width={VW} height={VH} style={{ imageRendering: 'pixelated' }} />
+      <VillageLife mode={mode} />
 
-      {/* Assombrit le reste du village quand un lieu est choisi */}
-      {selected && <rect width={VW} height={VH} fill="rgba(5,8,14,0.45)" pointerEvents="none" />}
+      {/* Assombrit le reste du village quand un lieu est choisi (le lieu reste éclairé grâce au masque) */}
+      {selected && VILLAGE_SPOTS[selected] && (
+        <>
+          <mask id="vm-sel">
+            <rect width={VW} height={VH} fill="white" />
+            <polygon points={VILLAGE_SPOTS[selected].poly} fill="black" />
+          </mask>
+          <rect width={VW} height={VH} fill="rgba(5,8,14,0.5)" mask="url(#vm-sel)" pointerEvents="none" />
+        </>
+      )}
 
       {LOCATIONS.map((l) => {
         const s = VILLAGE_SPOTS[l.id]
@@ -61,9 +70,6 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
               onKeyDown={keyHandler(l.id, interactive)}
               style={{ cursor: readonly ? 'default' : isClosed ? 'not-allowed' : 'pointer', outline: 'none' }}
             >
-              {/* le lieu choisi est « découpé » dans le voile sombre */}
-              {isSelected && <image href={`/px/village/${mode}_0.png`} x="0" y="0" width={VW} height={VH} clipPath={`url(#clip-${l.id})`} style={{ imageRendering: 'pixelated' }} />}
-              <clipPath id={`clip-${l.id}`}><polygon points={s.poly} /></clipPath>
               <polygon
                 points={s.poly}
                 fill={isClosed ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.001)'}
