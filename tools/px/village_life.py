@@ -259,14 +259,37 @@ def build(save):
     add('fountain', 108 - 14, 158 - 22, 520)
     add('flag_blue', 108, 0, 900)
     add('flag_red', 31, 105, 820)
-    for (x, y) in V.TREES_ROUND:
-        add('canopy', x - 10, y - 20, 2600 + (x * 37 % 900))
     import random
     r = random.Random(3)
+    # Touffes d'herbe animées : uniquement sur de l'herbe dégagée de la carte de base
+    # (jamais sur un bâtiment, un chemin, un arbre ou sa couronne animée),
+    # et ajoutées AVANT les couronnes d'arbres pour être dessinées dessous.
+    base = Image.open(ROOT / 'public/px/village2/base_day.png').convert('RGB')
+    bw, bh = base.size  # image de base en pixels art (x1)
+    grass = {tuple(int(COLOR_DAY[K('grass', i)].lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) for i in range(5)}
+    crowns = [(x - 12, y - 22, x + 12, y + 2) for (x, y) in V.TREES_ROUND]
+    def clear(tx, ty):
+        if tx < 1 or ty < 1 or tx + 8 > bw or ty + 7 > bh: return False
+        if any(a <= tx + 7 and tx <= c and b <= ty + 6 and ty <= d for (a, b, c, d) in crowns): return False
+        return all(base.getpixel((xx, yy)) in grass for xx in range(tx - 1, tx + 8) for yy in range(ty - 1, ty + 7))
+    def spot(x, y):
+        for rad in range(0, 24):
+            for dx in range(-rad, rad + 1):
+                for dy in (-rad, rad) if abs(dx) != rad else range(-rad, rad + 1):
+                    if clear(x + dx, y + dy): return (x + dx, y + dy)
+        return None
     tufts = [(30, 140), (70, 200), (150, 120), (190, 120), (120, 230), (100, 215), (140, 270), (8, 200), (210, 160), (60, 110),
              (196, 112), (128, 300), (40, 300), (88, 300), (6, 80), (130, 90)]
+    placed = []
     for (x, y) in tufts:
+        p2 = spot(x, y)
+        if p2 and all(abs(p2[0] - a) > 8 or abs(p2[1] - b) > 7 for (a, b) in placed):
+            placed.append(p2)
+    print('touffes placées :', len(placed), '/', len(tufts))
+    for (x, y) in placed:
         add('tuft', x, y, 1800 + r.randint(0, 900))
+    for (x, y) in V.TREES_ROUND:
+        add('canopy', x - 10, y - 20, 2600 + (x * 37 % 900))
     for (lx, ly) in V.LANTERNS:
         add('flame_small', lx + 1, ly - 9, 420, 'night')
     for lx in (8 + 19, 8 + 36):

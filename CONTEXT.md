@@ -183,3 +183,10 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 ## Correctifs carte et nuit
 - Plus de bulles « i » sur la carte. Dans `NightPannel`, quand un lieu est choisi : menu déroulant `<details>` « Règles : <lieu> » (fermé par défaut, refermé à chaque changement de lieu) sous les actions, juste avant Valider.
 - Poule et rat (`vl-walk`) : le retournement utilisait transform-box: fill-box, dont le cadre englobait toute la bande d'images → saut de position. Désormais `translateX(var(--fw)) scaleX(-1)` avec origine 0,0.
+
+## Fiche lieu et finitions (13 nov.)
+- `src/components/LocationCard.tsx` : fiche lieu façon ticket papier (comme RoleCard) affichée sous la carte quand un lieu est choisi. Bandeau « Fiche lieu » + tag visible/discret, vignette du bâtiment découpée dans `base_<mode>.png` (repère `VILLAGE_SPOTS`), nom, description, « Actions possibles » (options du lieu, styles papier dans NightPannel), règles en menu déroulant fermé en bas de fiche, tampon « Validé » une fois le choix verrouillé.
+- Coche pixel art (`<Px name="check">`) devant « Choix validé » et « Vote validé ».
+- `SettingsPanel` : réglages fermés par défaut (aussi pour l’hôte).
+- Page Règles : barre de titre collée en haut (`sticky`) avec le bouton retour.
+- Touffes d’herbe animées (`tools/px/village_life.py`) : placées automatiquement sur de l’herbe dégagée de la carte de base (jamais sur bâtiment, chemin, arbre ou couronne) et dessinées avant les couronnes d’arbres.

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Avatar } from './Px'
+import { Avatar, Px } from './Px'
 import type { Player } from '../types'
 import { panelClass } from './ui'
 
@@ -70,7 +70,7 @@ export default function VotePanel({ player, others, runoff, choice, onVote, onCa
       {validated ? (
         <div className="flex flex-col gap-2">
           <p className="border border-moss bg-moss/20 p-3 text-center text-sm text-[#bfe9dc]">
-            ✅ Vote validé. En attente des autres joueurs…
+            <Px name="check" scale={2} className="mr-2 align-[-2px]" />Vote validé. En attente des autres joueurs…
           </p>
           <button type="button" onClick={back} disabled={busy} className="px-frame px-press px-4 py-3 font-pixel text-[13px] uppercase tracking-wide text-paper hover:!bg-night-3 disabled:opacity-40">
             ↩ Retour (modifier mon vote)

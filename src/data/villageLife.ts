@@ -34,6 +34,166 @@ export const VILLAGE_LIFE: LifeItem[] = [
   "modes": "both"
  },
  {
+  "sprite": "tuft",
+  "x": 176,
+  "y": 556,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2043,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 312,
+  "y": 828,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2406,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 628,
+  "y": 512,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2357,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 744,
+  "y": 464,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 1933,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 480,
+  "y": 920,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2178,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 400,
+  "y": 860,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2418,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 560,
+  "y": 1080,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2285,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 32,
+  "y": 800,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2440,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 832,
+  "y": 632,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2394,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 284,
+  "y": 460,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 1867,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 744,
+  "y": 408,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2420,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 508,
+  "y": 1196,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 1813,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 156,
+  "y": 1196,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2657,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 348,
+  "y": 1196,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2280,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 56,
+  "y": 408,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2065,
+  "modes": "both"
+ },
+ {
+  "sprite": "tuft",
+  "x": 484,
+  "y": 324,
+  "w": 7,
+  "h": 6,
+  "frames": 4,
+  "dur": 2364,
+  "modes": "both"
+ },
+ {
   "sprite": "canopy",
   "x": 296,
   "y": 368,
@@ -131,166 +291,6 @@ export const VILLAGE_LIFE: LifeItem[] = [
   "h": 16,
   "frames": 4,
   "dur": 2652,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 120,
-  "y": 560,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2043,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 280,
-  "y": 800,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2406,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 600,
-  "y": 480,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2357,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 760,
-  "y": 480,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 1933,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 480,
-  "y": 920,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2178,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 400,
-  "y": 860,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2418,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 560,
-  "y": 1080,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2285,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 32,
-  "y": 800,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2440,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 840,
-  "y": 640,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2394,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 240,
-  "y": 440,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 1867,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 784,
-  "y": 448,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2420,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 512,
-  "y": 1200,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 1813,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 160,
-  "y": 1200,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2657,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 352,
-  "y": 1200,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2280,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 24,
-  "y": 320,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2065,
-  "modes": "both"
- },
- {
-  "sprite": "tuft",
-  "x": 520,
-  "y": 360,
-  "w": 7,
-  "h": 6,
-  "frames": 4,
-  "dur": 2364,
   "modes": "both"
  },
  {

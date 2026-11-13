@@ -42,7 +42,7 @@ function Row({ def, value, editable, onChange }: { def: SettingDef; value: numbe
 
 export default function SettingsPanel({ settings, editable, onChange, onReset }: Props) {
   return (
-    <details className={`${panelClass} p-4`} open={editable}>
+    <details className={`${panelClass} p-4`}>
       <summary className="cursor-pointer text-lg font-bold text-paper">
         Réglages de la partie {!editable && <span className="text-sm font-normal text-mist-d">(choisis par l’hôte)</span>}
       </summary>
