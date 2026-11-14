@@ -9,7 +9,9 @@ import RoleCard from '../components/RoleCard'
 import { Button, Note, Screen, Tabs, TitleBar, TokenBadge } from '../components/ui'
 import VotePanel from '../components/VotePannel'
 import { AVATARS } from '../data/avatars'
-import { SIMPLE_ROLES } from '../data/roles'
+import { SIMPLE_ROLES, SOLO_ROLES } from '../data/roles'
+import SolitairePanel from '../components/SolitairePanel'
+import SettingsPanel from '../components/SettingsPanel'
 import type { Player } from '../types'
 
 /*
@@ -43,6 +45,11 @@ export default function Demo() {
       <RoleCard role={SIMPLE_ROLES[0]} tokens={2} />
       <RoleCard role={SIMPLE_ROLES[1]} tokens={3} allies={[players[1]]} />
       <HoldToReveal><RoleCard role={SIMPLE_ROLES[0]} tokens={1} /></HoldToReveal>
+      <RoleCard role={SOLO_ROLES[0]} tokens={6} />
+      <SolitairePanel secret={{ player_id: 'p4', role_id: 'capitaliste', team: 'solitaires', tokens: 6 }} alive canAct goal={10} switchCost={2} onSide={noop} />
+      <RoleCard role={SOLO_ROLES[1]} tokens={3} />
+      <SolitairePanel secret={{ player_id: 'p4', role_id: 'opportuniste', team: 'solitaires', tokens: 3, side: 'saboteurs' }} alive canAct goal={10} switchCost={2} onSide={noop} />
+      <SettingsPanel settings={{ solitaires_on: 1, timers_on: 0, capitaliste_goal: 12 }} editable onChange={noop} onReset={noop} />
       <NightPanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} tokens={3} totalPlayers={7} isSaboteur choice={undefined} closed={['casino']} ghosts={[players[3]]} namedCemetery allyInfo={[{ name: 'Jeanne', location: 'taverne', validated: false, haunted: [] }]} onValidate={noop} onCancel={noop} />
       <VotePanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} choice={vote} onVote={(t) => setVote(t)} onCancel={() => setVote(undefined)} />
       <DayPanel players={players} report={{ location: 'taverne', present: ['p1', 'p2'], result: { rumeur: { targets: ['p1', 'p2', 'p6'], has_saboteur: true } }, closed_next: [], cry: false, killed: false, deaths: [{ player_id: 'p3', location: null }] }} />

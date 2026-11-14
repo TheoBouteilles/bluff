@@ -117,6 +117,19 @@ export default function RulesPanel({ settings }: Props) {
           'Saboteurs plus nombreux que les autres : victoire immédiate.',
         ]} />
       </Section>
+
+      <Section title="Solitaires (en option)">
+        {s('solitaires_on') === 1 ? (
+          <List items={[
+            `1 Solitaire à partir de ${s('solitaire1_min_players')} joueurs, 2 à partir de ${s('solitaire2_min_players')} (tirés parmi le Capitaliste et l’Opportuniste). Ils remplacent des Villageois.`,
+            'Ils jouent les lieux comme les Villageois (mêmes jetons), peuvent être tués la nuit, passent pour innocents aux rumeurs et comptent parmi les « autres » face aux Saboteurs. Leur victoire est personnelle et s’ajoute à celle du camp gagnant.',
+            `Capitaliste : gagne dès qu’il détient ${j(s('capitaliste_goal'))}, même s’il meurt ensuite.`,
+            `Opportuniste : parie en secret sur un camp (premier choix gratuit, puis ${j(s('opportuniste_switch_cost'))} par changement, la nuit). Gagne s’il est en vie à la fin et que son camp l’emporte.`,
+          ]} />
+        ) : (
+          <p>Pas de Solitaire dans cette partie.</p>
+        )}
+      </Section>
     </div>
   )
 }

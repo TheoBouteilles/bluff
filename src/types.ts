@@ -33,4 +33,6 @@ export type PlayerSecret = {
   role_id: string
   team: 'villageois' | 'saboteurs' | 'solitaires'
   tokens: number
+  side?: 'villageois' | 'saboteurs' | null // pari de l'Opportuniste
+  solo_won?: boolean // victoire personnelle d'un Solitaire (Capitaliste : acquise dès l'objectif atteint)
 }

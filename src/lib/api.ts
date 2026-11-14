@@ -30,6 +30,7 @@ const MESSAGES: Record<string, string> = {
   not_ghost: 'Réservé aux fantômes.',
   tomb_locked: 'Ta tombe est déjà choisie : ce choix est définitif.',
   not_playing: 'La partie n’est pas en cours.',
+  not_opportunist: 'Réservé à l’Opportuniste.',
   players_not_ready: 'Tous les joueurs n’ont pas encore validé leur choix.',
 }
 
@@ -102,7 +103,7 @@ export type VoteResult = {
   runoffs: number
   drawn: boolean
 }
-export type FinalRole = { player_id: string; role_id: string; team: string }
+export type FinalRole = { player_id: string; role_id: string; team: string; solo_won?: boolean; side?: string | null }
 
 export const cancelNightAction = (roomId: string, playerId?: string) =>
   rpc<void>('cancel_night_action', { p_room_id: roomId, p_player_id: playerId ?? null })
@@ -183,6 +184,8 @@ export type MyStats = {
   villageois_wins: number
   saboteurs_games: number
   saboteurs_wins: number
+  solitaires_games?: number
+  solitaires_wins?: number
   current_streak: number
   best_streak: number
   nights_survived: number
@@ -211,3 +214,7 @@ export type MyStats = {
 }
 export const getMyStats = () => rpc<MyStats>('get_my_stats', {})
 export const getNewTrophies = (roomId: string) => rpc<string[]>('get_new_trophies', { p_room_id: roomId })
+
+// Opportuniste : parier sur un camp (la nuit ; premier choix gratuit)
+export const setOpportunistSide = (roomId: string, side: 'villageois' | 'saboteurs', playerId?: string) =>
+  rpc<void>('set_opportunist_side', { p_room_id: roomId, p_side: side, p_player_id: playerId ?? null })

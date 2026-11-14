@@ -10,26 +10,26 @@ export type Role = {
 }
 
 export const TEAMS: { id: TeamId; label: string; text: string }[] = [
-  { id: 'villageois', label: 'Villageois (Gentils)', text: 'text-[#7fb3e0]' },
-  { id: 'saboteurs', label: 'Saboteurs (Méchants)', text: 'text-[#e8847c]' },
-  { id: 'solitaires', label: 'Solitaires', text: 'text-[#8fd6c2]' },
+  { id: 'villageois', label: 'Villageois', text: 'text-[#7fb3e0]' },
+  { id: 'saboteurs', label: 'Saboteurs', text: 'text-[#e8847c]' },
+  { id: 'solitaires', label: 'Solitaires (en option)', text: 'text-[#8fd6c2]' },
 ]
 
-const V = 'Victoire des Villageois.'
-const S = 'Éliminer ou égaliser le nombre de Villageois.'
-
-export const ROLES: Role[] = [
-  { id: 'mecene', name: 'Le Mécène', team: 'villageois', description: 'Pilier bienveillant de la communauté.', power: 'Distribue 1 ou 2 jetons supplémentaires à d’autres joueurs pendant la phase secrète.', victory: V },
-  { id: 'enqueteur', name: 'L’Enquêteur', team: 'villageois', description: 'Joueur perspicace traquant les indices.', power: 'Dépense 1 jeton pour obtenir une information partielle sur l’alignement d’un joueur.', victory: V },
-  { id: 'garde_du_corps', name: 'Le Garde du Corps', team: 'villageois', description: 'Protecteur discret du groupe.', power: 'Protège un joueur ciblé contre un vote ou une action malveillante pendant le tour.', victory: V },
-  { id: 'juge', name: 'Le Juge intègre', team: 'villageois', description: 'Arbitre à forte influence lors des jugements.', power: 'Bénéficie d’un double vote (permanent ou activable sous condition de ressources).', victory: V },
-  { id: 'temoin', name: 'Le Témoin aveugle', team: 'villageois', description: 'Citoyen observateur mais manque parfois de discernement.', power: 'Apprend à chaque fin de tour combien de pouvoirs ont été activés au total.', victory: V },
-  { id: 'saboteur', name: 'Le Saboteur de l’ombre', team: 'saboteurs', description: 'Saboteur principal du groupe.', power: 'Dépense des jetons pour bloquer le vote d’un joueur adverse pendant le débat.', victory: S },
-  { id: 'corrupteur', name: 'Le Corrupteur', team: 'saboteurs', description: 'Maître chanteur influençant le flux de ressources.', power: 'Intercepte ou détruit un jeton transféré, ou force un joueur à céder une ressource.', victory: S },
-  { id: 'cameleon', name: 'Le Caméléon', team: 'saboteurs', description: 'Espion capable de faire illusion.', power: 'Apparaît comme un simple Villageois innocent lors des enquêtes.', victory: S },
-  { id: 'intercepteur', name: 'L’Intercepteur', team: 'saboteurs', description: 'Saboteur opportuniste à l’affût des transactions.', power: 'Choisit secrètement quel joueur le Mécène va financer. S’il devine juste, il intercepte les jetons à sa place.', victory: S },
-  { id: 'capitaliste', name: 'Le Capitaliste', team: 'solitaires', description: 'Stratège cupide cherchant à accumuler des richesses.', power: 'Aucun pouvoir direct utile : doit mentir et faire croire qu’il détient un pouvoir clé pour amasser des jetons.', victory: 'Accumuler au moins 10 jetons avant la fin de la partie.' },
-  { id: 'opportuniste', name: 'L’Opportuniste', team: 'solitaires', description: 'Caméléon politique cherchant le camp gagnant.', power: 'Dépense des jetons pour tenter de changer d’équipe en cours de partie.', victory: 'Survivre jusqu’à la fin et faire partie du camp vainqueur.' },
+// Les rôles spéciaux (Mécène, Enquêteur, Caméléon…) ont été abandonnés : la partie se joue
+// Villageois contre Saboteurs, avec en option 1 ou 2 Solitaires quand il y a assez de joueurs.
+export const SOLO_ROLES: Role[] = [
+  {
+    id: 'capitaliste', name: 'Le Capitaliste', team: 'solitaires',
+    description: 'Stratège cupide qui ne pense qu’à sa fortune.',
+    power: 'Aucun pouvoir : il joue les lieux comme tout le monde et peut mentir sur son camp pour se faire offrir des jetons. Il peut être tué la nuit et passe pour innocent aux rumeurs.',
+    victory: 'Détenir l’objectif de jetons (10 par défaut) à un moment de la partie. Sa victoire est alors acquise, même s’il meurt ensuite.',
+  },
+  {
+    id: 'opportuniste', name: 'L’Opportuniste', team: 'solitaires',
+    description: 'Caméléon politique qui roule pour le camp gagnant.',
+    power: 'Parie en secret sur un camp (Villageois ou Saboteurs). Premier choix gratuit, puis chaque changement coûte des jetons, la nuit seulement. Il peut être tué la nuit et passe pour innocent aux rumeurs.',
+    victory: 'Être en vie à la fin de la partie et avoir parié sur le camp vainqueur.',
+  },
 ]
 
 export const TEAM_STYLE: Record<TeamId, { label: string; text: string; border: string }> = {
@@ -38,7 +38,7 @@ export const TEAM_STYLE: Record<TeamId, { label: string; text: string; border: s
   solitaires: { label: 'Solitaire', text: 'text-[#8fd6c2]', border: 'border-moss' },
 }
 
-// Rôles de la version simplifiée (hors liste publique des rôles)
+// Les deux camps principaux
 export const SIMPLE_ROLES: Role[] = [
   {
     id: 'villageois_simple',
@@ -58,5 +58,7 @@ export const SIMPLE_ROLES: Role[] = [
   },
 ]
 
-export const getRole = (id: string): Role | undefined =>
-  [...ROLES, ...SIMPLE_ROLES].find((r) => r.id === id)
+// Rôles jouables, affichés dans le menu Rôles
+export const ROLES: Role[] = [...SIMPLE_ROLES, ...SOLO_ROLES]
+
+export const getRole = (id: string): Role | undefined => ROLES.find((r) => r.id === id)

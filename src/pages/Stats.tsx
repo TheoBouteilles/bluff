@@ -85,9 +85,10 @@ export default function Stats() {
 
           <Section title="Par camp">
             <ul>
-              {(['villageois', 'saboteurs'] as const).map((t) => {
-                const g = stats[`${t}_games`]
-                const w = stats[`${t}_wins`]
+              {(['villageois', 'saboteurs', 'solitaires'] as const).map((t) => {
+                const g = stats[`${t}_games`] ?? 0
+                const w = stats[`${t}_wins`] ?? 0
+                if (t === 'solitaires' && g === 0) return null
                 return (
                   <Row key={t}
                     label={<span className={`inline-flex items-center gap-2 ${TEAM_STYLE[t].text}`}><Px name={`team_${t}_s`} scale={2} /> {TEAM_STYLE[t].label}</span>}

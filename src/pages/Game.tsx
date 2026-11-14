@@ -7,6 +7,7 @@ import HoldToReveal from '../components/HoldToReveal'
 import NightPanel from '../components/NightPannel'
 import ResultPanel from '../components/ResultPannel'
 import RoleCard from '../components/RoleCard'
+import SolitairePanel from '../components/SolitairePanel'
 import RulesPanel from '../components/RulesPanel'
 import VotePanel from '../components/VotePannel'
 import { Button, Note, Screen, Tabs, TokenBadge, panelClass } from '../components/ui'
@@ -24,7 +25,7 @@ import { useRoomSettings } from '../hooks/useRoomSettings'
 import { useSaboteurVision } from '../hooks/useSaboteurVision'
 import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
-import { advancePhase, cancelNightAction, setNightDraft, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
+import { advancePhase, cancelNightAction, setNightDraft, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, setOpportunistSide, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
 import SoundButton from '../components/SoundOptions'
 import { useMusic } from '../hooks/useAudio'
@@ -223,6 +224,14 @@ export default function Game() {
     })
   }
 
+  // Opportuniste : pari sur un camp (même son que toute action secrète)
+  async function chooseSide(side: 'villageois' | 'saboteurs') {
+    await runOk(async () => {
+      await setOpportunistSide(roomId, side, tIsMe ? undefined : tId)
+      await reload()
+    })
+  }
+
   async function castVote(targetId: string | null) {
     await runOk(async () => {
       await submitVote(roomId, targetId, tIsMe ? undefined : tId)
@@ -311,6 +320,17 @@ export default function Game() {
           { id: 'rules', label: 'Règles' },
         ]}
       />
+
+      {tab === 'action' && secret?.team === 'solitaires' && room.phase !== 'ended' && (
+        <SolitairePanel
+          secret={secret}
+          alive={target.is_alive}
+          canAct={room.phase === 'night'}
+          goal={cfg.settings.capitaliste_goal ?? 10}
+          switchCost={cfg.settings.opportuniste_switch_cost ?? 2}
+          onSide={chooseSide}
+        />
+      )}
 
       {tab === 'rules' ? (
         <RulesPanel settings={cfg.settings} />

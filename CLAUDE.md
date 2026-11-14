@@ -10,11 +10,7 @@ Dépôt GitHub privé. Le code est édité directement dans le dépôt avec Clau
 - L'hôte est un joueur normal, sans pouvoir spécial. S'il disparaît (> 25 s sans heartbeat), un autre joueur devient hôte.
 - Tour : Nuit (actions secrètes avec jetons) > Jour (débat oral) > Vote > Élimination > tour suivant.
 - L'élimination révèle l'équipe, pas forcément le rôle exact. Éliminés = spectateurs (actions possibles en v2).
-- Jetons de départ : 2 pour les Saboteurs, 1 pour les autres.
-- 11 rôles (tableur Drive "Rôles") : 5 Villageois (Mécène, Enquêteur, Garde du Corps, Juge intègre, Témoin aveugle), 4 Saboteurs (Saboteur de l'ombre, Corrupteur, Caméléon, Intercepteur), 2 Solitaires (Capitaliste, Opportuniste).
-- Distribution de test (à rééquilibrer) : 4j=1S/3V ; 5j=1S/4V ; 6j=2S/3V/1Sol ; 7j=2S/3V/2Sol ; 8j=2S/4V/2Sol ; 9j=3S/4V/2Sol ; 10j=3S/5V/2Sol.
-- Règle de dépendance : si l'Intercepteur est tiré, le Mécène l'est aussi.
-- Solitaire : 1 à partir de 6 joueurs, 2 à partir de 7.
+- Rôles : Villageois et Saboteurs (rôles « simples » sans pouvoir), plus 2 Solitaires en option (Capitaliste, Opportuniste), voir « Solitaires (0018) ». Les 9 autres rôles spéciaux du tableur (Mécène, Enquêteur, Caméléon…) sont abandonnés : trop de complexité.
 
 ## Architecture
 - Les rôles vivent en dur dans src/data/roles.ts. La base ne stocke que role_id (texte).
@@ -208,3 +204,13 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 
 ## Correctif revote
 - Au départage, le serveur efface les votes de la manche : `useVoteChoices` recharge à chaque `vote_step` et le `VotePanel` est remonté (clé `tId-vote_step`), sans choix présélectionné.
+
+## Solitaires (migration 0018_solitaires.sql)
+- Rôles abandonnés : seuls `villageois_simple`, `saboteur_simple`, `capitaliste`, `opportuniste` existent (`src/data/roles.ts` : `SIMPLE_ROLES`, `SOLO_ROLES`, `ROLES` = menu Rôles). `start_game` n'a plus de branche « roles ».
+- Distribution (réglages du salon) : `solitaires_on` (1), 1 Solitaire dès `solitaire1_min_players` (7), 2 dès `solitaire2_min_players` (8), tirés parmi les deux ; ils remplacent des Villageois (toujours au moins 1 Villageois).
+- Solitaires = « non-Saboteurs » : tuables, innocents aux rumeurs, comptent face aux Saboteurs pour la victoire du camp, jetons et revenus des Villageois. Leur victoire est personnelle (`player_secrets.solo_won`), en plus du camp gagnant (`rooms.winner` inchangé).
+- Capitaliste : trigger `player_secrets_capitaliste` (avant mise à jour des jetons) → `solo_won` dès `tokens >= capitaliste_goal` (10), acquis définitivement.
+- Opportuniste : pari secret `player_secrets.side` via RPC `set_opportunist_side(room, side, player)` (nuit, vivant ; 1er choix gratuit, changement = `opportuniste_switch_cost` 2). Bot : pari au hasard au lancement. Trigger `rooms_end_solitaires` à la fin (avant `rooms_record_stats`, ordre alphabétique) : `solo_won` = vivant et `side = winner`.
+- `get_final_roles` renvoie `solo_won` et `side` ; stats : victoire d'un Solitaire = `solo_won`, `get_my_stats` renvoie `solitaires_games/wins`.
+- Front : `SolitairePanel.tsx` (objectif du Capitaliste avec jauge, pari de l'Opportuniste) en haut de l'onglet d'action ; `EndPannel` (victoire personnelle), `RulesPanel` (section Solitaires), `RolesList`.
+- Réglages : `SettingsPanel` en sections repliables (Camps et Solitaires, Jetons, Meurtres, Lieux et prix, Fantômes et Saboteurs, Vote et victoire, Minuteurs) avec compteur de valeurs modifiées ; `showIf` masque un réglage sans effet (durées sans minuteurs, seuils sans Solitaires, tombes avec cimetière nominatif…).

@@ -12,6 +12,11 @@ export default function RolesList() {
           <h2 className={`flex items-center gap-2 font-display text-xl font-bold uppercase tracking-wider ${TEAM_STYLE[t.id].text}`}>
             <Px name={`team_${t.id}`} scale={1} /> {t.label}
           </h2>
+          {t.id === 'solitaires' && (
+            <p className="-mt-1 font-sans text-sm text-mist-d">
+              Activés par l’hôte dans les réglages : 1 Solitaire à partir de 7 joueurs, 2 à partir de 8 (seuils réglables). Leur victoire est personnelle.
+            </p>
+          )}
           {ROLES.filter((r) => r.team === t.id).map((r) => (
             <article key={r.id} className={`px-frame border-l-8 p-4 ${TEAM_STYLE[t.id].border}`}>
               <h3 className="font-display text-lg font-bold text-paper">{r.name}</h3>

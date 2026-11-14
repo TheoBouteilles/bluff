@@ -80,7 +80,15 @@ export default function EndPanel({ roomId, demoTrophies = [], winner, roles, pla
                   <span className={p && !p.is_alive ? 'text-mist-d line-through' : ''}>
                     {p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Joueur'}
                   </span>
-                  <span className={team?.text}>{role?.name ?? r.role_id}</span>
+                  <span className={`text-right ${team?.text ?? ''}`}>
+                    {role?.name ?? r.role_id}
+                    {r.team === 'solitaires' && (
+                      <span className={`block font-pixel text-[10px] uppercase ${r.solo_won ? 'text-gold' : 'text-mist-d'}`}>
+                        {r.solo_won ? '✓ victoire personnelle' : '✗ objectif manqué'}
+                        {r.role_id === 'opportuniste' && r.side ? ` · pari ${r.side === 'saboteurs' ? 'Saboteurs' : 'Villageois'}` : ''}
+                      </span>
+                    )}
+                  </span>
                 </li>
               )
             })}
