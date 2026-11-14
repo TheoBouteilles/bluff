@@ -19,3 +19,7 @@ export function ensureSession(): Promise<User> {
   }
   return pending
 }
+// À appeler après une connexion ou une déconnexion : la prochaine demande relit la session courante
+export function resetSessionCache() {
+  pending = null
+}

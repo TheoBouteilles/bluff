@@ -33,6 +33,7 @@ export default function Home() {
         <div className="flex justify-center gap-2">
           <Link to="/roles" className={styles.ghost}>Voir les rôles</Link>
           <Link to="/stats" className={styles.ghost}>Statistiques</Link>
+          <Link to="/profil" className={styles.ghost}>Profil</Link>
           <SoundButton variant="link" />
         </div>
       </div>

@@ -11,3 +11,20 @@ export const AVATARS = [
   { id: 'raton', name: 'Raton', emoji: '🦝', color: '#8f8a84' },
   { id: 'dragon', name: 'Dragon', emoji: '🐲', color: '#c93b3b' },
 ]
+
+// Apparence personnalisée (profil) : calques générés par tools/px/build_looks.py dans public/px/looks/.
+// Indices alignés sur tools/px/looks.py et clean_look() en SQL (migration 0021).
+export type Look = { t?: number; a?: number }
+
+export const TUNICS = [
+  { name: 'Naturelle', color: null },
+  { name: 'Rouge', color: '#b03a3a' },
+  { name: 'Bleue', color: '#3a6fb0' },
+  { name: 'Verte', color: '#3f8f4f' },
+  { name: 'Violette', color: '#7a4aa8' },
+  { name: 'Dorée', color: '#d9a93a' },
+  { name: 'Noire', color: '#33333d' },
+  { name: 'Blanche', color: '#e8e2d4' },
+] as const
+
+export const ACCESSORIES = ['Aucun', 'Chapeau', 'Chapeau pointu', 'Couronne', 'Bandeau', 'Lunettes', 'Fleur'] as const

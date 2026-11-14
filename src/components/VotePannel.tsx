@@ -58,7 +58,7 @@ export default function VotePanel({ player, others, runoff, choice, onVote, onCa
       <div className="grid grid-cols-1 gap-2">
         {others.map((p) => (
           <button key={p.id} type="button" onClick={() => pick(p.id)} className={chip(current === p.id)}>
-            <Avatar index={p.avatar} scale={2} />
+            <Avatar index={p.avatar} look={p.look} scale={2} />
             <span className="font-semibold">{p.nickname}</span>
           </button>
         ))}

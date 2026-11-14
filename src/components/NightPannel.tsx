@@ -71,7 +71,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
 
   const playerChip = (p: Player, active: boolean, onClick: () => void) => (
     <button key={p.id} type="button" onClick={onClick} className={chip(active)}>
-      <Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}
+      <Avatar index={p.avatar} look={p.look} scale={1} className="mr-1 inline align-middle" />{p.nickname}
     </button>
   )
 
@@ -252,7 +252,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             </button>
             {ghosts.map((g) => (
               <button key={g.id} type="button" disabled={!canPay} onClick={() => onChoose('cimetiere', { ghost: g.id })} className={chip(params.ghost === g.id, !canPay)}>
-                🪦 <Avatar index={g.avatar} scale={1} className="mx-1 inline align-middle" />{g.nickname}
+                🪦 <Avatar index={g.avatar} look={g.look} scale={1} className="mx-1 inline align-middle" />{g.nickname}
               </button>
             ))}
           </div>

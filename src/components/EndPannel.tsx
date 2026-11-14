@@ -78,7 +78,7 @@ export default function EndPanel({ roomId, demoTrophies = [], winner, roles, pla
               return (
                 <li key={r.player_id} className="flex items-center justify-between gap-3">
                   <span className={p && !p.is_alive ? 'text-mist-d line-through' : ''}>
-                    {p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Joueur'}
+                    {p ? <><Avatar index={p.avatar} look={p.look} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Joueur'}
                   </span>
                   <span className={`text-right ${team?.text ?? ''}`}>
                     {role?.name ?? r.role_id}

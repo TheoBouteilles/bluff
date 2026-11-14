@@ -5,6 +5,7 @@ import BackLink from '../components/BackLink'
 import { Px } from '../components/Px'
 import { Label, Screen, TitleBar, styles } from '../components/ui'
 import { getMyStats } from '../lib/api'
+import { useProfile } from '../hooks/useProfile'
 import type { MyStats } from '../lib/api'
 import { TROPHIES } from '../data/trophies'
 import { LOCATIONS } from '../data/locations'
@@ -44,6 +45,7 @@ function Row({ label, value }: { label: ReactNode; value: ReactNode }) {
 }
 
 export default function Stats() {
+  const { account } = useProfile()
   const [stats, setStats] = useState<MyStats | null>(null)
   const [failed, setFailed] = useState(false)
 
@@ -187,7 +189,9 @@ export default function Stats() {
           )}
 
           <Link to="/equilibrage" className={`${styles.secondary} w-full`}>Équilibrage du jeu (toutes les parties)</Link>
-          <Label className="text-center">Stats liées à cet appareil · comptes bientôt</Label>
+          <Label className="text-center">
+            {account.guest ? <>Invité : stats liées à cet appareil · <Link to="/profil" className="underline">se connecter pour les garder</Link></> : 'Stats liées à ton compte'}
+          </Label>
         </>
       )}
     </Screen>

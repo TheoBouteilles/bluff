@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import BackLink from '../components/BackLink'
+import { Avatar } from '../components/Px'
+import { Link } from 'react-router-dom'
+import { updateProfile, useProfile } from '../hooks/useProfile'
 import { Button, Label, Note, Screen, TitleBar, inputClass } from '../components/ui'
 import { errorMessage, joinRoom, saveLastRoom } from '../lib/api'
 
@@ -10,6 +13,13 @@ export default function JoinRoom() {
   const params = useParams()
   const [code, setCode] = useState((params.code ?? '').toUpperCase())
   const [nickname, setNickname] = useState('')
+  const { profile } = useProfile()
+  const prefilled = useRef(false)
+  useEffect(() => {
+    if (prefilled.current || !profile) return
+    prefilled.current = true
+    if (profile.nickname) setNickname((n) => n || profile.nickname || '')
+  }, [profile])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -20,6 +30,7 @@ export default function JoinRoom() {
     try {
       const r = await joinRoom(code, nickname.trim())
       saveLastRoom(r.code)
+      if (!profile?.nickname) updateProfile({ nickname: nickname.trim() }).catch(() => undefined)
       navigate(`/salon/${r.code}`)
     } catch (err) {
       setError(errorMessage(err))
@@ -42,7 +53,12 @@ export default function JoinRoom() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <Label>Ton pseudo</Label>
+          <div className="flex items-center justify-between">
+            <Label>Ton pseudo</Label>
+            <Link to="/profil" className="flex items-center gap-2 font-pixel text-[10px] uppercase tracking-wider text-sand underline decoration-2 underline-offset-4">
+              {profile?.avatar != null && <Avatar index={profile.avatar} look={profile.look} scale={1} />} Mon avatar
+            </Link>
+          </div>
           <input className={inputClass} placeholder="Ex. Marcel" maxLength={20} value={nickname} onChange={(e) => setNickname(e.target.value)} />
         </div>
         {error && <Note tone="danger">{error}</Note>}

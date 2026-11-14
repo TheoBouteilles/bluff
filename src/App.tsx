@@ -9,8 +9,11 @@ import RolesList from './pages/RolesList'
 import Game from './pages/Game'
 import Stats from './pages/Stats'
 import Balance from './pages/Balance'
+import Profile from './pages/Profile'
+import { useProfileSync } from './hooks/useProfile'
 
 export default function App() {
+  useProfileSync()
   return (
     <BrowserRouter>
       <Routes>
@@ -24,6 +27,7 @@ export default function App() {
         <Route path="/roles" element={<RolesList />} />
         <Route path="/stats" element={<Stats />} />
         <Route path="/equilibrage" element={<Balance />} />
+        <Route path="/profil" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

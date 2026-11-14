@@ -11,7 +11,7 @@ type Props = { report: DawnReport | null; players: Player[] }
 export default function DayPanel({ report, players }: Props) {
   const nameOf = (id: string) => {
     const p = players.find((x) => x.id === id)
-    return p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
+    return p ? <><Avatar index={p.avatar} look={p.look} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
   }
   const locName = (id: string | null | undefined) => LOCATIONS.find((l) => l.id === id)?.name
   const loc = LOCATIONS.find((l) => l.id === report?.location)
@@ -155,7 +155,7 @@ export default function DayPanel({ report, players }: Props) {
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {present.map((p) => (
                       <li key={p.id} className="bg-night px-3 py-1">
-                        <Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}
+                        <Avatar index={p.avatar} look={p.look} scale={1} className="mr-1 inline align-middle" />{p.nickname}
                       </li>
                     ))}
                   </ul>

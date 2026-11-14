@@ -245,3 +245,17 @@ export type BalanceStats = {
   recent: BalanceGame[]
 }
 export const getBalanceStats = () => rpc<BalanceStats>('get_balance_stats', {})
+
+// Profil (migration 0021) : pseudo, avatar, apparence et préférences, pour invités comme pour comptes
+export type Profile = {
+  nickname: string | null
+  avatar: number | null
+  look: { t?: number; a?: number }
+  prefs: Record<string, unknown>
+}
+export const getMyProfile = () => rpc<Profile>('get_my_profile', {})
+export const saveMyProfile = (p: { nickname?: string | null; avatar?: number | null; look?: { t?: number; a?: number } | null; prefs?: Record<string, unknown> | null }) =>
+  rpc<Profile>('save_my_profile', { p_nickname: p.nickname ?? null, p_avatar: p.avatar ?? null, p_look: p.look ?? null, p_prefs: p.prefs ?? null })
+export const createMergeTicket = () => rpc<string | null>('create_merge_ticket', {})
+export const claimMergeTicket = (ticket: string) =>
+  rpc<{ merged: boolean; games?: number; seats?: number }>('claim_merge_ticket', { p_ticket: ticket })

@@ -11,7 +11,7 @@ export default function ResultPanel({ result, players }: Props) {
   if (!result) return <p className="text-center text-mist-d">Chargement…</p>
   const nameOf = (id: string) => {
     const p = players.find((x) => x.id === id)
-    return p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
+    return p ? <><Avatar index={p.avatar} look={p.look} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
   }
   const eliminated = result.eliminated_id ? nameOf(result.eliminated_id) : null
   const team = result.eliminated_team ? TEAM_STYLE[result.eliminated_team as TeamId] : undefined

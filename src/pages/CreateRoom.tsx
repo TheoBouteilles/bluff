@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BackLink from '../components/BackLink'
+import { Avatar } from '../components/Px'
+import { Link } from 'react-router-dom'
+import { updateProfile, useProfile } from '../hooks/useProfile'
 import { Button, Label, Note, Screen, TitleBar, inputClass } from '../components/ui'
 import { createRoom, errorMessage, saveLastRoom } from '../lib/api'
 
 export default function CreateRoom() {
   const navigate = useNavigate()
   const [nickname, setNickname] = useState('')
+  const { profile } = useProfile()
+  const prefilled = useRef(false)
+  useEffect(() => {
+    if (prefilled.current || !profile) return
+    prefilled.current = true
+    if (profile.nickname) setNickname((n) => n || profile.nickname || '')
+  }, [profile])
   const [debug, setDebug] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -19,6 +29,7 @@ export default function CreateRoom() {
     try {
       const r = await createRoom(nickname.trim(), debug)
       saveLastRoom(r.code)
+      if (!profile?.nickname) updateProfile({ nickname: nickname.trim() }).catch(() => undefined)
       navigate(`/salon/${r.code}`)
     } catch (err) {
       setError(errorMessage(err))
@@ -31,7 +42,12 @@ export default function CreateRoom() {
       <TitleBar title="Créer une partie" left={<BackLink to="/" />} />
       <form onSubmit={submit} className="px-frame flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-2">
-          <Label>Ton pseudo</Label>
+          <div className="flex items-center justify-between">
+            <Label>Ton pseudo</Label>
+            <Link to="/profil" className="flex items-center gap-2 font-pixel text-[10px] uppercase tracking-wider text-sand underline decoration-2 underline-offset-4">
+              {profile?.avatar != null && <Avatar index={profile.avatar} look={profile.look} scale={1} />} Mon avatar
+            </Link>
+          </div>
           <input className={inputClass} placeholder="Ex. Marcel" maxLength={20} autoFocus value={nickname} onChange={(e) => setNickname(e.target.value)} />
         </div>
         <label className="flex items-center gap-3 font-sans text-sm text-mist">

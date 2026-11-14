@@ -51,7 +51,7 @@ export default function RoleCard({ role, tokens, allies = [] }: Props) {
               <ul className="mt-2 flex flex-wrap gap-3">
                 {allies.map((a) => (
                   <li key={a.id} className="flex items-center gap-2 border-2 border-ink bg-night px-2 py-1 text-paper">
-                    <Avatar index={a.avatar} scale={2} /> {a.nickname}
+                    <Avatar index={a.avatar} look={a.look} scale={2} /> {a.nickname}
                   </li>
                 ))}
               </ul>

@@ -5,6 +5,7 @@
 --   « TESTS OK : n vérifications réussies »  → tout va bien
 --   « ÉCHEC [nom du test] : … »             → une règle ne se comporte plus comme prévu
 -- Prérequis : au moins 8 comptes dans auth.users (les sessions anonymes des joueurs suffisent).
+-- Le test 8 passe temporairement un compte en « non invité » (annulé avec le reste).
 
 begin;
 
@@ -213,6 +214,31 @@ begin
     raise exception 'ÉCHEC [sécurité] : un nouveau joueur a rejoint une partie lancée';
   exception when others then if sqlerrm not like '%game_started%' then raise; end if;
   end; ok := ok + 1;
+
+  ---------------------------------------------------------------------------
+  -- 8. Profils et fusion invité → compte (migration 0021)
+  ---------------------------------------------------------------------------
+  r := pg_temp.mkroom('TQGA', 2); rid := r[1];                              -- T1 = invité, T2 = futur compte
+  perform pg_temp.as_player(r[2]);
+  if (public.save_my_profile('Profil', 3, '{"t":2,"a":5,"x":9}', '{"audio":{"music":true}}')->'look')::text <> '{"a": 5, "t": 2}' then
+    raise exception 'ÉCHEC [profil] : apparence mal nettoyée'; end if; ok := ok + 1;
+  v_txt := (public.create_room('Profil', false))->>'room_id';
+  if (select avatar from public.players where room_id = v_txt::uuid) <> 3 then
+    raise exception 'ÉCHEC [profil] : avatar du profil non appliqué en entrant dans un salon'; end if; ok := ok + 1;
+  perform public.save_my_profile(null, 7, null, null);
+  if (select avatar from public.players where room_id = v_txt::uuid) <> 7 then
+    raise exception 'ÉCHEC [profil] : avatar non mis à jour dans le salon d''attente'; end if; ok := ok + 1;
+  v_txt := public.create_merge_ticket();
+  update auth.users set is_anonymous = false where id = (select user_id from public.players where id = r[3]);
+  perform pg_temp.as_player(r[3]);
+  if public.create_merge_ticket() is not null then
+    raise exception 'ÉCHEC [fusion] : un compte (non invité) a pu créer un ticket'; end if; ok := ok + 1;
+  if not (public.claim_merge_ticket(v_txt)->>'merged')::boolean then
+    raise exception 'ÉCHEC [fusion] : le ticket de l''invité n''a pas été accepté'; end if; ok := ok + 1;
+  if (public.claim_merge_ticket(v_txt)->>'merged')::boolean then
+    raise exception 'ÉCHEC [fusion] : un ticket a servi deux fois'; end if; ok := ok + 1;
+  if (public.get_my_profile()->>'avatar')::int <> 7 then
+    raise exception 'ÉCHEC [fusion] : profil de l''invité non rapatrié'; end if; ok := ok + 1;
 
   raise exception 'TESTS OK : % vérifications réussies (transaction annulée)', ok;
 end $tests$;

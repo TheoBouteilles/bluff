@@ -86,7 +86,7 @@ export default function Lobby() {
         <ul className="grid grid-cols-2 gap-2">
           {players.map((p) => (
             <li key={p.id} className="flex items-center gap-2 border-2 border-night-3 bg-night px-2 py-2 animate-rise">
-              <Avatar index={p.avatar} kind="body" scale={2} />
+              <Avatar index={p.avatar} look={p.look} kind="body" scale={2} />
               <span className="min-w-0 flex-1 font-sans text-sm leading-tight">
                 <span className="block truncate font-semibold text-paper">{p.nickname}</span>
                 <span className="block font-pixel text-[9px] uppercase tracking-wider text-mist-d">

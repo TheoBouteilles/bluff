@@ -22,6 +22,7 @@ export type Player = {
   user_id: string | null
   nickname: string
   avatar: number
+  look?: { t?: number; a?: number } // apparence du profil (tenue, accessoire)
   is_host: boolean
   is_bot: boolean
   is_alive: boolean

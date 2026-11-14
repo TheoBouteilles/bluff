@@ -33,7 +33,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
   const find = (id: string) => players.find((p) => p.id === id)
   const label = (id: string) => {
     const p = find(id)
-    return p ? <><Avatar index={p.avatar} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
+    return p ? <><Avatar index={p.avatar} look={p.look} scale={1} className="mr-1 inline align-middle" />{p.nickname}</> : 'Quelqu’un'
   }
   const locName = (id: string | null) => LOCATIONS.find((l) => l.id === id)?.name ?? 'nulle part'
   const alive = players.filter((p) => p.is_alive)
@@ -61,7 +61,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
           <div className="mt-3 grid grid-cols-2 gap-2">
             {alive.map((p) => (
               <button key={p.id} type="button" onClick={() => onWatch(p.id)} className={chip(current === p.id)}>
-                <Avatar index={p.avatar} scale={2} />
+                <Avatar index={p.avatar} look={p.look} scale={2} />
                 <span className="font-semibold">{p.nickname}</span>
               </button>
             ))}
@@ -81,7 +81,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
           <div className="mt-3 grid grid-cols-2 gap-2">
             {allies.map((p) => (
               <button key={p.id} type="button" onClick={() => onHaunt(report?.haunt === p.id ? null : p.id)} className={chip(report?.haunt === p.id)}>
-                <Avatar index={p.avatar} scale={2} />
+                <Avatar index={p.avatar} look={p.look} scale={2} />
                 <span className="font-semibold">{p.nickname}</span>
                 {allyLocation && (
                   <span className="ml-auto text-xs text-mist-d">{locName(allyLocation(p.id) ?? null) === 'nulle part' ? '…' : locName(allyLocation(p.id) ?? null)}</span>
@@ -145,7 +145,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
               onClick={() => onHint(report?.suspect === p.id ? null : p.id)}
               className={chip(report?.suspect === p.id)}
             >
-              <Avatar index={p.avatar} scale={2} />
+              <Avatar index={p.avatar} look={p.look} scale={2} />
               <span className={`font-semibold ${p.is_alive ? '' : 'line-through opacity-60'}`}>{p.nickname}</span>
             </button>
           ))}
