@@ -5,3 +5,4 @@ Historique des migrations SQL de Bluff (à exécuter dans l'ordre dans Supabase 
 0008 à 0016 : voir les fichiers (meurtres, réglages, fantômes, cimetière, équilibrage, ajustements, validation, planque/fantômes, vision directe).
 0017 : statistiques et trophées (trigger de fin de partie, get_my_stats, get_new_trophies). Déjà appliquée.
 0018 : Solitaires (Capitaliste, Opportuniste), distribution sans les rôles spéciaux. Déjà appliquée.
+0019 : données d'équilibrage (durée, fin à l'aube ou au vote, Solitaires, réglages) et get_balance_stats. Déjà appliquée.

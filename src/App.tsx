@@ -8,6 +8,7 @@ import Demo from './pages/Demo'
 import RolesList from './pages/RolesList'
 import Game from './pages/Game'
 import Stats from './pages/Stats'
+import Balance from './pages/Balance'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/regles" element={<Rules />} />
         <Route path="/roles" element={<RolesList />} />
         <Route path="/stats" element={<Stats />} />
+        <Route path="/equilibrage" element={<Balance />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

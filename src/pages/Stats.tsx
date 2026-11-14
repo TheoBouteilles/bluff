@@ -186,6 +186,7 @@ export default function Stats() {
             </Section>
           )}
 
+          <Link to="/equilibrage" className={`${styles.secondary} w-full`}>Équilibrage du jeu (toutes les parties)</Link>
           <Label className="text-center">Stats liées à cet appareil · comptes bientôt</Label>
         </>
       )}

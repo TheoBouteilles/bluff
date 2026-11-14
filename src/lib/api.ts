@@ -218,3 +218,30 @@ export const getNewTrophies = (roomId: string) => rpc<string[]>('get_new_trophie
 // Opportuniste : parier sur un camp (la nuit ; premier choix gratuit)
 export const setOpportunistSide = (roomId: string, side: 'villageois' | 'saboteurs', playerId?: string) =>
   rpc<void>('set_opportunist_side', { p_room_id: roomId, p_side: side, p_player_id: playerId ?? null })
+
+// Équilibrage : agrégats anonymes de toutes les parties terminées hors debug (migration 0019)
+export type BalanceGame = {
+  ended_at: string
+  players: number
+  saboteurs: number | null
+  solitaires: number | null
+  rounds: number
+  minutes: number | null
+  winner: 'villageois' | 'saboteurs' | null
+  ended_by: 'nuit' | 'vote' | null
+  solo: { role: string; won: boolean }[]
+  settings: Record<string, number>
+}
+export type BalanceStats = {
+  games: number
+  villageois: number
+  saboteurs: number
+  ended_nuit: number
+  ended_vote: number
+  avg_rounds: number | null
+  avg_minutes: number | null
+  by_players: { players: number; games: number; villageois: number; saboteurs: number; avg_rounds: number | null; avg_minutes: number | null }[]
+  solitaires: Record<string, { games: number; wins: number }>
+  recent: BalanceGame[]
+}
+export const getBalanceStats = () => rpc<BalanceStats>('get_balance_stats', {})
