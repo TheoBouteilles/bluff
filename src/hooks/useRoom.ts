@@ -40,21 +40,31 @@ export function useRoom(code: string) {
     refresh()
   }, [refresh])
 
-  // Temps réel : tout changement recharge la liste ; rechargement aussi au retour sur l'onglet
+  // Temps réel, limité à ce salon. Les suppressions de joueurs ne sont pas filtrables par salon côté
+  // Realtime : on écoute aussi les DELETE sans filtre (rares) pour voir un départ.
+  // Filets de sécurité : rechargement au retour sur l'onglet, au retour du réseau, et toutes les 15 s
+  // tant que l'écran est visible (la connexion temps réel peut tomber en silence après une mise en veille).
   useEffect(() => {
     if (!roomId) return
     const channel = supabase
       .channel(`room-${roomId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${roomId}` }, () => refresh())
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'players' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` }, () => refresh())
       .subscribe()
     const onVisible = () => {
       if (document.visibilityState === 'visible') refresh()
     }
+    const poll = setInterval(() => {
+      if (document.visibilityState === 'visible') refresh()
+    }, 15_000)
     document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('online', refresh)
     return () => {
       supabase.removeChannel(channel)
+      clearInterval(poll)
       document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('online', refresh)
     }
   }, [roomId, refresh])
 
@@ -71,7 +81,13 @@ export function useRoom(code: string) {
     }
     tick()
     const id = setInterval(tick, 10_000)
-    return () => clearInterval(id)
+    // Au réveil du téléphone : signe de vie immédiat, sans attendre le prochain tour
+    const onVisible = () => { if (document.visibilityState === 'visible') tick() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [roomId, isMember, isHost])
 
   return { state, room, players, me, refresh }

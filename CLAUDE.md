@@ -6,14 +6,14 @@ Variables Vercel et `.env.local` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 
 ## Façon de travailler
 - Dépôt GitHub privé, édité directement avec Claude Code (app Claude, onglet Code). **Toujours faire `git pull` avant de commencer** : des changements peuvent avoir été poussés depuis Claude.
-- Migrations SQL dans `supabase/migrations/` (0004 à 0019 ; 0001 à 0003 exécutées mais absentes du dépôt). À exécuter dans Supabase > SQL Editor, ou via le connecteur Supabase si demandé. Tester d'abord dans une transaction annulée.
+- Migrations SQL dans `supabase/migrations/` (0004 à 0020 ; 0001 à 0003 exécutées mais absentes du dépôt). À exécuter dans Supabase > SQL Editor, ou via le connecteur Supabase si demandé. Tester d'abord dans une transaction annulée, puis relancer `supabase/tests/scenarios.sql` (27 vérifications : distribution, meurtres, aube, départage, victoires, Mairie, Solitaires, statistiques, sécurité ; doit finir par « TESTS OK »).
 - Commit et push uniquement sur demande. `gh` est installé et connecté (compte TheoBouteilles).
 - Vérifier visuellement : `npm run dev` puis `/demo` (vitrine des composants avec données factices, dev seulement) ou un salon en mode debug avec des bots. Capture mobile ≈ 375-390 px.
 - **Mettre à jour la roadmap (fin de ce fichier) à chaque fonctionnalité livrée.**
 
 ## Règles du jeu
 - Salon : code de 4 lettres (alphabet sans voyelles) + lien direct. Pseudo + session anonyme, reconnexion possible. 4 à 10 joueurs, impossible de rejoindre une partie lancée.
-- L'hôte est un joueur normal ; il fait avancer les phases. S'il disparaît (> 25 s sans heartbeat), un autre joueur devient hôte.
+- L'hôte est un joueur normal ; il fait avancer les phases. S'il disparaît (> 60 s sans signe de vie, migration 0020), un autre joueur devient hôte.
 - Manche : **Nuit** (chacun choisit un lieu et une action, puis valide) > **Jour** (rapport privé, annonce des morts, débat oral) > **Vote** > **Résultat** > nuit suivante. L'hôte ne peut avancer que quand tous les humains vivants ont validé (nuit et vote).
 - **Camps** : Villageois et Saboteurs (rôles `villageois_simple` / `saboteur_simple`, sans pouvoir). Saboteurs : 1 jusqu'à 5 joueurs, 2 au-delà (réglable). Les Saboteurs connaissent leurs complices. **Solitaires** en option (voir plus bas). Les rôles spéciaux du tableur d'origine (Mécène, Enquêteur, Caméléon…) sont **abandonnés**.
 - **Jetons** : départ Villageois 1, Saboteur seul 3, Saboteurs à plusieurs 2 chacun ; +1 par nuit à partir de la nuit 2.
@@ -36,7 +36,8 @@ Variables Vercel et `.env.local` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 
 ## Architecture
 - **Le client n'écrit jamais directement en base** : tout passe par des RPC `security definer`. RLS : on lit `rooms`/`players` de son salon, `player_secrets` uniquement sa ligne ; les autres tables de jeu n'ont aucune lecture client (passer par une RPC).
-- Realtime sur `rooms` et `players` (recharger la liste à chaque événement : les DELETE ne sont pas filtrés par RLS). Présence dans `player_heartbeats`, hors Realtime. `cleanup_inactive_rooms()` supprime les salons inactifs depuis 2 h.
+- Realtime sur `rooms` et `players`, filtré sur le salon (`useRoom`) ; les DELETE de joueurs ne sont pas filtrables, écoutés à part. Filets de sécurité : rechargement au retour sur l'onglet, au retour du réseau et toutes les 15 s quand l'écran est visible ; signe de vie (heartbeat toutes les 10 s, `player_heartbeats`, hors Realtime) envoyé aussi au réveil. `cleanup_inactive_rooms()` supprime les salons inactifs depuis 2 h.
+- **Sécurité** (revue du 14 nov., migration 0020) : les fonctions internes (meurtres, jetons, résolution, stats) ne sont pas exécutables par les clients ; aucune RPC ne renvoie le rôle, le vote ou l'action d'un autre ; tables : SELECT seul côté client (TRUNCATE et écritures retirés). Toute nouvelle fonction interne : `revoke all … from public, anon, authenticated` ; toute nouvelle RPC : `revoke … from public, anon` + `grant … to authenticated`.
 - Machine d'états : `rooms.phase` lobby > night > day > vote > result > … > ended, `round`, `vote_step`/`vote_candidates` (départages), `sudden_death`, `winner`. `advance_phase(room, force)` (hôte) appelle `resolve_night`, `resolve_vote`, `start_night`. Minuteurs : `timers_on` (désactivés par défaut, `phase_ends_at` vide).
 - Rôles en dur dans `src/data/roles.ts` (`SIMPLE_ROLES`, `SOLO_ROLES`, `ROLES` = menu Rôles) ; la base ne stocke que `role_id` et `team` (`player_secrets`, avec `tokens`, `side`, `solo_won`).
 - Données de nuit : `night_actions(params, result)` (résultat privé), `night_drafts`, `night_deaths`, `vote_tampering`, `ghost_watch`, `ghost_hints`, `ghost_haunts`, `votes`, `vote_results`, `vote_runoffs`. `reset_room` (retour au salon) efface tout et redistribue au prochain lancement.
@@ -58,10 +59,10 @@ Variables Vercel et `.env.local` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 À tenir à jour : cocher ou retirer ce qui est livré, réordonner si les priorités changent.
 
 1. **Parties réelles et équilibrage** : ~~outil de suivi~~ (fait : page Équilibrage, 0019). Reste : jouer à 5, 7 et 10 joueurs (avec et sans Solitaires) ; ajuster les réglages par défaut d'après la page Équilibrage ; réactiver les minuteurs une fois les durées calées.
-2. **Robustesse** : reconnexion et téléphone en veille en pleine nuit, départ de l'hôte ; revue de sécurité des RPC (aucune lecture des rôles d'autrui, `p_player_id` réservé au debug) ; tests automatiques des scénarios SQL clés (meurtres, Mairie, départage, victoire, Solitaires).
+2. **Robustesse** : ~~revue de sécurité, tests SQL automatisés, synchronisation après veille, hôte à 60 s~~ (fait, 0020). Reste : récupérer sa place après une session perdue (autre navigateur, données effacées), avec validation de l'hôte.
 3. **Prise en main** : tutoriel ou partie guidée pour les nouveaux joueurs, aide contextuelle sur les lieux.
 4. **Comptes joueurs** : convertir la session anonyme en compte (lien e-mail ou Google, même `user_id`, statistiques conservées), pseudo et avatar mémorisés, historique entre amis ; mention de confidentialité.
 5. **Finition** : écrans de transition animés (tombée de la nuit, aube, élimination, fin) ; application installable (PWA, plein écran, écran allumé) ; découpage du bundle (> 500 ko).
 6. **Mise en ligne** : relecture des textes et des règles, partie test avec des joueurs extérieurs au groupe.
 
-Livré récemment : statistiques et trophées (0017), musique et bruitages, correctif du revote, Solitaires et réglages rangés (0018), page Équilibrage (0019).
+Livré récemment : Solitaires et réglages rangés (0018), page Équilibrage (0019), revue de sécurité, tests SQL et synchronisation robuste (0020).

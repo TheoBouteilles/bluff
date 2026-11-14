@@ -6,3 +6,4 @@ Historique des migrations SQL de Bluff (à exécuter dans l'ordre dans Supabase 
 0017 : statistiques et trophées (trigger de fin de partie, get_my_stats, get_new_trophies). Déjà appliquée.
 0018 : Solitaires (Capitaliste, Opportuniste), distribution sans les rôles spéciaux. Déjà appliquée.
 0019 : données d'équilibrage (durée, fin à l'aube ou au vote, Solitaires, réglages) et get_balance_stats. Déjà appliquée.
+0020 : hygiène des droits, remove_bot limité au salon d'attente, hôte remplacé après 60 s. Déjà appliquée. Tests : supabase/tests/scenarios.sql.
