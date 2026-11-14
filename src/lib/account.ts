@@ -66,11 +66,29 @@ export async function verifyEmailCode(email: string, code: string) {
   return finishMerge()
 }
 
-// Google : redirection vers Google, retour sur /profil (la fusion se termine au retour)
+// Google : redirection vers Google, retour sur /profil (la fusion se termine au retour).
+// On vérifie d'abord que le fournisseur est activé côté Supabase : sinon le navigateur afficherait
+// une page d'erreur brute (JSON) au lieu d'un message dans l'app.
 export async function signInWithGoogle() {
   await prepareMerge()
-  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirectTo() } })
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: redirectTo(), skipBrowserRedirect: true },
+  })
   if (error) throw error
+  if (!data.url) throw new Error('provider is not enabled')
+  try {
+    const res = await fetch(data.url, { redirect: 'manual' })
+    // Fournisseur activé : réponse de redirection (opaque). Désactivé : 400 avec un message d'erreur.
+    if (res.type !== 'opaqueredirect' && res.status >= 400) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body?.msg ?? body?.error_description ?? body?.error ?? 'provider is not enabled')
+    }
+  } catch (e) {
+    if (e instanceof Error && /provider|unsupported|validation/i.test(e.message)) throw e
+    // Échec de la vérification seule (réseau…) : on tente quand même la redirection
+  }
+  window.location.assign(data.url)
 }
 
 // Déconnexion : on redevient un nouvel invité (stats et profil restent sur le compte)

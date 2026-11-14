@@ -65,6 +65,13 @@ export default function Profile() {
   const [authBusy, setAuthBusy] = useState(false)
   const [authError, setAuthError] = useState('')
 
+  // Retour arrière depuis Google : le navigateur restaure la page telle qu'au départ (boutons « en cours »)
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) setAuthBusy(false) }
+    window.addEventListener('pageshow', onShow)
+    return () => window.removeEventListener('pageshow', onShow)
+  }, [])
+
   async function askCode(e: FormEvent) {
     e.preventDefault()
     setAuthBusy(true); setAuthError('')
