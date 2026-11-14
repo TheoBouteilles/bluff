@@ -198,3 +198,13 @@ Machine d'états : rooms.phase lobby > night > day > vote, round, phase_ends_at 
 - RPC : `get_my_stats()` (agrégats, séries, lieux, trophées, 10 dernières parties), `get_new_trophies(room)` (trophées débloqués à la dernière partie du salon). Réservées au rôle authenticated.
 - Front : `src/pages/Stats.tsx` (route `/stats`, lien sur l'accueil), `src/data/trophies.ts` (ids alignés sur `record_game_stats`), `EndPannel.tsx` (« Trophées débloqués »).
 - Identité = session anonyme Supabase, donc liée à l'appareil. Prévu : création de compte en convertissant la session anonyme (même user_id, stats conservées).
+
+## Son : musique et bruitages (front uniquement)
+- `src/lib/audio.ts` : tout est synthétisé avec la Web Audio API (chiptune), aucun fichier audio. Bruitages `playSfx(nom)`, musique `setMusic(thème)` (petit séquenceur en croches, une boucle par phase : lobby, night, day, vote ; jingles de fin win_villageois / win_saboteurs joués une fois ; grillons et hibou la nuit, oiseaux le jour).
+- Réglages par appareil dans localStorage `bluff:audio` (musique coupée par défaut : à table, un seul téléphone devrait la jouer ; bruitages et vibrations activés). Panneau `SoundOptions.tsx` (bouton ♪ dans la partie et le salon, lien « Son » sur l'accueil). Hooks `useAudioSettings`, `useMusic` (`src/hooks/useAudio.ts`).
+- `main.tsx` : chaque appui débloque l'audio (règle des navigateurs mobiles) et joue un « tic » sur les boutons.
+- Règle : aucun son ne doit trahir une action secrète. Toutes les actions de nuit, votes et choix de fantôme jouent le même « validate » (annulation : « cancel », erreur : « error »).
+- Événements publics dans `Game.tsx`, seulement lors d'un changement vécu en direct (pas au rechargement) : tombée de la nuit (cloche + loup), aube (coq), mort annoncée (glas), ouverture du vote (tambour), départage (gong), résultat (élimination ou personne). Révélation du rôle (`HoldToReveal`) et trophées en fin de partie (`EndPannel`) ont aussi leur son.
+
+## Correctif revote
+- Au départage, le serveur efface les votes de la manche : `useVoteChoices` recharge à chaque `vote_step` et le `VotePanel` est remonté (clé `tId-vote_step`), sans choix présélectionné.

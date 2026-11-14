@@ -4,7 +4,8 @@ import type { FinalRole, NightProgress, VoteResult } from '../lib/api'
 import { supabase } from '../lib/supabase'
 
 // Ton vote (et ceux des bots si tu es l'hôte d'un salon debug) : joueur -> cible (null = abstention)
-export function useVoteChoices(roomId: string | undefined, round: number, enabled: boolean) {
+// version = étape de vote : à chaque départage le serveur efface les votes, il faut les recharger
+export function useVoteChoices(roomId: string | undefined, round: number, enabled: boolean, version: unknown) {
   const [choices, setChoices] = useState<Record<string, string | null>>({})
 
   const load = useCallback(async () => {
@@ -21,7 +22,7 @@ export function useVoteChoices(roomId: string | undefined, round: number, enable
 
   useEffect(() => {
     if (enabled) load()
-  }, [enabled, load])
+  }, [enabled, load, version])
 
   return { choices, reload: load }
 }

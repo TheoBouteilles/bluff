@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { PointerEvent, ReactNode } from 'react'
 import { Px } from './Px'
+import { playSfx } from '../lib/audio'
 
 export default function HoldToReveal({ children }: { children: ReactNode }) {
   const [holding, setHolding] = useState(false)
@@ -30,6 +31,7 @@ export default function HoldToReveal({ children }: { children: ReactNode }) {
     e.preventDefault()
     try { e.currentTarget.setPointerCapture(e.pointerId) } catch { /* navigateur ancien */ }
     setHolding(true)
+    playSfx('reveal')
   }
 
   return (

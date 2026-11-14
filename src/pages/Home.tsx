@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom'
 import { Avatar, Px } from '../components/Px'
+import SoundButton from '../components/SoundOptions'
+import { useMusic } from '../hooks/useAudio'
 import { Screen, styles } from '../components/ui'
 import { AVATARS } from '../data/avatars'
 import { getLastRoom } from '../lib/api'
 
 export default function Home() {
   const last = getLastRoom()
+  useMusic('lobby')
   return (
     <Screen>
       <div className="mt-10 text-center">
@@ -30,6 +33,7 @@ export default function Home() {
         <div className="flex justify-center gap-2">
           <Link to="/roles" className={styles.ghost}>Voir les rôles</Link>
           <Link to="/stats" className={styles.ghost}>Statistiques</Link>
+          <SoundButton variant="link" />
         </div>
       </div>
 

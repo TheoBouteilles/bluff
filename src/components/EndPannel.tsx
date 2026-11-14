@@ -5,6 +5,7 @@ import { TEAM_STYLE, getRole } from '../data/roles'
 import type { TeamId } from '../data/roles'
 import { getTrophy } from '../data/trophies'
 import { getNewTrophies } from '../lib/api'
+import { playSfx } from '../lib/audio'
 import type { FinalRole } from '../lib/api'
 import type { Player } from '../types'
 import { panelClass } from './ui'
@@ -19,7 +20,14 @@ export default function EndPanel({ roomId, demoTrophies = [], winner, roles, pla
 
   // Trophées débloqués pendant cette partie (rien en mode debug)
   useEffect(() => {
-    if (roomId) getNewTrophies(roomId).then(setFetched).catch(() => setFetched([]))
+    if (roomId) {
+      getNewTrophies(roomId)
+        .then((t) => {
+          setFetched(t)
+          if (t.length > 0) setTimeout(() => playSfx('trophy'), 2500) // après la fanfare de fin
+        })
+        .catch(() => setFetched([]))
+    }
   }, [roomId])
 
   return (

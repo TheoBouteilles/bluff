@@ -4,6 +4,8 @@ import SettingsPanel from '../components/SettingsPanel'
 import BackLink from '../components/BackLink'
 import { Avatar, Px } from '../components/Px'
 import { Button, Label, Note, Screen, TitleBar } from '../components/ui'
+import SoundButton from '../components/SoundOptions'
+import { useMusic } from '../hooks/useAudio'
 import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { addBot, clearLastRoom, errorMessage, leaveRoom, removeBot, resetRoomSettings, startGame, updateRoomSettings } from '../lib/api'
@@ -12,6 +14,7 @@ export default function Lobby() {
   const code = (useParams().code ?? '').toUpperCase()
   const navigate = useNavigate()
   const { state, room, players, me, refresh } = useRoom(code)
+  useMusic('lobby')
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const cfg = useRoomSettings(room?.id)
@@ -65,6 +68,7 @@ export default function Lobby() {
           <>
             <Link to={`/regles?salon=${room.code}`} className="font-pixel text-[11px] uppercase tracking-wider text-gold underline decoration-2 underline-offset-4">Règles</Link>
             <Link to="/roles" className="font-pixel text-[11px] uppercase tracking-wider text-mist underline decoration-2 underline-offset-4">Rôles</Link>
+            <SoundButton />
           </>
         }
       />

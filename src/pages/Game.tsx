@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import DayPanel from '../components/DayPannel'
 import EndPanel from '../components/EndPannel'
@@ -26,6 +26,10 @@ import { useSecrets } from '../hooks/useSecrets'
 import { useFinalRoles, useVoteChoices, useVoteProgress, useVoteResults } from '../hooks/useVotes'
 import { advancePhase, cancelNightAction, setNightDraft, cancelVote, errorMessage, resetRoom, setGhostHaunt, setGhostHint, setGhostTomb, submitGhostWatch, submitNightAction, submitVote } from '../lib/api'
 import type { NightParams } from '../lib/api'
+import SoundButton from '../components/SoundOptions'
+import { useMusic } from '../hooks/useAudio'
+import { playSfx } from '../lib/audio'
+import type { Theme } from '../lib/audio'
 import type { Player } from '../types'
 
 export default function Game() {
@@ -51,7 +55,7 @@ export default function Game() {
   const expired = playing && !!room?.phase_ends_at && secondsLeft === 0
   const { choices, reload: reloadChoices } = useNightChoices(room?.id, round, playing && round > 0)
   const progress = useNightProgress(room?.id, playing && room?.phase === 'night' && !!me?.is_host, choices)
-  const voteChoices = useVoteChoices(room?.id, round, playing && room?.phase === 'vote')
+  const voteChoices = useVoteChoices(room?.id, round, playing && room?.phase === 'vote', room?.vote_step)
   const voteProgress = useVoteProgress(room?.id, playing && room?.phase === 'vote' && !!me?.is_host, voteChoices.choices)
   const voteResults = useVoteResults(room?.id, playing && round > 0, `${round}-${room?.phase}`)
   const finalRoles = useFinalRoles(room?.id, playing && room?.phase === 'ended')
@@ -60,6 +64,54 @@ export default function Game() {
   const ghost = useGhostReport(room?.id, targetId, playing && !!target && !target.is_alive, `${round}-${room?.phase}`)
   const vision = useSaboteurVision(room?.id, targetId, playing && room?.phase === 'night' && secret?.team === 'saboteurs' && (cfg.settings.saboteur_vision ?? 1) === 1)
   const allyIds = useAllies(room?.id, targetId, playing && secret?.team === 'saboteurs')
+
+  // Musique de la phase (si activée sur cet appareil)
+  const phase = playing ? room?.phase : undefined
+  const musicTheme: Theme | null =
+    phase === 'ended' ? (room?.winner === 'saboteurs' ? 'win_saboteurs' : 'win_villageois')
+    : phase === 'night' ? 'night'
+    : phase === 'vote' ? 'vote'
+    : phase === 'day' || phase === 'result' ? 'day'
+    : null
+  useMusic(musicTheme)
+
+  // Sons des événements publics, joués seulement lors d'un changement vécu en direct (pas au rechargement)
+  const lastPhase = useRef<string | null>(null)
+  const armed = useRef(false)
+  const deathRound = useRef(-1)
+  const resultRound = useRef(-1)
+  useEffect(() => {
+    if (!room || !playing) return
+    const key = `${room.round}|${room.phase}|${room.vote_step}`
+    const prev = lastPhase.current
+    lastPhase.current = key
+    if (prev === null || prev === key) return
+    armed.current = true
+    const [, prevPhase, prevStep] = prev.split('|')
+    if (room.phase === 'night' && prevPhase !== 'night') playSfx('night')
+    else if (room.phase === 'day' && prevPhase !== 'day') playSfx('dawn')
+    else if (room.phase === 'vote' && prevPhase !== 'vote') playSfx('vote')
+    else if (room.phase === 'vote' && Number(prevStep) < room.vote_step) playSfx('runoff')
+  }, [room?.round, room?.phase, room?.vote_step, playing])
+
+  // Morts annoncées à l'aube : glas après le chant du coq
+  useEffect(() => {
+    if (!armed.current || room?.phase !== 'day' || !report || deathRound.current === round) return
+    deathRound.current = round
+    if (report.deaths.length > 0) {
+      const id = setTimeout(() => playSfx('death'), 1200)
+      return () => clearTimeout(id)
+    }
+  }, [report, room?.phase, round])
+
+  // Résultat du vote : élimination ou personne
+  useEffect(() => {
+    if (!armed.current || room?.phase !== 'result' || resultRound.current === round) return
+    const r = voteResults.find((v) => v.round === round)
+    if (!r) return
+    resultRound.current = round
+    playSfx(r.eliminated_id ? 'eliminate' : 'nobody')
+  }, [voteResults, room?.phase, round])
 
   useEffect(() => {
     if (room?.status === 'lobby') navigate(`/salon/${code}`, { replace: true })
@@ -102,13 +154,21 @@ export default function Game() {
     try {
       await action()
       await refresh()
+      return true
     } catch (e) {
       setError(errorMessage(e))
+      playSfx('error')
+      return false
     }
   }
 
+  // Action validée : même son pour tous les lieux et tous les choix (rien ne doit trahir une action secrète)
+  async function runOk(action: () => Promise<unknown>, sound: 'validate' | 'cancel' = 'validate') {
+    if (await run(action)) playSfx(sound)
+  }
+
   async function choose(location: string, params: NightParams = {}) {
-    await run(async () => {
+    await runOk(async () => {
       await submitNightAction(roomId, location, tIsMe ? undefined : tId, params)
       await reloadChoices()
     })
@@ -121,35 +181,35 @@ export default function Game() {
   }
 
   async function unchoose() {
-    await run(async () => {
+    await runOk(async () => {
       await cancelNightAction(roomId, tIsMe ? undefined : tId)
       await reloadChoices()
-    })
+    }, 'cancel')
   }
 
   async function unvote() {
-    await run(async () => {
+    await runOk(async () => {
       await cancelVote(roomId, tIsMe ? undefined : tId)
       await voteChoices.reload()
-    })
+    }, 'cancel')
   }
 
   async function watchGhost(targetId: string) {
-    await run(async () => {
+    await runOk(async () => {
       await submitGhostWatch(roomId, targetId, tIsMe ? undefined : tId)
       await ghost.reload()
     })
   }
 
   async function hintGhost(suspectId: string | null) {
-    await run(async () => {
+    await runOk(async () => {
       await setGhostHint(roomId, suspectId, tIsMe ? undefined : tId)
       await ghost.reload()
     })
   }
 
   async function hauntGhost(allyId: string | null) {
-    await run(async () => {
+    await runOk(async () => {
       await setGhostHaunt(roomId, allyId, tIsMe ? undefined : tId)
       await ghost.reload()
     })
@@ -157,14 +217,14 @@ export default function Game() {
 
   async function tombGhost(tomb: number) {
     if (!window.confirm(`Choisir la tombe n°${tomb} ? Ce choix est définitif.`)) return
-    await run(async () => {
+    await runOk(async () => {
       await setGhostTomb(roomId, tomb, tIsMe ? undefined : tId)
       await ghost.reload()
     })
   }
 
   async function castVote(targetId: string | null) {
-    await run(async () => {
+    await runOk(async () => {
       await submitVote(roomId, targetId, tIsMe ? undefined : tId)
       await voteChoices.reload()
     })
@@ -213,6 +273,7 @@ export default function Game() {
             </span>
           )}
           {secret && <TokenBadge count={secret.tokens} />}
+          <SoundButton />
         </div>
       </div>
 
@@ -277,7 +338,7 @@ export default function Game() {
         <ResultPanel result={resultOfRound} players={players} />
       ) : room.phase === 'vote' ? (
         <VotePanel
-          key={tId}
+          key={`${tId}-${room.vote_step}`} // départage : panneau neuf, aucun choix présélectionné
           player={target}
           others={alivePlayers.filter((p) => p.id !== tId && (!room.vote_candidates || room.vote_candidates.includes(p.id)))}
           runoff={room.vote_candidates ? { step: room.vote_step, names: room.vote_candidates.map((id) => players.find((p) => p.id === id)?.nickname ?? '?') } : undefined}
