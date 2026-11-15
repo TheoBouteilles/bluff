@@ -10,9 +10,9 @@ import type { Player } from '../types'
 import { panelClass } from './ui'
 
 // roomId absent (vitrine /demo) : pas d'appel, on affiche demoRecap
-type Props = { roomId?: string; meId?: string; demoRecap?: Recap; winner: 'villageois' | 'saboteurs' | null; roles: FinalRole[]; players: Player[] }
+type Props = { roomId?: string; meId?: string; debug?: boolean; demoRecap?: Recap; winner: 'villageois' | 'saboteurs' | null; roles: FinalRole[]; players: Player[] }
 
-export default function EndPanel({ roomId, meId, demoRecap, winner, roles, players }: Props) {
+export default function EndPanel({ roomId, meId, debug, demoRecap, winner, roles, players }: Props) {
   const style = winner ? TEAM_STYLE[winner] : undefined
   const [fetched, setFetched] = useState<Recap | null>(null)
   const [failed, setFailed] = useState(false)
@@ -73,7 +73,7 @@ export default function EndPanel({ roomId, meId, demoRecap, winner, roles, playe
         )}
       </section>
 
-      {recap ? <GameRecap recap={recap} players={players} meId={meId} />
+      {recap ? <GameRecap recap={recap} players={players} meId={meId} debug={debug} />
         : roomId && !failed ? <p className="text-center text-sm text-mist-d">Chargement du récap…</p>
         : null}
     </div>

@@ -13,9 +13,9 @@ import type { Player } from '../types'
 // Récap de fin de partie, le même pour tous : exploits de chacun, distinctions, bilan par joueur, nuit par nuit.
 // Tout y est révélé (la partie est finie), sauf les votes individuels qui restent secrets.
 
-type Props = { recap: Recap; players: Player[]; meId?: string }
+type Props = { recap: Recap; players: Player[]; meId?: string; debug?: boolean }
 
-export default function GameRecap({ recap, players, meId }: Props) {
+export default function GameRecap({ recap, players, meId, debug = false }: Props) {
   const player = (id: string | null | undefined) => players.find((p) => p.id === id)
   const Name = ({ id }: { id: string | null | undefined }) => {
     const p = player(id)
@@ -25,7 +25,9 @@ export default function GameRecap({ recap, players, meId }: Props) {
 
   const withFeats = recap.players
     .map((r) => ({ r, ids: [...new Set([...r.feats, ...r.new_trophies])] }))
-    .filter((x) => x.ids.length > 0)
+    // Toujours ma ligne (même vide) en tête, puis les joueurs qui ont au moins un exploit
+    .filter((x) => x.ids.length > 0 || x.r.player_id === meId)
+    .sort((a, b) => Number(b.r.player_id === meId) - Number(a.r.player_id === meId))
 
   return (
     <div className="flex flex-col gap-3">
@@ -34,6 +36,12 @@ export default function GameRecap({ recap, players, meId }: Props) {
         <h2 className="flex items-center gap-2 font-display text-xl font-bold uppercase tracking-wider">
           <Px name="crown" scale={2} /> Exploits de la partie
         </h2>
+        {debug && (
+          <p className="mt-1 font-sans text-xs text-ink/70">
+            Partie en mode debug : les exploits s’affichent, mais rien n’est enregistré dans les statistiques et aucun trophée n’est débloqué
+            (ni « Bienvenue au village », ni les trophées cumulés sur plusieurs parties).
+          </p>
+        )}
         {withFeats.length === 0 ? (
           <p className="mt-2 font-sans text-sm text-ink/70">Aucun exploit cette fois-ci.</p>
         ) : (
@@ -43,6 +51,7 @@ export default function GameRecap({ recap, players, meId }: Props) {
                 <p className="font-sans text-sm font-semibold">
                   <Name id={r.player_id} />{r.player_id === meId && <span className="ml-1 text-ink/60">(toi)</span>}
                 </p>
+                {ids.length === 0 && <p className="mt-1 font-sans text-xs text-ink/60">Aucun exploit pour toi cette fois-ci.</p>}
                 <ul className="mt-1 flex flex-col gap-1.5">
                   {ids.map((id) => {
                     const t = getTrophy(id)
