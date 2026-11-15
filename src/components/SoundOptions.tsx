@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useAudioSettings } from '../hooks/useAudio'
 import { playSfx, setAudioSettings } from '../lib/audio'
+import { Px } from './Px'
 import { Label } from './ui'
 
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
@@ -55,14 +56,15 @@ export default function SoundButton({ variant = 'icon' }: { variant?: 'icon' | '
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Options son"
-          className="border-2 border-night-3 bg-night px-2 py-1 font-pixel text-[14px] leading-none text-mist hover:text-paper"
+          title="Son"
+          className="flex items-center justify-center border-2 border-night-3 bg-night p-1.5 hover:border-gold"
         >
-          {s.music || s.sfx ? '♪' : '♪̸'}
+          <Px name={s.music || s.sfx ? 'sound_on' : 'sound_off'} scale={2} />
         </button>
       ) : (
         <button type="button" onClick={() => setOpen(true)}
           className="inline-flex items-center justify-center gap-2 px-3 py-2 font-pixel text-[12px] uppercase tracking-wide text-sand underline decoration-2 underline-offset-4 hover:text-paper">
-          Son
+          <Px name={s.music || s.sfx ? 'sound_on' : 'sound_off'} scale={1} /> Son
         </button>
       )}
 

@@ -7,6 +7,7 @@ const ICON_SIZE: Record<string, [number, number]> = {
   coin: [12, 12], crown: [12, 8], ghost: [12, 12], moon: [12, 12], sun: [12, 12], skull: [12, 9], check: [12, 9], lock: [10, 9],
   team_villageois: [32, 32], team_saboteurs: [32, 32], team_solitaires: [32, 32],
   team_villageois_s: [12, 12], team_saboteurs_s: [12, 12], team_solitaires_s: [12, 12],
+  sound_on: [12, 12], sound_off: [12, 12], book: [12, 10],
 }
 
 // Icône pixel art agrandie sans flou

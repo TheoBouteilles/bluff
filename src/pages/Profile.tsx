@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import BackLink from '../components/BackLink'
-import { Avatar } from '../components/Px'
+import { Avatar, Px } from '../components/Px'
 import SoundButton from '../components/SoundOptions'
 import { Button, Label, Note, Screen, TitleBar, inputClass, styles } from '../components/ui'
 import { ACCESSORIES, AVATARS, TUNICS } from '../data/avatars'
@@ -175,6 +175,10 @@ export default function Profile() {
             )}
           </Section>
 
+          <Link to="/stats" className={`${styles.secondary} w-full`}>
+            <Px name="crown" scale={2} /> Mes statistiques et trophées
+          </Link>
+
           <Section title="Pseudo">
             <input className={inputClass} maxLength={20} placeholder="Ex. Marcel" value={nickname} onChange={(e) => setNickname(e.target.value)} />
             <p className="mt-1 font-sans text-[11px] text-mist-d">Proposé automatiquement quand tu crées ou rejoins un salon.</p>
@@ -226,7 +230,6 @@ export default function Profile() {
               <p className="font-sans text-sm text-mist">Musique, bruitages et vibrations{account.guest ? '' : ' (synchronisés avec ton compte)'}.</p>
               <SoundButton variant="link" />
             </div>
-            <Link to="/stats" className={`${styles.ghost} mt-2 w-full`}>Mes statistiques</Link>
           </Section>
         </>
       )}

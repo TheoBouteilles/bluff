@@ -190,3 +190,47 @@ ICONS = {
         '........................',
     ],
 }
+
+# Son (haut-parleur actif / coupé) et livre des règles : menu d'accueil, salon, partie
+ICONS['sound_on'] = [
+    '.....k......',
+    '....kk......',
+    '...kpk...w..',
+    'kkkppk....w.',
+    'kppppk.w...w',
+    'kppppk..w..w',
+    'kppppk..w..w',
+    'kppppk.w...w',
+    'kkkppk....w.',
+    '...kpk...w..',
+    '....kk......',
+    '.....k......',
+]
+ICONS['sound_off'] = [
+    '.....k......',
+    '....kk......',
+    '...kpk......',
+    'kkkppk......',
+    'kppppk.r...r',
+    'kppppk..r.r.',
+    'kppppk...r..',
+    'kppppk..r.r.',
+    'kkkppk.r...r',
+    '...kpk......',
+    '....kk......',
+    '.....k......',
+]
+ICONS['book'] = [
+    '.kkkk..kkkk.',
+    'kppppkkppppk',
+    'kpaappppaapk',
+    'kppppkkppppk',
+    'kpaapkkpaapk',
+    'kppppkkppppk',
+    'kpaapkkpaapk',
+    'kppppkkppppk',
+    'kkkkkkkkkkkk',
+    '.....kk.....',
+]
+for _n in ('sound_on', 'sound_off', 'book'):
+    assert all(len(r) == 12 for r in ICONS[_n]), _n

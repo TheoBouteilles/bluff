@@ -2,16 +2,33 @@ import { Link } from 'react-router-dom'
 import { Avatar, Px } from '../components/Px'
 import SoundButton from '../components/SoundOptions'
 import { useMusic } from '../hooks/useAudio'
+import { useProfile } from '../hooks/useProfile'
 import { Screen, styles } from '../components/ui'
 import { AVATARS } from '../data/avatars'
 import { getLastRoom } from '../lib/api'
 
 export default function Home() {
   const last = getLastRoom()
+  const { account, profile } = useProfile()
   useMusic('lobby')
+
   return (
     <Screen>
-      <div className="mt-10 text-center">
+      {/* Barre du haut : son (icône) et profil (avatar si connecté, sinon « Se connecter ») */}
+      <div className="flex items-center justify-end gap-2">
+        <SoundButton />
+        {account.guest ? (
+          <Link to="/profil" className="border-2 border-night-3 bg-night px-3 py-2 font-pixel text-[11px] uppercase tracking-wider text-paper hover:border-gold">
+            Se connecter
+          </Link>
+        ) : (
+          <Link to="/profil" aria-label="Mon profil" title="Mon profil" className="hover:opacity-90">
+            <Avatar index={profile?.avatar ?? 0} look={profile?.look} scale={2} ring />
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-4 text-center">
         {/* Ronde d'avatars qui se balancent */}
         <div className="mb-4 flex items-end justify-center gap-1">
           {[0, 4, 9, 7, 5].map((i, k) => (
@@ -22,6 +39,7 @@ export default function Home() {
         <p className="mt-3 font-sans text-sm text-sand">Dans ce village, tout le monde cache quelque chose.</p>
       </div>
 
+      {/* Jouer */}
       <div className="px-frame mt-4 flex flex-col gap-3 p-4">
         {last && (
           <Link to={`/salon/${last}`} className={styles.secondary}>
@@ -30,13 +48,12 @@ export default function Home() {
         )}
         <Link to="/creer" className={styles.primary}>Créer une partie</Link>
         <Link to="/rejoindre" className={styles.secondary}>Rejoindre une partie</Link>
-        <div className="flex justify-center gap-2">
-          <Link to="/roles" className={styles.ghost}>Voir les rôles</Link>
-          <Link to="/stats" className={styles.ghost}>Statistiques</Link>
-          <Link to="/profil" className={styles.ghost}>Profil</Link>
-          <SoundButton variant="link" />
-        </div>
       </div>
+
+      {/* Apprendre */}
+      <Link to="/regles" className={`${styles.secondary} w-full`}>
+        <Px name="book" scale={2} /> Règles du jeu
+      </Link>
 
       <p className="mt-2 text-center font-pixel text-[10px] uppercase tracking-widest text-mist-d">
         <Px name="moon" scale={1} className="mr-2 align-middle" />{AVATARS.length} avatars · 4 à 10 joueurs · autour d’une table
