@@ -158,7 +158,10 @@ export default function Profile() {
                   </form>
                 )}
                 {authError && <Note tone="danger">{authError}</Note>}
-                <p className="font-sans text-[11px] text-mist-d">Pas de mot de passe. Première connexion = création du compte. Ton adresse sert uniquement à te connecter.</p>
+                <p className="font-sans text-[11px] text-mist-d">
+                  Pas de mot de passe. Première connexion = création du compte. Ton adresse sert uniquement à te connecter
+                  (<Link to="/confidentialite" className="underline">confidentialité</Link>).
+                </p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">

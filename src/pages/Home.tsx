@@ -41,6 +41,9 @@ export default function Home() {
       <p className="mt-2 text-center font-pixel text-[10px] uppercase tracking-widest text-mist-d">
         <Px name="moon" scale={1} className="mr-2 align-middle" />{AVATARS.length} avatars · 4 à 10 joueurs · autour d’une table
       </p>
+      <Link to="/confidentialite" className="text-center font-pixel text-[10px] uppercase tracking-widest text-mist-d underline decoration-1 underline-offset-4 hover:text-paper">
+        Confidentialité
+      </Link>
     </Screen>
   )
 }
