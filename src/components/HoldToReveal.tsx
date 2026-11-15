@@ -24,8 +24,7 @@ export default function HoldToReveal({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Sur ordinateur, la carte qui s'affiche décale le bouton sous la souris : on « capture » le pointeur
-  // pour que le relâchement reste la seule façon de masquer (pas de pointerleave parasite).
+  // On « capture » le pointeur pour que le relâchement reste la seule façon de masquer (pas de pointerleave parasite).
   function start(e: PointerEvent<HTMLButtonElement>) {
     if (e.button !== 0) return
     e.preventDefault()
@@ -34,8 +33,19 @@ export default function HoldToReveal({ children }: { children: ReactNode }) {
     playSfx('reveal')
   }
 
+  // La carte et son cache occupent la même case : la place est réservée, rien ne bouge à l'appui.
+  // Le bouton est SOUS la carte : sur téléphone, le pouce qui maintient ne cache plus le rôle.
   return (
     <div className="flex flex-col gap-4">
+      <div className="grid [&>*]:col-start-1 [&>*]:row-start-1">
+        <div className={holding ? '' : 'invisible'} aria-hidden={!holding}>{children}</div>
+        {!holding && (
+          <div className="px-frame flex min-h-72 flex-col items-center justify-center gap-3 text-mist-d">
+            <Px name="lock" scale={4} className="animate-float" />
+            <span className="font-pixel text-[11px] uppercase tracking-[0.2em]">Ton rôle est caché</span>
+          </div>
+        )}
+      </div>
       <button
         type="button"
         onPointerDown={start}
@@ -48,14 +58,6 @@ export default function HoldToReveal({ children }: { children: ReactNode }) {
       >
         {holding ? '● Relâche pour masquer' : '○ Maintiens pour révéler ton rôle'}
       </button>
-      {holding ? (
-        children
-      ) : (
-        <div className="px-frame flex h-72 flex-col items-center justify-center gap-3 text-mist-d">
-          <Px name="lock" scale={4} className="animate-float" />
-          <span className="font-pixel text-[11px] uppercase tracking-[0.2em]">Ton rôle est caché</span>
-        </div>
-      )}
     </div>
   )
 }

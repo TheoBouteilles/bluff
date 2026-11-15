@@ -11,6 +11,7 @@ import Stats from './pages/Stats'
 import Balance from './pages/Balance'
 import Profile from './pages/Profile'
 import Privacy from './pages/Privacy'
+import Tutorial from './pages/Tutorial'
 import { useProfileSync } from './hooks/useProfile'
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/equilibrage" element={<Balance />} />
         <Route path="/profil" element={<Profile />} />
         <Route path="/confidentialite" element={<Privacy />} />
+        <Route path="/tutoriel" element={<Tutorial />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

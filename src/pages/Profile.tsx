@@ -7,6 +7,7 @@ import SoundButton from '../components/SoundOptions'
 import { Button, Label, Note, Screen, TitleBar, inputClass, styles } from '../components/ui'
 import { ACCESSORIES, AVATARS, TUNICS } from '../data/avatars'
 import { clearMergeNotice, reloadProfile, updateProfile, useProfile } from '../hooks/useProfile'
+import { resetTips } from '../hooks/useTips'
 import { accountError, sendEmailCode, signInWithGoogle, signOut, verifyEmailCode } from '../lib/account'
 import { errorMessage } from '../lib/api'
 
@@ -33,6 +34,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+  const [tipsReset, setTipsReset] = useState(false)
 
   useEffect(() => {
     if (!profile) return
@@ -229,6 +231,12 @@ export default function Profile() {
             <div className="flex items-center justify-between gap-3">
               <p className="font-sans text-sm text-mist">Musique, bruitages et vibrations{account.guest ? '' : ' (synchronisés avec ton compte)'}.</p>
               <SoundButton variant="link" />
+            </div>
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              <Link to="/tutoriel" className={styles.ghost}>Revoir le tutoriel</Link>
+              <button type="button" onClick={() => { resetTips(); setTipsReset(true) }} className={styles.ghost}>
+                {tipsReset ? 'Astuces réactivées ✓' : 'Réafficher les astuces'}
+              </button>
             </div>
           </Section>
         </>

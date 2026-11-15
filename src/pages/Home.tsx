@@ -3,6 +3,7 @@ import { Avatar, Px } from '../components/Px'
 import SoundButton from '../components/SoundOptions'
 import { useMusic } from '../hooks/useAudio'
 import { useProfile } from '../hooks/useProfile'
+import { useTips } from '../hooks/useTips'
 import { Screen, styles } from '../components/ui'
 import { AVATARS } from '../data/avatars'
 import { getLastRoom } from '../lib/api'
@@ -10,6 +11,7 @@ import { getLastRoom } from '../lib/api'
 export default function Home() {
   const last = getLastRoom()
   const { account, profile } = useProfile()
+  const { tutorialSeen } = useTips()
   useMusic('lobby')
 
   return (
@@ -51,9 +53,18 @@ export default function Home() {
       </div>
 
       {/* Apprendre */}
-      <Link to="/regles" className={`${styles.secondary} w-full`}>
-        <Px name="book" scale={2} /> Règles du jeu
-      </Link>
+      {!tutorialSeen && (
+        <Link to="/tutoriel" className="animate-pop border-2 border-gold bg-gold/10 p-3 text-center font-sans text-sm text-paper">
+          <span className="block font-pixel text-[11px] uppercase tracking-[0.2em] text-gold">Première fois ?</span>
+          Découvre le jeu en 2 minutes ▸
+        </Link>
+      )}
+      <div className="grid grid-cols-2 gap-3">
+        <Link to="/tutoriel" className={styles.secondary}>Comment jouer</Link>
+        <Link to="/regles" className={styles.secondary}>
+          <Px name="book" scale={2} /> Règles
+        </Link>
+      </div>
 
       <p className="mt-2 text-center font-pixel text-[10px] uppercase tracking-widest text-mist-d">
         <Px name="moon" scale={1} className="mr-2 align-middle" />{AVATARS.length} avatars · 4 à 10 joueurs · autour d’une table

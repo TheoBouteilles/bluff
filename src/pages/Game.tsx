@@ -8,6 +8,7 @@ import NightPanel from '../components/NightPannel'
 import ResultPanel from '../components/ResultPannel'
 import RoleCard from '../components/RoleCard'
 import SolitairePanel from '../components/SolitairePanel'
+import Tip from '../components/Tip'
 import RulesPanel from '../components/RulesPanel'
 import VotePanel from '../components/VotePannel'
 import { Button, Note, Screen, Tabs, TokenBadge, panelClass } from '../components/ui'
@@ -320,6 +321,43 @@ export default function Game() {
           { id: 'rules', label: 'Règles' },
         ]}
       />
+
+      {/* Astuces de prise en main : chacune ne s'affiche qu'une fois sur cet appareil */}
+      {tIsMe && me.is_host && room.phase !== 'ended' && (
+        <Tip id="host" title="Tu es l'hôte">
+          C’est toi qui fais avancer la partie avec le bouton en bas de l’écran, une fois que tout le monde a validé.
+        </Tip>
+      )}
+      {tIsMe && tab === 'role' && !target.is_bot && (
+        <Tip id="role" title="Ton rôle">
+          Maintiens le bouton pour voir ton rôle, à l’abri des regards. Relâche pour le cacher.
+        </Tip>
+      )}
+      {tIsMe && tab === 'action' && room.phase === 'night' && target.is_alive && (
+        <Tip id="night" title="La nuit">
+          Touche un bâtiment pour y passer la nuit, choisis une action puis valide. Tu peux revenir en arrière tant que la nuit n’est pas résolue.
+        </Tip>
+      )}
+      {tIsMe && tab === 'action' && room.phase === 'night' && target.is_alive && secret?.team === 'saboteurs' && (
+        <Tip id="night_saboteur" title="Saboteur">
+          Là où vous êtes plus nombreux que les autres, quelqu’un meurt. Coordonne-toi avec tes complices… sans vous faire repérer ensemble trop souvent !
+        </Tip>
+      )}
+      {tIsMe && tab === 'action' && room.phase === 'night' && !target.is_alive && (
+        <Tip id="ghost" title="Tu es un fantôme">
+          Tu ne parles plus à la table. Chaque nuit, observe un vivant et désigne ton suspect : les vivants peuvent t’interroger au Cimetière.
+        </Tip>
+      )}
+      {tIsMe && tab === 'action' && room.phase === 'day' && (
+        <Tip id="day" title="L'aube">
+          Lis ton rapport, puis débattez à voix haute. Raconte ta nuit (vraie ou inventée), accuse, défends-toi : c’est le moment de bluffer !
+        </Tip>
+      )}
+      {tIsMe && tab === 'action' && room.phase === 'vote' && target.is_alive && (
+        <Tip id="vote" title="Le vote">
+          Vote en secret pour éliminer un suspect, ou abstiens-toi. Seul le camp de l’éliminé sera révélé.
+        </Tip>
+      )}
 
       {tab === 'action' && secret?.team === 'solitaires' && room.phase !== 'ended' && (
         <SolitairePanel
