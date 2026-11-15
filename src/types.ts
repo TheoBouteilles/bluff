@@ -14,6 +14,7 @@ export type Room = {
   vote_step: number
   vote_candidates: string[] | null
   sudden_death: boolean
+  started_at?: string | null // lancement de la partie (migration 0019)
 }
 
 export type Player = {

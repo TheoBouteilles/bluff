@@ -5,6 +5,9 @@ import '@fontsource/ibm-plex-mono/600.css'
 import './index.css'
 import App from './App.tsx'
 import { playSfx, unlockAudio } from './lib/audio'
+import { initPwa } from './lib/pwa'
+
+initPwa()
 
 // Premier appui : débloque l'audio (règle des navigateurs). Chaque bouton fait un petit « tic ».
 document.addEventListener('pointerdown', (e) => {

@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import DayPanel from '../components/DayPannel'
 import EndPanel from '../components/EndPannel'
 import GhostPanel from '../components/GhostPannel'
 import HoldToReveal from '../components/HoldToReveal'
 import NightPanel from '../components/NightPannel'
+import PhaseTransition from '../components/PhaseTransition'
+import type { TransitionKind } from '../components/PhaseTransition'
 import ResultPanel from '../components/ResultPannel'
 import RoleCard from '../components/RoleCard'
 import SolitairePanel from '../components/SolitairePanel'
@@ -31,6 +33,7 @@ import type { NightParams } from '../lib/api'
 import SoundButton from '../components/SoundOptions'
 import { useMusic } from '../hooks/useAudio'
 import { playSfx } from '../lib/audio'
+import { useWakeLock } from '../lib/pwa'
 import type { Theme } from '../lib/audio'
 import type { Player } from '../types'
 
@@ -45,6 +48,8 @@ export default function Game() {
   const [viewAs, setViewAs] = useState<string | null>(null)
   const [tab, setTab] = useState<'role' | 'action' | 'rules'>('role')
   const [error, setError] = useState('')
+  // Écran de transition en cours (seulement pour un changement de phase vécu en direct)
+  const [transition, setTransition] = useState<{ kind: TransitionKind; key: string } | null>(null)
 
   const debugHost = !!room?.debug && !!me?.is_host
   const viewable = debugHost ? players.filter((p) => p.id === me?.id || p.is_bot) : me ? [me] : []
@@ -76,6 +81,8 @@ export default function Game() {
     : phase === 'day' || phase === 'result' ? 'day'
     : null
   useMusic(musicTheme)
+  // Écran toujours allumé pendant la partie (le téléphone reste posé sur la table)
+  useWakeLock(playing && room?.phase !== 'ended')
 
   // Sons des événements publics, joués seulement lors d'un changement vécu en direct (pas au rechargement)
   const lastPhase = useRef<string | null>(null)
@@ -87,14 +94,28 @@ export default function Game() {
     const key = `${room.round}|${room.phase}|${room.vote_step}`
     const prev = lastPhase.current
     lastPhase.current = key
+    // Arrivée sur la page juste après le lancement : on montre quand même la tombée de la première nuit
+    if (prev === null && room.phase === 'night' && room.round === 1 && room.started_at
+      && Date.now() - new Date(room.started_at).getTime() < 20000) {
+      armed.current = true
+      playSfx('night')
+      setTransition({ kind: 'night', key })
+      return
+    }
     if (prev === null || prev === key) return
     armed.current = true
     const [, prevPhase, prevStep] = prev.split('|')
-    if (room.phase === 'night' && prevPhase !== 'night') playSfx('night')
-    else if (room.phase === 'day' && prevPhase !== 'day') playSfx('dawn')
-    else if (room.phase === 'vote' && prevPhase !== 'vote') playSfx('vote')
-    else if (room.phase === 'vote' && Number(prevStep) < room.vote_step) playSfx('runoff')
+    let kind: TransitionKind | null = null
+    if (room.phase === 'night' && prevPhase !== 'night') { playSfx('night'); kind = 'night' }
+    else if (room.phase === 'day' && prevPhase !== 'day') { playSfx('dawn'); kind = 'day' }
+    else if (room.phase === 'vote' && prevPhase !== 'vote') { playSfx('vote'); kind = 'vote' }
+    else if (room.phase === 'vote' && Number(prevStep) < room.vote_step) { playSfx('runoff'); kind = 'runoff' }
+    else if (room.phase === 'result' && prevPhase !== 'result') kind = 'result' // le son suit l'arrivée du résultat
+    else if (room.phase === 'ended' && prevPhase !== 'ended') kind = 'ended'
+    if (kind) setTransition({ kind, key })
   }, [room?.round, room?.phase, room?.vote_step, playing])
+
+  const closeTransition = useCallback(() => setTransition(null), [])
 
   // Morts annoncées à l'aube : glas après le chant du coq
   useEffect(() => {
@@ -266,6 +287,19 @@ export default function Game() {
 
   return (
     <Screen>
+      {transition && (
+        <PhaseTransition
+          key={transition.key}
+          kind={transition.kind}
+          round={room.round}
+          players={players}
+          deaths={report ? report.deaths.map((d) => d.player_id) : null}
+          eliminated={resultOfRound ? { id: resultOfRound.eliminated_id, team: resultOfRound.eliminated_team } : null}
+          runoffNames={room.vote_candidates?.map((id) => players.find((p) => p.id === id)?.nickname ?? '?')}
+          winner={room.winner}
+          onDone={closeTransition}
+        />
+      )}
       <div className={`${panelClass} flex items-center justify-between px-3 py-2`}>
         <div className="flex items-center gap-3">
           <Px name={room.phase === 'night' ? 'moon' : 'sun'} scale={3} className="animate-float" />

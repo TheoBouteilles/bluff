@@ -24,7 +24,7 @@ export const panelClass = 'px-frame'
 
 export function Screen({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-dvh flex flex-col items-center px-4 py-6 px-scan">
+    <main className="min-h-dvh flex flex-col items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] px-scan">
       <div className="w-full max-w-md flex flex-col gap-4">{children}</div>
     </main>
   )

@@ -1,23 +1,43 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
-import CreateRoom from './pages/CreateRoom'
-import JoinRoom from './pages/JoinRoom'
-import Lobby from './pages/Lobby'
-import Rules from './pages/Rules'
-import Demo from './pages/Demo'
-import RolesList from './pages/RolesList'
-import Game from './pages/Game'
-import Stats from './pages/Stats'
-import Balance from './pages/Balance'
-import Profile from './pages/Profile'
-import Privacy from './pages/Privacy'
-import Tutorial from './pages/Tutorial'
 import { useProfileSync } from './hooks/useProfile'
+import type { ComponentType } from 'react'
+
+// Page chargée à la demande. Si une nouvelle version a été mise en ligne pendant que l'onglet était ouvert,
+// l'ancien fichier n'existe plus : on recharge une fois la page pour récupérer la nouvelle version.
+function page(load: () => Promise<{ default: ComponentType }>) {
+  return lazy(() => load().then((m) => {
+    sessionStorage.removeItem('bluff:reloaded')
+    return m
+  }).catch((e) => {
+    if (!sessionStorage.getItem('bluff:reloaded')) {
+      sessionStorage.setItem('bluff:reloaded', '1')
+      window.location.reload()
+      return new Promise<never>(() => {})
+    }
+    throw e
+  }))
+}
+const CreateRoom = page(() => import('./pages/CreateRoom'))
+const JoinRoom = page(() => import('./pages/JoinRoom'))
+const Lobby = page(() => import('./pages/Lobby'))
+const Rules = page(() => import('./pages/Rules'))
+const Demo = page(() => import('./pages/Demo'))
+const RolesList = page(() => import('./pages/RolesList'))
+const Game = page(() => import('./pages/Game'))
+const Stats = page(() => import('./pages/Stats'))
+const Balance = page(() => import('./pages/Balance'))
+const Profile = page(() => import('./pages/Profile'))
+const Privacy = page(() => import('./pages/Privacy'))
+const Tutorial = page(() => import('./pages/Tutorial'))
 
 export default function App() {
   useProfileSync()
   return (
     <BrowserRouter>
+      {/* Pages chargées à la demande : l'accueil s'affiche vite, le reste arrive en tâche de fond */}
+      <Suspense fallback={<p className="mt-24 text-center font-pixel text-[11px] uppercase tracking-widest text-mist-d">Chargement…</p>}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/creer" element={<CreateRoom />} />
@@ -34,6 +54,7 @@ export default function App() {
         <Route path="/tutoriel" element={<Tutorial />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

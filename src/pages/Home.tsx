@@ -7,11 +7,13 @@ import { useTips } from '../hooks/useTips'
 import { Screen, styles } from '../components/ui'
 import { AVATARS } from '../data/avatars'
 import { getLastRoom } from '../lib/api'
+import { useInstall } from '../lib/pwa'
 
 export default function Home() {
   const last = getLastRoom()
   const { account, profile } = useProfile()
   const { tutorialSeen } = useTips()
+  const install = useInstall()
   useMusic('lobby')
 
   return (
@@ -65,6 +67,18 @@ export default function Home() {
           <Px name="book" scale={2} /> Règles
         </Link>
       </div>
+
+      {/* Application installable : bouton (Android, ordinateur) ou consigne (iPhone) */}
+      {install.canInstall && (
+        <button type="button" onClick={install.install} className={`${styles.ghost} w-full`}>
+          <Px name="check" scale={2} /> Installer l’application
+        </button>
+      )}
+      {install.iosHint && (
+        <p className="text-center font-sans text-xs text-mist-d">
+          Astuce : sur iPhone, touche <span className="text-paper">Partager</span> puis <span className="text-paper">Sur l’écran d’accueil</span> pour jouer en plein écran.
+        </p>
+      )}
 
       <p className="mt-2 text-center font-pixel text-[10px] uppercase tracking-widest text-mist-d">
         <Px name="moon" scale={1} className="mr-2 align-middle" />{AVATARS.length} avatars · 4 à 10 joueurs · autour d’une table

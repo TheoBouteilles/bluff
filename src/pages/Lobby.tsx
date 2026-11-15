@@ -6,6 +6,7 @@ import { Avatar, Px } from '../components/Px'
 import { Button, Label, Note, Screen, TitleBar } from '../components/ui'
 import SoundButton from '../components/SoundOptions'
 import { useMusic } from '../hooks/useAudio'
+import { useWakeLock } from '../lib/pwa'
 import { useRoom } from '../hooks/useRoom'
 import { useRoomSettings } from '../hooks/useRoomSettings'
 import { addBot, clearLastRoom, errorMessage, leaveRoom, removeBot, resetRoomSettings, startGame, updateRoomSettings } from '../lib/api'
@@ -15,6 +16,7 @@ export default function Lobby() {
   const navigate = useNavigate()
   const { state, room, players, me, refresh } = useRoom(code)
   useMusic('lobby')
+  useWakeLock(true) // écran allumé en attendant les autres
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const cfg = useRoomSettings(room?.id)

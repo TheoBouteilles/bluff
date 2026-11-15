@@ -177,3 +177,20 @@
 @keyframes vlclouds { from { transform: translateX(0); } to { transform: translateX(1500px); } }
 .vl-glow { animation: vlglow 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes vlglow { 0%, 100% { opacity: 0.85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+
+/* Écrans de transition entre les phases (PhaseTransition) */
+@keyframes tr-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tr-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tr-sink { from { opacity: 0; transform: translateY(-90px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tr-rise { from { opacity: 0; transform: translateY(80px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tr-drop { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tr-fall { from { transform: rotate(0); } to { transform: rotate(90deg) translateX(20px); opacity: .35; } }
+@keyframes tr-ghost { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, -30px); } }
+@keyframes tr-reveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tr-win { from { transform: scale(0.2) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes tr-twinkle { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+@keyframes tr-confetti { from { transform: translateY(0) rotate(0); } to { transform: translateY(110vh) rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-[tr-"] { animation-duration: 1ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; }
+}
