@@ -215,6 +215,38 @@ export type MyStats = {
 export const getMyStats = () => rpc<MyStats>('get_my_stats', {})
 export const getNewTrophies = (roomId: string) => rpc<string[]>('get_new_trophies', { p_room_id: roomId })
 
+// Récap de fin de partie, visible par tous les joueurs du salon (migration 0022)
+export type RecapPlayer = {
+  player_id: string
+  tokens: number
+  killed_round: number | null
+  eliminated_round: number | null
+  nights: number
+  kills: number
+  casino_bets: number
+  casino_net: number
+  gifts_given: number
+  gifts_received: number
+  mairie_ok: number
+  mairie_fail: number
+  sabotages: number
+  feats: string[] // exploits de la partie
+  new_trophies: string[] // trophées débloqués pour la première fois (hors debug)
+}
+export type RecapNight = {
+  round: number
+  moves: { player_id: string; location: string }[]
+  deaths: { player_id: string; location: string | null }[]
+  sabotages: { player_id: string; location: string; success: boolean }[]
+  rigs: { player_id: string; kind: 'boost' | 'shield' | 'backfire'; target_id: string | null }[]
+}
+export type GameRecap = {
+  players: RecapPlayer[]
+  nights: RecapNight[]
+  votes: { round: number; eliminated_id: string | null; eliminated_team: string | null; tally: Record<string, number>; tied: boolean; runoffs: number; drawn: boolean }[]
+}
+export const getGameRecap = (roomId: string) => rpc<GameRecap>('get_game_recap', { p_room_id: roomId })
+
 // Opportuniste : parier sur un camp (la nuit ; premier choix gratuit)
 export const setOpportunistSide = (roomId: string, side: 'villageois' | 'saboteurs', playerId?: string) =>
   rpc<void>('set_opportunist_side', { p_room_id: roomId, p_side: side, p_player_id: playerId ?? null })

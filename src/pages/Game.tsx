@@ -425,7 +425,7 @@ export default function Game() {
           </HoldToReveal>
         )
       ) : room.phase === 'ended' ? (
-        <EndPanel roomId={room.id} winner={room.winner} roles={finalRoles} players={players} />
+        <EndPanel roomId={room.id} meId={me.id} winner={room.winner} roles={finalRoles} players={players} />
       ) : room.phase === 'result' ? (
         <ResultPanel result={resultOfRound} players={players} />
       ) : room.phase === 'vote' ? (

@@ -240,6 +240,43 @@ begin
   if (public.get_my_profile()->>'avatar')::int <> 7 then
     raise exception 'ÉCHEC [fusion] : profil de l''invité non rapatrié'; end if; ok := ok + 1;
 
+  ---------------------------------------------------------------------------
+  -- 9. Récap de fin de partie (migration 0022)
+  --    5 joueurs : T1 Saboteur tue T2 à la taverne ; T3 mise 3 au Casino (gain garanti)
+  ---------------------------------------------------------------------------
+  r := pg_temp.mkroom('TQHA', 5, '{"kill_tie_pct": 100, "casino_win_pct": 100}'); rid := r[1];
+  perform pg_temp.as_player(r[2]); perform public.start_game(rid);
+  perform pg_temp.set_role(r[2], 'saboteur_simple');
+  for i in 3..6 loop perform pg_temp.set_role(r[i], 'villageois_simple'); end loop;
+  begin
+    perform public.get_game_recap(rid);
+    raise exception 'ÉCHEC [récap] : lisible avant la fin de partie';
+  exception when others then if sqlerrm not like '%not_ended%' then raise; end if;
+  end; ok := ok + 1;
+  insert into public.night_actions (room_id, round, player_id, location, params) values
+    (rid, 1, r[2], 'taverne', '{}'), (rid, 1, r[3], 'taverne', '{}'), (rid, 1, r[4], 'casino', '{"stake":3}'),
+    (rid, 1, r[5], 'maison', '{}'), (rid, 1, r[6], 'casino', '{"stake":0}');
+  perform public.resolve_night(rid);
+  update public.rooms set phase = 'ended', status = 'ended', winner = 'villageois' where id = rid;
+  perform pg_temp.as_player(r[4]);
+  v_txt := public.get_game_recap(rid)::text;
+  if (select (x->>'kills')::int from jsonb_array_elements(v_txt::jsonb->'players') x where x->>'player_id' = r[2]::text) <> 1 then
+    raise exception 'ÉCHEC [récap] : meurtre du Saboteur non compté'; end if; ok := ok + 1;
+  if not exists (select 1 from jsonb_array_elements(v_txt::jsonb->'players') x
+                 where x->>'player_id' = r[3]::text and x->'feats' ? 'mauvais_endroit') then
+    raise exception 'ÉCHEC [récap] : exploit « Mauvais endroit » absent'; end if; ok := ok + 1;
+  if not exists (select 1 from jsonb_array_elements(v_txt::jsonb->'players') x
+                 where x->>'player_id' = r[4]::text and x->'feats' ? 'jackpot' and (x->>'casino_net')::int = 3) then
+    raise exception 'ÉCHEC [récap] : Casino ou exploit « Jackpot » faux'; end if; ok := ok + 1;
+  if jsonb_array_length(v_txt::jsonb->'nights'->0->'moves') <> 5 then
+    raise exception 'ÉCHEC [récap] : déplacements de la nuit incomplets'; end if; ok := ok + 1;
+  perform set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid(), 'role', 'authenticated')::text, true);
+  begin
+    perform public.get_game_recap(rid);
+    raise exception 'ÉCHEC [récap] : lisible par quelqu''un hors du salon';
+  exception when others then if sqlerrm not like '%not_member%' then raise; end if;
+  end; ok := ok + 1;
+
   raise exception 'TESTS OK : % vérifications réussies (transaction annulée)', ok;
 end $tests$;
 

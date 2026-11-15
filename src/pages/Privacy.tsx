@@ -59,7 +59,7 @@ export default function Privacy() {
           <Li>Un service d’envoi d’e-mails, uniquement pour t’envoyer ton code ou ton lien de connexion.</Li>
           <Li>Sur ton appareil (stockage local du navigateur) : ta session, tes préférences, les astuces déjà vues et le dernier salon visité, ainsi qu’une copie des fichiers du jeu pour qu’il s’ouvre plus vite. Pas de cookie publicitaire.</Li>
         </ul>
-        <p className="mt-2">Les rôles et les actions secrètes des autres joueurs ne sont jamais visibles pendant la partie. À la fin, les rôles sont révélés à tous ; les actions de nuit et les votes individuels restent secrets.</p>
+        <p className="mt-2">Les rôles et les actions secrètes des autres joueurs ne sont jamais visibles pendant la partie. À la fin de la partie, les rôles, les lieux visités, les actions de nuit et les trophées gagnés sont révélés aux joueurs du salon ; les votes individuels restent secrets.</p>
       </Section>
 
       <Section title="Combien de temps">

@@ -13,6 +13,7 @@ import { SIMPLE_ROLES, SOLO_ROLES } from '../data/roles'
 import SolitairePanel from '../components/SolitairePanel'
 import SettingsPanel from '../components/SettingsPanel'
 import type { Player } from '../types'
+import type { GameRecap } from '../lib/api'
 
 /*
  * Vitrine de l'interface avec des données factices (dev uniquement, route /demo).
@@ -23,6 +24,27 @@ const P = (i: number, n: string, alive = true, host = false): Player => ({
 })
 const players = [P(0, 'Marcel', true, true), P(1, 'Jeanne'), P(2, 'Ahmed'), P(3, 'Lucie', false), P(4, 'Théo'), P(5, 'Nina'), P(6, 'Paul')]
 const me = players[4]
+const R = (i: number, o: Partial<GameRecap['players'][number]> = {}): GameRecap['players'][number] => ({
+  player_id: `p${i}`, tokens: 2, killed_round: null, eliminated_round: null, nights: 3, kills: 0, casino_bets: 0, casino_net: 0,
+  gifts_given: 0, gifts_received: 0, mairie_ok: 0, mairie_fail: 0, sabotages: 0, feats: [], new_trophies: [], ...o,
+})
+const demoRecap: GameRecap = {
+  players: [
+    R(0, { tokens: 4, kills: 2, sabotages: 1 }), R(1, { casino_bets: 2, casino_net: 3, feats: ['jackpot'], new_trophies: ['jackpot'] }),
+    R(2, { gifts_given: 2, mairie_ok: 1, feats: ['maire_vereux'] }), R(3, { killed_round: 1, nights: 1, feats: ['mauvais_endroit', 'fantome_rancunier'], new_trophies: ['premiere_partie'] }),
+    R(4, { tokens: 6, gifts_received: 2, casino_bets: 3, casino_net: -4, feats: ['ruine'] }), R(5), R(6, { eliminated_round: 2, feats: ['bouc_emissaire'] }),
+  ],
+  nights: [
+    { round: 1, moves: [{ player_id: 'p0', location: 'taverne' }, { player_id: 'p3', location: 'taverne' }, { player_id: 'p1', location: 'casino' }, { player_id: 'p4', location: 'casino' }, { player_id: 'p2', location: 'mairie' }, { player_id: 'p5', location: 'maison' }, { player_id: 'p6', location: 'poste_garde' }],
+      deaths: [{ player_id: 'p3', location: 'taverne' }], sabotages: [], rigs: [{ player_id: 'p2', kind: 'boost', target_id: 'p6' }] },
+    { round: 2, moves: [{ player_id: 'p0', location: 'planque' }, { player_id: 'p1', location: 'casino' }, { player_id: 'p4', location: 'taverne' }, { player_id: 'p2', location: 'taverne' }, { player_id: 'p5', location: 'cimetiere' }, { player_id: 'p6', location: 'maison' }],
+      deaths: [], sabotages: [{ player_id: 'p0', location: 'casino', success: true }], rigs: [] },
+  ],
+  votes: [
+    { round: 1, eliminated_id: null, eliminated_team: null, tally: {}, tied: true, runoffs: 3, drawn: false },
+    { round: 2, eliminated_id: 'p6', eliminated_team: 'villageois', tally: {}, tied: false, runoffs: 1, drawn: false },
+  ],
+}
 
 export default function Demo() {
   const [tab, setTab] = useState<'role' | 'action' | 'rules'>('action')
@@ -54,7 +76,7 @@ export default function Demo() {
       <VotePanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} choice={vote} onVote={(t) => setVote(t)} onCancel={() => setVote(undefined)} />
       <DayPanel players={players} report={{ location: 'taverne', present: ['p1', 'p2'], result: { rumeur: { targets: ['p1', 'p2', 'p6'], has_saboteur: true } }, closed_next: [], cry: false, killed: false, deaths: [{ player_id: 'p3', location: null }] }} />
       <ResultPanel players={players} result={{ room_id: 'r', round: 2, eliminated_id: 'p3', eliminated_team: 'saboteurs', tied: false, tally: { p3: 4, p1: 2 }, runoffs: 0, drawn: false }} />
-      <EndPanel demoTrophies={['premiere_partie', 'jackpot', 'fantome_rancunier']} winner="villageois" players={players} roles={players.map((p, i) => ({ player_id: p.id, role_id: i % 3 === 0 ? 'saboteur_simple' : 'villageois_simple', team: i % 3 === 0 ? 'saboteurs' : 'villageois' }))} />
+      <EndPanel demoRecap={demoRecap} meId={me.id} winner="villageois" players={players} roles={players.map((p, i) => ({ player_id: p.id, role_id: i % 3 === 0 ? 'saboteur_simple' : 'villageois_simple', team: i % 3 === 0 ? 'saboteurs' : 'villageois' }))} />
     </Screen>
   )
 }

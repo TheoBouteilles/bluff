@@ -1,34 +1,36 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Avatar, Px } from './Px'
+import { Avatar } from './Px'
+import GameRecap from './GameRecap'
 import { TEAM_STYLE, getRole } from '../data/roles'
 import type { TeamId } from '../data/roles'
-import { getTrophy } from '../data/trophies'
-import { getNewTrophies } from '../lib/api'
+import { getGameRecap } from '../lib/api'
 import { playSfx } from '../lib/audio'
-import type { FinalRole } from '../lib/api'
+import type { FinalRole, GameRecap as Recap } from '../lib/api'
 import type { Player } from '../types'
 import { panelClass } from './ui'
 
-// roomId absent (vitrine /demo) : pas d'appel, on affiche demoTrophies
-type Props = { roomId?: string; demoTrophies?: string[]; winner: 'villageois' | 'saboteurs' | null; roles: FinalRole[]; players: Player[] }
+// roomId absent (vitrine /demo) : pas d'appel, on affiche demoRecap
+type Props = { roomId?: string; meId?: string; demoRecap?: Recap; winner: 'villageois' | 'saboteurs' | null; roles: FinalRole[]; players: Player[] }
 
-export default function EndPanel({ roomId, demoTrophies = [], winner, roles, players }: Props) {
+export default function EndPanel({ roomId, meId, demoRecap, winner, roles, players }: Props) {
   const style = winner ? TEAM_STYLE[winner] : undefined
-  const [fetched, setFetched] = useState<string[]>([])
-  const trophies = roomId ? fetched : demoTrophies
+  const [fetched, setFetched] = useState<Recap | null>(null)
+  const [failed, setFailed] = useState(false)
+  const recap = roomId ? fetched : demoRecap ?? null
 
-  // Trophées débloqués pendant cette partie (rien en mode debug)
+  // Récap commun à tous (exploits, bilan, nuit par nuit) ; fanfare si j'ai débloqué un trophée
   useEffect(() => {
-    if (roomId) {
-      getNewTrophies(roomId)
-        .then((t) => {
-          setFetched(t)
-          if (t.length > 0) setTimeout(() => playSfx('trophy'), 2500) // après la fanfare de fin
-        })
-        .catch(() => setFetched([]))
-    }
-  }, [roomId])
+    if (!roomId) return
+    let cancelled = false
+    getGameRecap(roomId)
+      .then((r) => {
+        if (cancelled) return
+        setFetched(r)
+        if (r.players.some((p) => p.player_id === meId && p.new_trophies.length > 0)) setTimeout(() => playSfx('trophy'), 2500)
+      })
+      .catch(() => { if (!cancelled) setFailed(true) })
+    return () => { cancelled = true }
+  }, [roomId, meId])
 
   return (
     <div className="flex flex-col gap-3">
@@ -39,31 +41,6 @@ export default function EndPanel({ roomId, demoTrophies = [], winner, roles, pla
         </h2>
         {style && <p className={`mt-1 ${style.text}`}>{style.label}</p>}
       </section>
-
-      {trophies.length > 0 && (
-        <section className="px-frame-paper p-4">
-          <h2 className="flex items-center gap-2 font-display text-xl font-bold uppercase tracking-wider">
-            <Px name="crown" scale={2} /> Trophées débloqués
-          </h2>
-          <ul className="mt-2 flex flex-col gap-2">
-            {trophies.map((id) => {
-              const t = getTrophy(id)
-              return (
-                <li key={id} className="flex items-center gap-3">
-                  <span className="text-2xl leading-none">{t?.emoji ?? '🏆'}</span>
-                  <span>
-                    <span className="block font-pixel text-[11px] uppercase tracking-wide">{t?.name ?? id}</span>
-                    {t && <span className="block font-sans text-xs text-ink/70">{t.description}</span>}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
-          <Link to="/stats" className="mt-3 block text-center font-pixel text-[11px] uppercase tracking-wide underline decoration-2 underline-offset-4">
-            Voir mes statistiques ▸
-          </Link>
-        </section>
-      )}
 
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-paper">Les rôles</h2>
@@ -95,6 +72,10 @@ export default function EndPanel({ roomId, demoTrophies = [], winner, roles, pla
           </ul>
         )}
       </section>
+
+      {recap ? <GameRecap recap={recap} players={players} meId={meId} />
+        : roomId && !failed ? <p className="text-center text-sm text-mist-d">Chargement du récap…</p>
+        : null}
     </div>
   )
 }
