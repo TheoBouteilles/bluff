@@ -57,9 +57,9 @@ export default function Privacy() {
           <Li><strong className="text-paper">Supabase</strong> : base de données et connexion, serveurs en Irlande (Union européenne).</Li>
           <Li><strong className="text-paper">Vercel</strong> : hébergement du site.</Li>
           <Li>Un service d’envoi d’e-mails, uniquement pour t’envoyer ton code ou ton lien de connexion.</Li>
-          <Li>Sur ton appareil (stockage local du navigateur) : ta session, tes préférences et le dernier salon visité. Pas de cookie publicitaire.</Li>
+          <Li>Sur ton appareil (stockage local du navigateur) : ta session, tes préférences, les astuces déjà vues et le dernier salon visité, ainsi qu’une copie des fichiers du jeu pour qu’il s’ouvre plus vite. Pas de cookie publicitaire.</Li>
         </ul>
-        <p className="mt-2">Les rôles et actions secrètes des autres joueurs ne sont jamais visibles pendant la partie ; ils sont révélés à tous à la fin.</p>
+        <p className="mt-2">Les rôles et les actions secrètes des autres joueurs ne sont jamais visibles pendant la partie. À la fin, les rôles sont révélés à tous ; les actions de nuit et les votes individuels restent secrets.</p>
       </Section>
 
       <Section title="Combien de temps">

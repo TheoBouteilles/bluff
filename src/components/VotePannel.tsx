@@ -40,7 +40,7 @@ export default function VotePanel({ player, others, runoff, choice, onVote, onCa
     return (
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-paper">Tu es spectateur</h2>
-        <p className="mt-2 text-mist-d">Les éliminés ne votent plus. Observe la fin de la partie.</p>
+        <p className="mt-2 text-mist-d">Les fantômes ne votent plus. Observe la suite de la partie, sans rien dire.</p>
       </section>
     )
   }

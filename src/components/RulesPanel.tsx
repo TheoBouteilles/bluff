@@ -47,8 +47,8 @@ export default function RulesPanel({ settings }: Props) {
 
       <Section title="Déroulement d’une manche">
         <List items={[
-          'Nuit : chacun choisit en secret un lieu (et son action), puis VALIDE. Un bouton « Retour » permet de modifier tant que la nuit n’est pas résolue.',
-          'Aube et débat : on découvre les résultats privés et l’éventuelle victime. Les joueurs discutent à voix haute.',
+          'Nuit : chacun choisit en secret un lieu (et son action), puis valide. Le bouton « Retour » permet de changer d’avis tant que la nuit n’est pas résolue.',
+          'Aube et débat : chacun découvre ses résultats privés, puis on annonce les morts de la nuit. Les joueurs discutent à voix haute.',
           'Vote : chacun vote (ou s’abstient) puis valide. Le plus voté est éliminé et son camp est révélé.',
           s('timers_on') === 1
             ? `Minuteurs actifs : nuit ${s('night_seconds')} s, débat ${s('day_seconds')} s, vote ${s('vote_seconds')} s. Le temps écoulé fait passer à la suite.`
@@ -58,8 +58,8 @@ export default function RulesPanel({ settings }: Props) {
 
       <Section title="Jetons">
         <List items={[
-          `Départ : ${j(s('tokens_start_villager'))} par Villageois ; Saboteur seul : ${j(s('tokens_start_saboteur_solo'))} ; à plusieurs : ${j(s('tokens_start_saboteur'))} chacun.`,
-          `Gain chaque nuit à partir de la nuit 2 : ${s('tokens_income_villager')} (Villageois), ${s('tokens_income_saboteur')} (Saboteur).`,
+          `Départ : ${j(s('tokens_start_villager'))} par Villageois ou Solitaire ; Saboteur seul : ${j(s('tokens_start_saboteur_solo'))} ; Saboteurs à plusieurs : ${j(s('tokens_start_saboteur'))} chacun.`,
+          `Gain chaque nuit à partir de la nuit 2 : ${j(s('tokens_income_villager'))} par Villageois ou Solitaire, ${j(s('tokens_income_saboteur'))} par Saboteur.`,
         ]} />
       </Section>
 
@@ -72,7 +72,7 @@ export default function RulesPanel({ settings }: Props) {
               </p>
               <p className="mt-1 text-mist-d">{l.description}</p>
               {costs[l.id] && <p className="mt-1 text-gold">{costs[l.id]}</p>}
-              <List items={l.rules} />
+              <List items={l.rules()} />
             </div>
           ))}
         </div>
@@ -99,8 +99,10 @@ export default function RulesPanel({ settings }: Props) {
 
       <Section title="Fantômes et cimetière">
         <List items={[
-          'Un joueur éliminé devient fantôme : il ne vote plus ni ne joue, et ne parle plus à la table.',
-          'Chaque nuit il observe gratuitement un joueur vivant (il saura où il est allé), choisit une tombe (définitive) et désigne un suspect, qu’il peut mentir.',
+          'Un joueur tué ou éliminé devient fantôme : il ne vote plus et ne parle plus à la table.',
+          s('cemetery_named') === 1
+            ? 'Chaque nuit, il observe gratuitement un joueur vivant (il saura où il est allé) et désigne un suspect (il peut mentir).'
+            : 'Chaque nuit, il observe gratuitement un joueur vivant (il saura où il est allé) et désigne un suspect (il peut mentir). Il choisit aussi une tombe, une fois pour toutes.',
           s('cemetery_named') === 1 ? 'Au Cimetière, un vivant interroge un fantôme non Saboteur par son nom et reçoit son suspect.' : 'Un vivant qui choisit la même tombe au Cimetière reçoit le suspect du fantôme.',
           ...(s('ghost_haunt_on') === 1 ? [`Fantôme Saboteur : chaque nuit il peut hanter un Saboteur vivant ; dans le lieu de celui-ci, la chance de meurtre gagne ${s('ghost_haunt_bonus_pct')} points par fantôme (ex. égalité ${s('kill_tie_pct')} % → ${Math.min(100, s('kill_tie_pct') + s('ghost_haunt_bonus_pct'))} %).`] : []),
           ...(s('saboteur_vision') === 1 ? ['Vision des Saboteurs : pendant la nuit, les Saboteurs (vivants ou fantômes) voient les lieux validés de leurs alliés vivants et les hantises.'] : []),

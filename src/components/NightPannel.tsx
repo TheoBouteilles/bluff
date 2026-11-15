@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Avatar, Px } from './Px'
 import LocationCard from './LocationCard'
-import { COSTS, isSmallGame, rumeurCost } from '../data/costs'
+import { COSTS, isSmallGame, jetons, rumeurCost } from '../data/costs'
 import { LOCATIONS } from '../data/locations'
 import VillageMap from './VillageMap'
 import type { NightParams } from '../lib/api'
@@ -82,7 +82,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
     if (id === 'casino') {
       const stake = params.stake ?? 0
       return (
-        <Options title={`Mise (une chance sur 2 de doubler, max ${COSTS.casinoMax})`}>
+        <Options title={`Mise (${COSTS.casinoWinPct === 50 ? 'une chance sur deux' : `${COSTS.casinoWinPct} % de chance`} de doubler, ${jetons(COSTS.casinoMax)} au plus)`}>
           <div className="flex flex-wrap gap-2">
             {Array.from({ length: COSTS.casinoMax + 1 }, (_, n) => (
               <button
@@ -92,7 +92,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
                 onClick={() => onChoose('casino', { stake: n })}
                 className={chip(stake === n, n > tokens)}
               >
-                {n === 0 ? 'Ne pas miser' : `${n} jeton${n > 1 ? 's' : ''}`}
+                {n === 0 ? 'Ne pas miser' : jetons(n)}
               </button>
             ))}
           </div>
@@ -122,7 +122,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
                 onChoose('taverne', { action: 'don' })
               }}
             >
-              Offrir {COSTS.don} jeton
+              Offrir {jetons(COSTS.don)}
             </button>
             <button
               type="button"
@@ -140,7 +140,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
 
           {action === 'don' && (
             <>
-              <p className="text-xs text-ink/60">Cadeau secret, reçu seulement si le receveur est aussi à la Taverne cette nuit. Sinon il échoue (jeton conservé).</p>
+              <p className="text-xs text-ink/60">Cadeau secret, reçu seulement si le receveur est aussi à la Taverne cette nuit. Sinon il échoue et tu gardes ton jeton.</p>
               <div className="flex flex-wrap gap-2">
                 {others.map((p) => playerChip(p, params.target === p.id, () => onChoose('taverne', { action: 'don', target: p.id })))}
               </div>
@@ -164,7 +164,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
     }
     if (id === 'poste_garde') {
       return (
-        <Options title={`Enquêter sur un joueur (${COSTS.posteGarde} jetons)`}>
+        <Options title={`Enquêter sur un joueur (${jetons(COSTS.posteGarde)})`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={chip(!params.target)} onClick={() => onChoose('poste_garde', {})}>
               Ne pas enquêter
@@ -173,7 +173,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               tokens < COSTS.posteGarde ? null : playerChip(p, params.target === p.id, () => onChoose('poste_garde', { target: p.id })),
             )}
           </div>
-          {tokens < COSTS.posteGarde && <p className="text-xs text-ink/60">Il te faut {COSTS.posteGarde} jetons pour enquêter.</p>}
+          {tokens < COSTS.posteGarde && <p className="text-xs text-ink/60">Il te faut {jetons(COSTS.posteGarde)} pour enquêter.</p>}
           <p className="text-xs text-ink/60">Tu apprends où ce joueur a passé la nuit.</p>
         </Options>
       )
@@ -181,7 +181,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
     if (id === 'mairie') {
       const rig = params.rig
       return (
-        <Options title={`Truquer le vote (${COSTS.mairie} jetons)`}>
+        <Options title={`Truquer le vote (${jetons(COSTS.mairie)})`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={chip(!rig)} onClick={() => onChoose('mairie', {})}>
               Ne rien truquer
@@ -219,7 +219,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
       const sab = params.sabotage
       const targets = LOCATIONS.filter((l) => ['casino', 'taverne', 'poste_garde', 'mairie'].includes(l.id))
       return (
-        <Options title={`Saboteurs : saboter un lieu en secret cette nuit (${COSTS.planque} jetons)`}>
+        <Options title={`Saboteurs : saboter un lieu en secret cette nuit (${jetons(COSTS.planque)})`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={chip(!sab)} onClick={() => onChoose('planque', {})}>
               Ne rien saboter
@@ -237,7 +237,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             ))}
           </div>
           <p className="text-xs text-ink/60">
-            Casino : mises perdues. Taverne : rumeurs fausses. Poste de Garde : lieu faux. Mairie : le tricheur reçoit une voix contre lui. Le meurtre de la Planque passe d’abord : échec (jetons perdus) si un joueur hors Saboteurs y reste en vie. Deux Saboteurs sur le même lieu : un seul paie.
+            Casino : mises perdues. Taverne : rumeurs inversées. Poste de garde : lieu annoncé faux. Mairie : le tricheur reçoit une voix contre lui. Échec (jetons perdus) si un non-Saboteur reste en vie à la Planque. Deux Saboteurs sur le même lieu : un seul paie.
           </p>
         </Options>
       )
@@ -245,7 +245,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
     if (id === 'cimetiere' && namedCemetery) {
       const canPay = tokens >= COSTS.cimetiere
       return (
-        <Options title={`Interroger un fantôme (${COSTS.cimetiere} jeton${COSTS.cimetiere > 1 ? 's' : ''}) : il te confie son suspect`}>
+        <Options title={`Interroger un fantôme (${jetons(COSTS.cimetiere)}) : il te confie son suspect`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => onChoose('cimetiere', {})} className={chip(!params.ghost)}>
               Personne (gratuit)
@@ -257,7 +257,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             ))}
           </div>
           {ghosts.length === 0 && <p className="text-xs text-ink/60">Aucun fantôme à interroger (les Saboteurs éliminés ne parlent pas).</p>}
-          {!canPay && <p className="text-xs text-ink/60">Il te faut {COSTS.cimetiere} jeton pour interroger un fantôme.</p>}
+          {!canPay && <p className="text-xs text-ink/60">Il te faut {jetons(COSTS.cimetiere)} pour interroger un fantôme.</p>}
           <p className="text-xs text-ink/60">Un fantôme peut mentir.</p>
         </Options>
       )
@@ -266,7 +266,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
       const tomb = params.tomb
       const canPay = tokens >= COSTS.cimetiere
       return (
-        <Options title={`Choisir une tombe (${COSTS.cimetiere} jeton${COSTS.cimetiere > 1 ? 's' : ''}) : si un fantôme l’a choisie, tu apprends son suspect`}>
+        <Options title={`Choisir une tombe (${jetons(COSTS.cimetiere)}) : si un fantôme l’a choisie, tu apprends son suspect`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => onChoose('cimetiere', {})} className={chip(tomb === undefined)}>
               Aucune (gratuit)
@@ -283,7 +283,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               </button>
             ))}
           </div>
-          {!canPay && <p className="text-xs text-ink/60">Il te faut {COSTS.cimetiere} jeton pour choisir une tombe.</p>}
+          {!canPay && <p className="text-xs text-ink/60">Il te faut {jetons(COSTS.cimetiere)} pour choisir une tombe.</p>}
         </Options>
       )
     }
@@ -383,8 +383,8 @@ function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, 
     <div className="flex flex-col gap-2">
       <p className="text-xs text-ink/60">
         {small
-          ? `Petite partie : choisis exactement 3 joueurs, tu sauras si au moins un Saboteur se cache parmi eux (${COSTS.rumeurSmall} jetons).`
-          : `Choisis 2 ou 3 joueurs : tu sauras si au moins un Saboteur se cache parmi eux. Groupe de 3 : ${COSTS.rumeur3} jeton, groupe de 2 : ${COSTS.rumeur2} jetons.`}
+          ? `Petite partie : choisis exactement 3 joueurs, tu sauras si au moins un Saboteur se cache parmi eux (${jetons(COSTS.rumeurSmall)}).`
+          : `Choisis 2 ou 3 joueurs : tu sauras si au moins un Saboteur se cache parmi eux. Groupe de 3 : ${jetons(COSTS.rumeur3)}, groupe de 2 : ${jetons(COSTS.rumeur2)}.`}
       </p>
       <div className="flex flex-wrap gap-2">
         {others.map((p) => playerChip(p, targets.includes(p.id), () => onToggle(p.id)))}
@@ -395,7 +395,7 @@ function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, 
         onClick={onBuy}
         className={chip(false, !valid || tokens < cost)}
       >
-        {valid ? `Choisir cette rumeur (${cost} jeton${cost > 1 ? 's' : ''})` : small ? 'Choisis 3 joueurs' : 'Choisis 2 ou 3 joueurs'}
+        {valid ? `Choisir cette rumeur (${jetons(cost)})` : small ? 'Choisis 3 joueurs' : 'Choisis 2 ou 3 joueurs'}
       </button>
       {active && savedTargets && <p className="text-xs font-semibold text-gold-d">Rumeur sélectionnée.</p>}
     </div>

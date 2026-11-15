@@ -50,7 +50,7 @@ const STEPS: Step[] = [
     body: (
       <>
         <div className="flex justify-center gap-3 py-2"><TokenBadge count={1} /><TokenBadge count={3} /></div>
-        <P>Chacun commence avec quelques <B>jetons</B> (les Saboteurs un peu plus) et en gagne <B>1 par nuit</B>.</P>
+        <P>Chacun commence avec quelques <B>jetons</B> (les Saboteurs un peu plus) et en gagne <B>1 par nuit</B> à partir de la deuxième.</P>
         <P>Ils servent à agir dans les lieux : enquêter, acheter une rumeur, truquer un vote, parier au casino…</P>
       </>
     ),
@@ -83,7 +83,7 @@ const STEPS: Step[] = [
     body: (
       <>
         <div className="flex justify-center py-2"><Px name="skull" scale={4} className="animate-float" /></div>
-        <P>Dans chaque lieu, si les <B>Saboteurs sont plus nombreux</B> que les autres présents, quelqu’un meurt. À égalité, c’est une chance sur deux.</P>
+        <P>Dans chaque lieu, si les <B>Saboteurs sont plus nombreux</B> que les autres présents, l’un des non-Saboteurs meurt. À égalité, c’est une chance sur deux. Un mort au plus par lieu.</P>
         <P>Rester <B>chez soi</B> protège… mais pas deux nuits de suite. Les Saboteurs, eux, ne paient rien pour tuer.</P>
       </>
     ),

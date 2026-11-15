@@ -143,7 +143,7 @@ export default function Stats() {
               <Row label="Jetons reçus en cadeau" value={stats.gifts_received} />
               <Row label="Trucages réussis / ratés" value={`${stats.mairie_success} / ${stats.mairie_fail}`} />
               <Row label="Meurtres (en Saboteur)" value={stats.kills} />
-              <Row label="Lieux fermés depuis la Planque" value={stats.sabotages_ok} />
+              <Row label="Sabotages réussis" value={stats.sabotages_ok} />
               <Row label={<span className="inline-flex items-center gap-2"><Px name="ghost" scale={1} /> Suspect juste en fantôme</span>} value={`${stats.ghost_right} / ${stats.ghost_games}`} />
               <Row label="Indices utiles au Cimetière" value={stats.cemetery_good_hints} />
             </ul>

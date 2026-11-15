@@ -16,7 +16,7 @@ const MESSAGES: Record<string, string> = {
   not_member: 'Tu ne fais pas partie de ce salon.',
   not_night: 'La nuit est terminée.',
   invalid_target: 'Joueur invalide.',
-  player_dead: 'Ce joueur est éliminé.',
+  player_dead: 'Ce joueur n’est plus en vie.',
   invalid_location: 'Lieu inconnu.',
   night_not_over: 'La nuit n’est pas terminée.',
   location_closed: 'Ce lieu est fermé cette nuit.',
@@ -31,7 +31,7 @@ const MESSAGES: Record<string, string> = {
   tomb_locked: 'Ta tombe est déjà choisie : ce choix est définitif.',
   not_playing: 'La partie n’est pas en cours.',
   not_opportunist: 'Réservé à l’Opportuniste.',
-  players_not_ready: 'Tous les joueurs n’ont pas encore validé leur choix.',
+  players_not_ready: 'Certains joueurs n’ont pas encore validé leur choix.',
 }
 
 export function errorMessage(e: unknown): string {

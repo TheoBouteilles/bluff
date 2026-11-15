@@ -22,7 +22,7 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
       onSelect?.(id)
     }
   }
-  const short: Record<string, string> = { poste_garde: 'Tour de guet', maison: 'Chez soi' }
+  const short: Record<string, string> = { maison: 'Chez soi' }
 
   return (
     <svg
@@ -54,9 +54,11 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
         const isSelected = selected === l.id
         const interactive = !readonly && !isClosed
         const [cx, cy] = s.c
-        const [lx, ly] = s.l
         const label = short[l.id] ?? l.name
         const lw = label.length * 19 + 28
+        // Étiquette gardée dans la carte (les noms longs débordaient sur le bord)
+        const lx = Math.min(Math.max(s.l[0], lw / 2 + 8), VW - lw / 2 - 8)
+        const ly = s.l[1]
         return (
           <g key={l.id}>
             <g

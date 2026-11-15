@@ -49,8 +49,8 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
         <h2 className="text-lg font-bold text-paper">👻 Tu es un fantôme</h2>
         <p className="mt-2 text-mist-d">
           {haunter
-            ? 'Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu restes un Saboteur : chaque nuit, tu peux hanter un allié encore en vie pour augmenter ses chances de meurtre.'
-            : 'Tu ne joues ni ne votes plus, et il ne faut plus parler à la table. Mais tu peux observer les vivants et laisser un indice.'}
+            ? 'Tu ne votes plus et tu ne dois plus parler à la table. Mais tu restes un Saboteur : chaque nuit, tu peux hanter un allié encore en vie pour augmenter ses chances de meurtre.'
+            : 'Tu ne votes plus et tu ne dois plus parler à la table. Mais chaque nuit, tu peux observer un vivant et désigner ton suspect.'}
         </p>
       </section>
 
@@ -134,7 +134,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-paper">Ton suspect</h2>
         <p className="mt-1 text-sm text-mist-d">
-          Désigne le méchant probable. {namedCemetery ? 'Un vivant qui t’interroge au Cimetière recevra ce nom.' : 'Un vivant qui trouvera ta tombe au Cimetière recevra ce nom.'} Tu peux le changer
+          Désigne le joueur que tu soupçonnes. {namedCemetery ? 'Un vivant qui t’interroge au Cimetière recevra ce nom.' : 'Un vivant qui trouvera ta tombe au Cimetière recevra ce nom.'} Tu peux le changer
           à tout moment, ou mentir.
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">

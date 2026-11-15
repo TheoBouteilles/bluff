@@ -76,7 +76,7 @@ export default function LocationCard({ loc, mode = 'night', validated = false, c
             <span className="text-sea transition-transform group-open:rotate-90">▸</span>
           </summary>
           <ul className="list-disc space-y-1 border-t-2 border-dashed border-ink/25 px-4 py-3 pl-8 font-sans text-sm text-ink/80">
-            {loc.rules.map((r) => (
+            {loc.rules().map((r) => (
               <li key={r}>{r}</li>
             ))}
           </ul>

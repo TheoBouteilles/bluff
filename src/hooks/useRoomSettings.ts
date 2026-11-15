@@ -15,7 +15,7 @@ export function useRoomSettings(roomId: string | undefined) {
   }, [])
 
   const reload = useCallback(async () => {
-    if (!roomId) return
+    if (!roomId) { apply(DEFAULT_SETTINGS); return } // hors salon : valeurs par défaut (pas celles du dernier salon)
     try {
       apply(await getRoomSettings(roomId))
     } catch { /* on garde les valeurs actuelles */ }

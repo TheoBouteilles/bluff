@@ -14,7 +14,7 @@ export default function RolesList() {
           </h2>
           {t.id === 'solitaires' && (
             <p className="-mt-1 font-sans text-sm text-mist-d">
-              Activés par l’hôte dans les réglages : 1 Solitaire à partir de 7 joueurs, 2 à partir de 8 (seuils réglables). Leur victoire est personnelle.
+              En option (activés par défaut, l’hôte peut les retirer) : 1 Solitaire à partir de 7 joueurs, 2 à partir de 8 (seuils réglables), à la place de Villageois. Leur victoire est personnelle et s’ajoute à celle du camp gagnant.
             </p>
           )}
           {ROLES.filter((r) => r.team === t.id).map((r) => (

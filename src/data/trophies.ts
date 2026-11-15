@@ -16,7 +16,7 @@ export const TROPHIES: Trophy[] = [
   { id: 'maire_vereux', name: 'Maire véreux', emoji: '🎩', description: 'Truquer la Mairie et faire éliminer sa cible.' },
   { id: 'main_dans_le_sac', name: 'Pris la main dans le sac', emoji: '🫣', description: 'Rater un trucage à la Mairie.' },
   { id: 'pere_noel', name: 'Père Noël', emoji: '🎁', description: 'Offrir 5 cadeaux à la Taverne (toutes parties).' },
-  { id: 'serrurier', name: 'Serrurier', emoji: '🔒', description: 'Fermer 3 lieux depuis la Planque (toutes parties).' },
+  { id: 'serrurier', name: 'Serrurier', emoji: '🔒', description: 'Réussir 3 sabotages depuis la Planque (toutes parties).' },
   { id: 'medium', name: 'Médium', emoji: '🔮', description: 'Recevoir au Cimetière un indice qui désigne un vrai Saboteur.' },
   { id: 'fantome_rancunier', name: 'Fantôme rancunier', emoji: '👻', description: 'En fantôme, désigner le bon Saboteur comme suspect.' },
 ]

@@ -69,6 +69,6 @@ Variables Vercel et `.env.local` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 3. **Prise en main** : ~~tutoriel « Comment jouer » et astuces contextuelles en partie~~ (fait). Reste éventuellement : partie d'entraînement solo contre des bots.
 4. **Comptes joueurs** : ~~comptes optionnels e-mail / Google, fusion des données d'invité, profil (pseudo, avatar personnalisé, préférences)~~ (fait, 0021). ~~mention de confidentialité~~ (fait). Reste : finir la configuration Google (publication), puis historique entre amis ; éventuellement mot de passe optionnel.
 5. **Finition** : ~~écrans de transition animés, application installable (PWA, plein écran, écran allumé), découpage du bundle~~ (fait). Reste éventuellement : mode hors ligne plus poussé, notifications.
-6. **Mise en ligne** : relecture des textes et des règles, partie test avec des joueurs extérieurs au groupe.
+6. **Mise en ligne** : ~~relecture des textes et des règles~~ (fait : textes alignés sur les règles actuelles, prix des lieux tirés des réglages du salon via `rules()` dans `locations.ts`). Reste : partie test avec des joueurs extérieurs au groupe.
 
-Livré récemment : page Équilibrage (0019), revue de sécurité, tests SQL et synchronisation robuste (0020), comptes optionnels et avatars personnalisés (0021), confidentialité, nouveau menu d'accueil, tutoriel et astuces, transitions animées, application installable et bundle découpé.
+Livré récemment : page Équilibrage (0019), revue de sécurité, tests SQL et synchronisation robuste (0020), comptes optionnels et avatars personnalisés (0021), confidentialité, nouveau menu d'accueil, tutoriel et astuces, transitions animées, application installable et bundle découpé, relecture des textes.

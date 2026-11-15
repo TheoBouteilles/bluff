@@ -37,3 +37,6 @@ export const isSmallGame = (totalPlayers: number) => totalPlayers <= COSTS.rumeu
 
 export const rumeurCost = (groupSize: number, totalPlayers: number) =>
   isSmallGame(totalPlayers) ? COSTS.rumeurSmall : groupSize === 3 ? COSTS.rumeur3 : COSTS.rumeur2
+
+/** « 1 jeton », « 2 jetons » */
+export const jetons = (n: number) => `${n} jeton${n > 1 ? 's' : ''}`

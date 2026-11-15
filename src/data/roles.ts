@@ -12,7 +12,7 @@ export type Role = {
 export const TEAMS: { id: TeamId; label: string; text: string }[] = [
   { id: 'villageois', label: 'Villageois', text: 'text-[#7fb3e0]' },
   { id: 'saboteurs', label: 'Saboteurs', text: 'text-[#e8847c]' },
-  { id: 'solitaires', label: 'Solitaires (en option)', text: 'text-[#8fd6c2]' },
+  { id: 'solitaires', label: 'Solitaires', text: 'text-[#8fd6c2]' },
 ]
 
 // Les rôles spéciaux (Mécène, Enquêteur, Caméléon…) ont été abandonnés : la partie se joue
@@ -22,11 +22,11 @@ export const SOLO_ROLES: Role[] = [
     id: 'capitaliste', name: 'Le Capitaliste', team: 'solitaires',
     description: 'Stratège cupide qui ne pense qu’à sa fortune.',
     power: 'Aucun pouvoir : il joue les lieux comme tout le monde et peut mentir sur son camp pour se faire offrir des jetons. Il peut être tué la nuit et passe pour innocent aux rumeurs.',
-    victory: 'Détenir l’objectif de jetons (10 par défaut) à un moment de la partie. Sa victoire est alors acquise, même s’il meurt ensuite.',
+    victory: 'Détenir l’objectif de jetons (10 par défaut) à un moment de la partie. Sa victoire personnelle est alors acquise, même s’il meurt ensuite.',
   },
   {
     id: 'opportuniste', name: 'L’Opportuniste', team: 'solitaires',
-    description: 'Caméléon politique qui roule pour le camp gagnant.',
+    description: 'Girouette politique qui roule pour le camp gagnant.',
     power: 'Parie en secret sur un camp (Villageois ou Saboteurs). Premier choix gratuit, puis chaque changement coûte des jetons, la nuit seulement. Il peut être tué la nuit et passe pour innocent aux rumeurs.',
     victory: 'Être en vie à la fin de la partie et avoir parié sur le camp vainqueur.',
   },
@@ -53,8 +53,8 @@ export const SIMPLE_ROLES: Role[] = [
     name: 'Saboteur',
     team: 'saboteurs',
     description: 'Tu te fonds dans le village pour mieux le détruire.',
-    power: 'Tu connais tes complices. Tu pourras saboter un lieu depuis la Planque (2 jetons).',
-    victory: 'Éliminer les Villageois ou égaliser leur nombre.',
+    power: 'Tu connais tes complices. Tu tues sans payer là où vous êtes en nombre, et tu peux saboter un lieu depuis la Planque.',
+    victory: 'Devenir aussi nombreux que les autres joueurs vivants.',
   },
 ]
 

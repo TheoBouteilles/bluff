@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { COSTS, jetons } from '../data/costs'
 import { Avatar } from './Px'
 import { LOCATIONS } from '../data/locations'
 import type { DawnReport } from '../lib/api'
@@ -24,8 +25,8 @@ export default function DayPanel({ report, players }: Props) {
   if (r.casino) {
     events.push(
       r.casino.won
-        ? <>🎰 Tu as misé {r.casino.stake} et gagné : <strong className="text-gold">+{r.casino.stake} jeton{r.casino.stake > 1 ? 's' : ''}</strong>.</>
-        : <>🎰 Tu as misé {r.casino.stake} et tout perdu.</>,
+        ? <>🎰 Tu as misé {jetons(r.casino.stake)} et gagné : <strong className="text-gold">+{jetons(r.casino.stake)}</strong>.</>
+        : <>🎰 Tu as misé {jetons(r.casino.stake)} et tout perdu.</>,
     )
   }
   if (r.don) {
@@ -33,13 +34,13 @@ export default function DayPanel({ report, players }: Props) {
       r.don.ok === false ? (
         <>🎁 Cadeau raté : {nameOf(r.don.target)} n’était pas à la Taverne. Ton jeton est conservé.</>
       ) : (
-        <>🎁 Tu as offert {r.don.amount} jeton à {nameOf(r.don.target)} (en secret).</>
+        <>🎁 Tu as offert {jetons(r.don.amount)} à {nameOf(r.don.target)} (en secret).</>
       ),
     )
   }
   if (r.gifts_received) {
     events.push(
-      <>🎁 Quelqu’un t’a offert <strong className="text-gold">{r.gifts_received} jeton{r.gifts_received > 1 ? 's' : ''}</strong> en secret.</>,
+      <>🎁 Quelqu’un t’a offert <strong className="text-gold">{jetons(r.gifts_received)}</strong> en secret.</>,
     )
   }
   if (r.rumeur) {
@@ -66,13 +67,13 @@ export default function DayPanel({ report, players }: Props) {
     if (m.success) {
       events.push(
         m.rig === 'boost' ? (
-          <>🏛 Trucage réussi : <strong className="text-gold">+2 voix contre {m.target ? nameOf(m.target) : 'ton choix'}</strong> lors du vote.</>
+          <>🏛 Trucage réussi : <strong className="text-gold">+{COSTS.mairieBoost} voix contre {m.target ? nameOf(m.target) : 'ton choix'}</strong> au premier dépouillement.</>
         ) : (
-          <>🏛 Trucage réussi : <strong className="text-gold">les voix contre toi seront annulées</strong> lors du vote.</>
+          <>🏛 Trucage réussi : <strong className="text-gold">les voix contre toi seront annulées</strong> au premier dépouillement.</>
         ),
       )
     } else if (m.attempted) {
-      events.push(<>🏛 Trucage raté : tu n’étais pas seul à la Mairie. Les jetons sont perdus.</>)
+      events.push(<>🏛 Trucage raté : vous étiez plusieurs à la Mairie. Les jetons sont perdus.</>)
     } else {
       events.push(<>🏛 Quelqu’un a tenté de truquer le vote à la Mairie, mais vous étiez plusieurs : le trucage a échoué.</>)
     }
@@ -101,12 +102,12 @@ export default function DayPanel({ report, players }: Props) {
       r.sabotage.success ? (
         <>💀 Sabotage réussi : <strong className="text-gold">{locName(r.sabotage.location)}</strong> a été saboté cette nuit, en secret.{r.sabotage.shared ? ' (Un allié visait déjà ce lieu : rien payé.)' : ''}</>
       ) : (
-        <>💀 Sabotage raté : quelqu’un d’extérieur est resté à la Planque.{r.sabotage.shared ? '' : ' Les jetons sont perdus.'}</>
+        <>💀 Sabotage raté : un non-Saboteur est resté en vie à la Planque.{r.sabotage.shared ? '' : ' Les jetons sont perdus.'}</>
       ),
     )
   }
   if (r.casino_steal) {
-    events.push(<>🎰 Casino saboté : tu empoches la moitié des mises jouées, <strong className="text-gold">+{r.casino_steal} jetons</strong>.</>)
+    events.push(<>🎰 Casino saboté : tu empoches la moitié des mises jouées, <strong className="text-gold">+{jetons(r.casino_steal)}</strong>.</>)
   }
 
   return (
@@ -131,7 +132,7 @@ export default function DayPanel({ report, players }: Props) {
           <p className="mt-2 text-mist-d">Chargement…</p>
         ) : report.killed ? (
           <p className="mt-2 text-[#f0b4ae]">
-            💀 Tu as été tué pendant la nuit. Tu es désormais un fantôme : tu ne peux plus parler ni voter.
+            💀 Tu as été tué pendant la nuit. Tu es désormais un fantôme : tu ne parles plus à la table et tu ne votes plus.
           </p>
         ) : (
           <>
@@ -188,7 +189,7 @@ export default function DayPanel({ report, players }: Props) {
       <section className={`${panelClass} p-4`}>
         <h2 className="text-lg font-bold text-paper">Le débat est ouvert</h2>
         <p className="mt-2 text-mist-d">
-          Parlez, accusez, mentez : rien n’est prouvé. L’hôte ouvrira le vote quand la discussion est terminée.
+          Parlez, accusez, mentez : rien n’est prouvé. L’hôte ouvrira le vote quand la discussion sera terminée.
         </p>
       </section>
     </div>
