@@ -296,8 +296,9 @@ def build(save):
         add('flame_small', lx - 1, 85, 460, 'night')
     add('flame_big', 8, 175, 480)
     # animaux
-    add('chicken', 168, 292, 360, 'day', anim='walk', dx=96, period=11000)
-    add('chicken', 98, 186, 380, 'day', anim='walk', dx=60, period=8000, delay=-3000)
+    # trajets sur l'herbe dégagée : ils ne doivent jamais croiser une couronne d'arbre (dessinée dessous)
+    add('chicken', 168, 292, 360, 'day', anim='walk', dx=72, period=11000)
+    add('chicken', 92, 228, 380, 'day', anim='walk', dx=60, period=8000, delay=-3000)
     add('cat', 186, 258, 900)
     add('crow', 104, 245, 1400)
     add('bird', -12, 60, 260, 'day', anim='fly', tx=980, ty=320, period=16000)

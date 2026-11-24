@@ -72,9 +72,10 @@ export default function Demo() {
       <RoleCard role={SOLO_ROLES[1]} tokens={3} />
       <SolitairePanel secret={{ player_id: 'p4', role_id: 'opportuniste', team: 'solitaires', tokens: 3, side: 'saboteurs' }} alive canAct goal={10} switchCost={2} onSide={noop} />
       <SettingsPanel settings={{ solitaires_on: 1, timers_on: 0, capitaliste_goal: 12 }} editable onChange={noop} onReset={noop} />
-      <NightPanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} tokens={3} totalPlayers={7} isSaboteur choice={undefined} closed={['casino']} ghosts={[players[3]]} namedCemetery allyInfo={[{ name: 'Jeanne', location: 'taverne', validated: false, haunted: [] }]} onValidate={noop} onCancel={noop} />
+      <NightPanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} tokens={3} totalPlayers={7} isSaboteur choice={undefined} closed={['casino', 'cimetiere']} ghosts={[players[3]]} namedCemetery allyInfo={[{ name: 'Jeanne', location: 'taverne', validated: false, haunted: [] }]} onValidate={noop} onCancel={noop} />
       <VotePanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} choice={vote} onVote={(t) => setVote(t)} onCancel={() => setVote(undefined)} />
       <DayPanel players={players} report={{ location: 'taverne', present: ['p1', 'p2'], result: { rumeur: { targets: ['p1', 'p2', 'p6'], has_saboteur: true } }, closed_next: [], cry: false, killed: false, deaths: [{ player_id: 'p3', location: null }] }} />
+      <DayPanel players={players} report={{ location: 'poste_garde', present: [], result: {}, closed_next: [], cry: false, killed: false, deaths: [] }} />
       <ResultPanel players={players} result={{ room_id: 'r', round: 2, eliminated_id: 'p3', eliminated_team: 'saboteurs', tied: false, tally: { p3: 4, p1: 2 }, runoffs: 0, drawn: false }} />
       <EndPanel demoRecap={demoRecap} meId={me.id} winner="villageois" players={players} roles={players.map((p, i) => ({ player_id: p.id, role_id: i % 3 === 0 ? 'saboteur_simple' : 'villageois_simple', team: i % 3 === 0 ? 'saboteurs' : 'villageois' }))} />
     </Screen>

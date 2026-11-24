@@ -373,13 +373,13 @@ export const VILLAGE_LIFE: LifeItem[] = [
   "dur": 360,
   "modes": "day",
   "anim": "walk",
-  "dx": 96,
+  "dx": 72,
   "period": 11000
  },
  {
   "sprite": "chicken",
-  "x": 392,
-  "y": 744,
+  "x": 368,
+  "y": 912,
   "w": 8,
   "h": 8,
   "frames": 2,

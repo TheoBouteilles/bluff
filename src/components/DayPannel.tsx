@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { COSTS, jetons } from '../data/costs'
-import { Avatar } from './Px'
+import { Avatar, Px } from './Px'
 import { LOCATIONS } from '../data/locations'
 import type { DawnReport } from '../lib/api'
 import type { Player } from '../types'
@@ -123,6 +123,16 @@ export default function DayPanel({ report, players }: Props) {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+      {report && report.deaths.length === 0 && (
+        // Aussi visible que l'alerte rouge : une nuit sans mort est une information en soi
+        <section className="flex items-center gap-3 border-2 border-[#5fb3a0] bg-moss/60 p-4">
+          <Px name="sun" scale={2} className="shrink-0" />
+          <div>
+            <h2 className="text-lg font-bold text-[#c8f0e4]">Nuit calme : personne n’est mort.</h2>
+            <p className="mt-0.5 text-sm text-paper/85">Tout le village s’est réveillé. Les Saboteurs n’ont fait aucune victime.</p>
+          </div>
         </section>
       )}
       <VillageMap mode="day" readonly selected={report?.location ?? undefined} />

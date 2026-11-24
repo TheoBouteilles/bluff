@@ -22,7 +22,8 @@ type Props = {
   onDone: () => void
 }
 
-const DURATION: Record<TransitionKind, number> = { night: 2600, day: 3400, vote: 2200, runoff: 2600, result: 3600, ended: 4200 }
+// Durées d'affichage (ms), allongées de 25 % après les parties tests pour laisser le temps de lire
+const DURATION: Record<TransitionKind, number> = { night: 3250, day: 4250, vote: 2750, runoff: 3250, result: 4500, ended: 5250 }
 
 const BG: Record<TransitionKind, string> = {
   night: 'linear-gradient(to bottom, #05080d 0, #05080d 30%, #0b1220 30%, #0b1220 60%, #101a2c 60%)',
