@@ -70,7 +70,7 @@ export default function Game() {
   const closed = useClosures(room?.id, round, playing && room?.phase === 'night')
   const report = useDawnReport(room?.id, round, playing && room?.phase === 'day', targetId)
   const ghost = useGhostReport(room?.id, targetId, playing && !!target && !target.is_alive, `${round}-${room?.phase}`)
-  const vision = useSaboteurVision(room?.id, targetId, playing && room?.phase === 'night' && secret?.team === 'saboteurs' && (cfg.settings.saboteur_vision ?? 1) === 1)
+  const vision = useSaboteurVision(room?.id, targetId, playing && room?.phase === 'night' && secret?.team === 'saboteurs' && !!target?.is_alive && (cfg.settings.saboteur_vision ?? 1) === 1) // vivants seulement : le fantôme ne voit plus ses alliés
   const allyIds = useAllies(room?.id, targetId, playing && secret?.team === 'saboteurs')
 
   // Musique de la phase (si activée sur cet appareil)
@@ -232,9 +232,9 @@ export default function Game() {
     })
   }
 
-  async function hauntGhost(allyId: string | null) {
+  async function hauntGhost(location: string | null) {
     await runOk(async () => {
-      await setGhostHaunt(roomId, allyId, tIsMe ? undefined : tId)
+      await setGhostHaunt(roomId, location, tIsMe ? undefined : tId)
       await ghost.reload()
     })
   }
@@ -266,10 +266,8 @@ export default function Game() {
   const ghostExtra = {
     namedCemetery,
     isSaboteur: secret?.team === 'saboteurs',
-    allies: (allies ?? []).filter((p) => p.is_alive),
     hauntPct: (cfg.settings.ghost_haunt_on ?? 1) === 1 ? (cfg.settings.ghost_haunt_bonus_pct ?? 25) : null,
     onHaunt: hauntGhost,
-    allyLocation: vision ? (id: string) => vision.allies.find((a) => a.player_id === id)?.location : undefined,
   }
   const notReady =
     (room.phase === 'night' && !!progress && progress.played < progress.total) ||
@@ -380,7 +378,7 @@ export default function Game() {
       )}
       {tIsMe && tab === 'action' && room.phase === 'night' && !target.is_alive && (
         <Tip id="ghost" title="Tu es un fantôme">
-          Tu ne parles plus à la table. Chaque nuit, observe un vivant et désigne ton suspect : les vivants peuvent t’interroger au Cimetière.
+          Tu ne parles plus à la table. Chaque nuit, observe un vivant et désigne ton suspect : les vivants peuvent t’interroger au Cimetière. Fantôme Saboteur : hante un lieu sur la carte, là où tu penses qu’un allié ira.
         </Tip>
       )}
       {tIsMe && tab === 'action' && room.phase === 'day' && (
@@ -453,11 +451,10 @@ export default function Game() {
           closed={players.some((p) => !p.is_alive) ? closed : [...closed, 'cimetiere']}
           ghosts={players.filter((p) => !p.is_alive && teamRevealed(p.id) !== 'saboteurs')}
           namedCemetery={namedCemetery}
-          allyInfo={vision ? [...vision.allies.map((a) => a.player_id), ...(vision.haunts.some((h) => h.ally_id === tId) ? [tId] : [])].map((id) => ({
-            name: id === tId ? 'Toi' : players.find((p) => p.id === id)?.nickname ?? '?',
-            location: id === tId ? choices[tId]?.location ?? null : vision.allies.find((a) => a.player_id === id)?.location ?? null,
-            validated: id === tId ? !!choices[tId] : !!vision.allies.find((a) => a.player_id === id)?.validated,
-            haunted: vision.haunts.filter((h) => h.ally_id === id).map((h) => players.find((p) => p.id === h.ghost_id)?.nickname ?? '?'),
+          allyInfo={vision ? vision.allies.map((a) => ({
+            name: players.find((p) => p.id === a.player_id)?.nickname ?? '?',
+            location: a.location ?? null,
+            validated: !!a.validated,
           })) : undefined}
           onDraft={draftNight}
           onValidate={choose}

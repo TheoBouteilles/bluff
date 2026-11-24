@@ -19,7 +19,7 @@ type Props = {
   closed: string[]
   ghosts: Player[] // fantômes consultables au Cimetière (mode nominatif)
   namedCemetery: boolean
-  allyInfo?: { name: string; location: string | null; validated: boolean; haunted: string[] }[] // vision des Saboteurs
+  allyInfo?: { name: string; location: string | null; validated: boolean }[] // vision des Saboteurs vivants
   onDraft?: (locationId: string | null) => void // partage le lieu envisagé avec les alliés Saboteurs
   onValidate: (locationId: string, params: NightParams) => Promise<void> | void
   onCancel: () => Promise<void> | void
@@ -311,7 +311,6 @@ export default function NightPanel({ player, others, tokens, saboteurs, isSabote
               <li key={a.name}>
                 💀 {a.name} : <strong>{a.location ? LOCATIONS.find((l) => l.id === a.location)?.name ?? a.location : 'pas encore décidé'}</strong>
                 {a.location && !a.validated && <span className="text-[#f0b4ae]/70"> (hésite encore…)</span>}
-                {a.haunted.length > 0 && <span className="text-[#f0b4ae]/80"> · hanté par {a.haunted.join(', ')}</span>}
               </li>
             ))}
           </ul>

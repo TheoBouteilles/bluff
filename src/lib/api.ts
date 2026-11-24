@@ -146,7 +146,7 @@ export type GhostReport = {
   watches: { round: number; target_id: string; location: string | null }[]
   suspect: string | null
   tomb: number | null
-  haunt?: string | null
+  haunt?: string | null // lieu hanté cette nuit (fantôme Saboteur)
 }
 export const submitGhostWatch = (roomId: string, targetId: string, playerId?: string) =>
   rpc<void>('submit_ghost_watch', { p_room_id: roomId, p_target: targetId, p_player_id: playerId ?? null })
@@ -154,11 +154,11 @@ export const setGhostHint = (roomId: string, suspectId: string | null, playerId?
   rpc<void>('set_ghost_hint', { p_room_id: roomId, p_suspect: suspectId, p_player_id: playerId ?? null })
 export const getGhostReport = (roomId: string, playerId?: string) =>
   rpc<GhostReport>('get_ghost_report', { p_room_id: roomId, p_player_id: playerId ?? null })
-export const setGhostHaunt = (roomId: string, allyId: string | null, playerId?: string) =>
-  rpc<void>('set_ghost_haunt', { p_room_id: roomId, p_ally: allyId, p_player_id: playerId ?? null })
+// Fantôme Saboteur : lieu hanté cette nuit (null = aucun)
+export const setGhostHaunt = (roomId: string, location: string | null, playerId?: string) =>
+  rpc<void>('set_ghost_haunt', { p_room_id: roomId, p_location: location, p_player_id: playerId ?? null })
 export type SaboteurVision = {
   allies: { player_id: string; location: string | null; validated?: boolean }[]
-  haunts: { ghost_id: string; ally_id: string }[]
 }
 export const setNightDraft = (roomId: string, location: string | null, playerId?: string) =>
   rpc<void>('set_night_draft', { p_room_id: roomId, p_location: location, p_player_id: playerId ?? null })

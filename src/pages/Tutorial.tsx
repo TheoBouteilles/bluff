@@ -113,7 +113,7 @@ const STEPS: Step[] = [
       <>
         <div className="flex justify-center py-2"><Px name="ghost" scale={4} className="animate-float" /></div>
         <P>Les morts deviennent <B>fantômes</B> : ils ne votent plus et <B>ne parlent plus à la table</B>.</P>
-        <P>Chaque nuit, ils observent un vivant et désignent un suspect. Les vivants peuvent les interroger au <B>Cimetière</B>.</P>
+        <P>Chaque nuit, ils observent un vivant et désignent un suspect. Les vivants peuvent les interroger au <B>Cimetière</B>. Un fantôme Saboteur, lui, <B>hante un lieu</B> pour aider ses alliés à tuer.</P>
       </>
     ),
   },

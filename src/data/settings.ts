@@ -77,7 +77,7 @@ export const SETTING_GROUPS: SettingGroup[] = [
   {
     title: 'Fantômes et Saboteurs',
     settings: [
-      { key: 'ghost_haunt_on', label: 'Fantôme Saboteur : hanter un allié', min: 0, max: 1, default: 1, format: yesNo, hint: 'Chance de meurtre augmentée dans le lieu de l’allié hanté' },
+      { key: 'ghost_haunt_on', label: 'Fantôme Saboteur : hanter un lieu', min: 0, max: 1, default: 1, format: yesNo, hint: 'Chance de meurtre augmentée si un Saboteur vivant passe la nuit dans le lieu hanté' },
       { key: 'ghost_haunt_bonus_pct', label: 'Bonus par fantôme', min: 0, max: 100, step: 5, unit: '%', default: 25, showIf: (s) => s('ghost_haunt_on') === 1 },
       { key: 'saboteur_vision', label: 'Saboteurs : voir les lieux des alliés', min: 0, max: 1, default: 1, format: yesNo },
     ],

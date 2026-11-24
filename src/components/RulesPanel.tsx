@@ -103,8 +103,8 @@ export default function RulesPanel({ settings }: Props) {
             ? 'Chaque nuit, il observe gratuitement un joueur vivant (il saura où il est allé) et désigne un suspect (il peut mentir).'
             : 'Chaque nuit, il observe gratuitement un joueur vivant (il saura où il est allé) et désigne un suspect (il peut mentir). Il choisit aussi une tombe, une fois pour toutes.',
           s('cemetery_named') === 1 ? 'Au Cimetière, un vivant interroge un fantôme non Saboteur par son nom et reçoit son suspect.' : 'Un vivant qui choisit la même tombe au Cimetière reçoit le suspect du fantôme.',
-          ...(s('ghost_haunt_on') === 1 ? [`Fantôme Saboteur : chaque nuit il peut hanter un Saboteur vivant ; dans le lieu de celui-ci, la chance de meurtre gagne ${s('ghost_haunt_bonus_pct')} points par fantôme (ex. égalité ${s('kill_tie_pct')} % → ${Math.min(100, s('kill_tie_pct') + s('ghost_haunt_bonus_pct'))} %).`] : []),
-          ...(s('saboteur_vision') === 1 ? ['Vision des Saboteurs : pendant la nuit, les Saboteurs (vivants ou fantômes) voient les lieux validés de leurs alliés vivants et les hantises.'] : []),
+          ...(s('ghost_haunt_on') === 1 ? [`Fantôme Saboteur : chaque nuit il peut hanter un lieu (sauf une maison), sans voir où vont ses alliés ; si un Saboteur vivant y passe la nuit, la chance de meurtre gagne ${s('ghost_haunt_bonus_pct')} points par fantôme (ex. égalité ${s('kill_tie_pct')} % → ${Math.min(100, s('kill_tie_pct') + s('ghost_haunt_bonus_pct'))} %).`] : []),
+          ...(s('saboteur_vision') === 1 ? ['Vision des Saboteurs : pendant la nuit, les Saboteurs vivants voient les lieux choisis par leurs alliés vivants. Les fantômes ne les voient pas.'] : []),
         ]} />
       </Section>
 

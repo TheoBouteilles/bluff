@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Avatar } from './Px'
 import { LOCATIONS } from '../data/locations'
 import type { GhostReport } from '../lib/api'
 import type { Player } from '../types'
 import { panelClass } from './ui'
+import VillageMap from './VillageMap'
 
 type Props = {
   mode: 'night' | 'info'
@@ -16,10 +18,8 @@ type Props = {
   onTomb: (tomb: number) => void
   namedCemetery: boolean
   isSaboteur: boolean
-  allies: Player[] // Saboteurs vivants (pour la hantise)
   hauntPct: number | null // bonus par fantôme ; null = option désactivée
-  allyLocation?: (id: string) => string | null | undefined // vision : lieu validé de l'allié
-  onHaunt: (allyId: string | null) => void
+  onHaunt: (location: string | null) => void // lieu hanté cette nuit (null = aucun)
 }
 
 const chip = (active: boolean) =>
@@ -29,7 +29,7 @@ const chip = (active: boolean) =>
       : 'border-night-3 bg-night-2 hover:border-gold'
   }`
 
-export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint, tombCount, onTomb, namedCemetery, isSaboteur, allies, hauntPct, onHaunt, allyLocation }: Props) {
+export default function GhostPanel({ mode, round, self, report, players, onWatch, onHint, tombCount, onTomb, namedCemetery, isSaboteur, hauntPct, onHaunt }: Props) {
   const find = (id: string) => players.find((p) => p.id === id)
   const label = (id: string) => {
     const p = find(id)
@@ -42,6 +42,16 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
   const suspectOptions = players.filter((p) => p.id !== self?.id)
 
   const haunter = isSaboteur && hauntPct !== null // fantôme Saboteur : il aide ses alliés au lieu d'espionner
+  const choosing = mode === 'night' && haunter // la carte sert à choisir le lieu hanté
+  const [mapHint, setMapHint] = useState<string | null>(null)
+  const pickHaunt = (loc: string) => {
+    if (loc === 'maison') {
+      setMapHint('Personne ne meurt chez soi : impossible d’y hanter.')
+      return
+    }
+    setMapHint(null)
+    onHaunt(report?.haunt === loc ? null : loc)
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -49,7 +59,7 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
         <h2 className="text-lg font-bold text-paper">👻 Tu es un fantôme</h2>
         <p className="mt-2 text-mist-d">
           {haunter
-            ? 'Tu ne votes plus et tu ne dois plus parler à la table. Mais tu restes un Saboteur : chaque nuit, tu peux hanter un allié encore en vie pour augmenter ses chances de meurtre.'
+            ? 'Tu ne votes plus et tu ne dois plus parler à la table. Mais tu restes un Saboteur : chaque nuit, tu peux hanter un lieu pour y augmenter les chances de meurtre de tes alliés.'
             : 'Tu ne votes plus et tu ne dois plus parler à la table. Mais chaque nuit, tu peux observer un vivant et désigner ton suspect.'}
         </p>
       </section>
@@ -72,29 +82,30 @@ export default function GhostPanel({ mode, round, self, report, players, onWatch
         </section>
       )}
 
-      {mode === 'night' && isSaboteur && hauntPct !== null && (
-        <section className={`${panelClass} p-4`}>
-          <h2 className="text-lg font-bold text-[#f0b4ae]">💀 Hanter un allié</h2>
-          <p className="mt-1 text-sm text-mist-d">
-            Suis un Saboteur vivant cette nuit : là où il va, la chance de meurtre gagne {hauntPct} points (cumulable entre fantômes).
-          </p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {allies.map((p) => (
-              <button key={p.id} type="button" onClick={() => onHaunt(report?.haunt === p.id ? null : p.id)} className={chip(report?.haunt === p.id)}>
-                <Avatar index={p.avatar} look={p.look} scale={2} />
-                <span className="font-semibold">{p.nickname}</span>
-                {allyLocation && (
-                  <span className="ml-auto text-xs text-mist-d">{locName(allyLocation(p.id) ?? null) === 'nulle part' ? '…' : locName(allyLocation(p.id) ?? null)}</span>
-                )}
-              </button>
-            ))}
+      {/* Les morts gardent la carte du village sous les yeux (sans information) ; le fantôme Saboteur y choisit son lieu */}
+      <section className="flex flex-col gap-2">
+        {choosing && (
+          <div className={`${panelClass} p-4`}>
+            <h2 className="text-lg font-bold text-[#f0b4ae]">💀 Hanter un lieu</h2>
+            <p className="mt-1 text-sm text-mist-d">
+              Devine où ira un Saboteur vivant cette nuit : si l’un d’eux y passe, sa chance de meurtre gagne {hauntPct} points
+              (cumulable entre fantômes). Tu ne vois plus où vont tes alliés.
+            </p>
           </div>
-          {allies.length === 0 && <p className="mt-2 text-sm text-mist-d">Aucun Saboteur vivant à accompagner.</p>}
-          <p className="mt-2 text-center text-sm text-mist-d">
-            {report?.haunt ? 'Hantise enregistrée (touche-le pour annuler).' : 'Tu ne hantes personne cette nuit.'}
+        )}
+        <VillageMap
+          mode={mode === 'night' ? 'night' : 'day'}
+          readonly={!choosing}
+          selected={choosing ? report?.haunt ?? undefined : undefined}
+          onSelect={choosing ? pickHaunt : undefined}
+          label="Carte du village : choisis le lieu à hanter"
+        />
+        {choosing && (
+          <p className="text-center text-sm text-mist-d">
+            {mapHint ?? (report?.haunt ? <>Tu hantes : <strong className="text-gold">{locName(report.haunt)}</strong> (touche-le pour annuler).</> : 'Touche un lieu pour le hanter. Sans choix, tu ne hantes rien.')}
           </p>
-        </section>
-      )}
+        )}
+      </section>
 
       {past.length > 0 && (
         <section className={`${panelClass} p-4`}>

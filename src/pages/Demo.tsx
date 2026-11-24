@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DayPanel from '../components/DayPannel'
 import EndPanel from '../components/EndPannel'
+import GhostPanel from '../components/GhostPannel'
 import HoldToReveal from '../components/HoldToReveal'
 import NightPanel from '../components/NightPannel'
 import { Avatar, Px } from '../components/Px'
@@ -48,6 +49,7 @@ const demoRecap: GameRecap = {
 
 export default function Demo() {
   const [tab, setTab] = useState<'role' | 'action' | 'rules'>('action')
+  const [haunt, setHaunt] = useState<string | null>('casino')
   const [vote, setVote] = useState<string | null | undefined>(undefined)
   const noop = () => undefined
   return (
@@ -72,7 +74,9 @@ export default function Demo() {
       <RoleCard role={SOLO_ROLES[1]} tokens={3} />
       <SolitairePanel secret={{ player_id: 'p4', role_id: 'opportuniste', team: 'solitaires', tokens: 3, side: 'saboteurs' }} alive canAct goal={10} switchCost={2} onSide={noop} />
       <SettingsPanel settings={{ solitaires_on: 1, timers_on: 0, capitaliste_goal: 12 }} editable onChange={noop} onReset={noop} />
-      <NightPanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} tokens={3} saboteurs={2} isSaboteur choice={undefined} closed={['casino', 'cimetiere']} ghosts={[players[3]]} namedCemetery allyInfo={[{ name: 'Jeanne', location: 'taverne', validated: false, haunted: [] }]} onValidate={noop} onCancel={noop} />
+      <NightPanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} tokens={3} saboteurs={2} isSaboteur choice={undefined} closed={['casino', 'cimetiere']} ghosts={[players[3]]} namedCemetery allyInfo={[{ name: 'Jeanne', location: 'taverne', validated: false }]} onValidate={noop} onCancel={noop} />
+      <GhostPanel mode="night" round={2} self={players[3]} report={{ ghost: true, watches: [], suspect: null, tomb: null, haunt }} players={players} onWatch={noop} onHint={noop} tombCount={3} onTomb={noop} namedCemetery isSaboteur hauntPct={25} onHaunt={setHaunt} />
+      <GhostPanel mode="info" round={2} self={players[3]} report={{ ghost: true, watches: [{ round: 1, target_id: 'p1', location: 'taverne' }], suspect: 'p2', tomb: null }} players={players} onWatch={noop} onHint={noop} tombCount={3} onTomb={noop} namedCemetery isSaboteur={false} hauntPct={25} onHaunt={noop} />
       <VotePanel player={me} others={players.filter((p) => p.is_alive && p.id !== me.id)} choice={vote} onVote={(t) => setVote(t)} onCancel={() => setVote(undefined)} />
       <DayPanel players={players} report={{ location: 'taverne', present: ['p1', 'p2'], result: { rumeur: { targets: ['p1', 'p2', 'p6'], has_saboteur: true } }, closed_next: [], cry: false, killed: false, deaths: [{ player_id: 'p3', location: null }] }} />
       <DayPanel players={players} report={{ location: 'poste_garde', present: [], result: {}, closed_next: [], cry: false, killed: false, deaths: [] }} />

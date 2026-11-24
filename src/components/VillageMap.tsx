@@ -10,11 +10,12 @@ type Props = {
   readonly?: boolean // carte décorative (ex. rapport d'aube) : pas de clic
   onSelect?: (locationId: string) => void
   marks?: Record<string, { count: number; validated: boolean }> // alliés Saboteurs par lieu (plein = validé, pâle = indécis)
+  label?: string // libellé accessible de la carte interactive
 }
 
 // Carte du village en pixel art : décor fixe public/px/village2/base_<mode>.png (216 x 306 agrandie x4)
 // + couche vivante (VillageLife). Zones cliquables : src/data/villageSpots.ts (généré par tools/px/village2.py).
-export default function VillageMap({ selected, closed = [], mode = 'night', readonly = false, onSelect, marks = {} }: Props) {
+export default function VillageMap({ selected, closed = [], mode = 'night', readonly = false, onSelect, marks = {}, label: mapLabel }: Props) {
   const { w: VW, h: VH } = VILLAGE_SIZE
   const uid = useId().replace(/:/g, '') // identifiants SVG uniques si plusieurs cartes sont affichées
   const keyHandler = (id: string, enabled: boolean) => (e: KeyboardEvent) => {
@@ -31,7 +32,7 @@ export default function VillageMap({ selected, closed = [], mode = 'night', read
       className="px-frame w-full select-none !p-0"
       style={{ imageRendering: 'pixelated' }}
       role="group"
-      aria-label={readonly ? 'Carte du village' : 'Carte du village : choisis où passer la nuit'}
+      aria-label={readonly ? 'Carte du village' : mapLabel ?? 'Carte du village : choisis où passer la nuit'}
       shapeRendering="crispEdges"
     >
       <defs>

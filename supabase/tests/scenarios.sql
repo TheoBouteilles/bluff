@@ -331,6 +331,46 @@ begin
   if not exists (select 1 from public.vote_results where room_id = rid and drawn and runoffs = 2) then
     raise exception 'ÉCHEC [2 revotes] : pas de tirage au sort après 2 revotes'; end if; ok := ok + 1;
 
+  ---------------------------------------------------------------------------
+  -- 11. Fantôme Saboteur : il hante un lieu, sans voir ses alliés (migration 0024)
+  --     T1 Saboteur vivant au casino face à T3 et T4 (moins nombreux : 0 %) ; T2 fantôme Saboteur, bonus 100
+  ---------------------------------------------------------------------------
+  r := pg_temp.mkroom('TQJA', 6, '{"ghost_haunt_bonus_pct": 100}'); rid := r[1];
+  perform pg_temp.as_player(r[2]); perform public.start_game(rid);
+  perform pg_temp.set_role(r[2], 'saboteur_simple'); perform pg_temp.set_role(r[3], 'saboteur_simple');
+  for i in 4..7 loop perform pg_temp.set_role(r[i], 'villageois_simple'); end loop;
+  update public.players set is_alive = false where id = r[3];
+  perform pg_temp.as_player(r[3]);
+  if jsonb_array_length(public.get_saboteur_vision(rid)->'allies') <> 0 then
+    raise exception 'ÉCHEC [hantise] : le fantôme voit encore où vont ses alliés'; end if; ok := ok + 1;
+  begin
+    perform public.set_ghost_haunt(rid, 'maison', null);
+    raise exception 'ÉCHEC [hantise] : maison acceptée';
+  exception when others then if sqlerrm not like '%invalid_location%' then raise; end if;
+  end; ok := ok + 1;
+  perform public.set_ghost_haunt(rid, 'casino', null);
+  if public.get_ghost_report(rid)->>'haunt' is distinct from 'casino' then
+    raise exception 'ÉCHEC [hantise] : lieu hanté absent du rapport du fantôme'; end if; ok := ok + 1;
+  insert into public.night_actions (room_id, round, player_id, location) values
+    (rid, 1, r[2], 'casino'), (rid, 1, r[4], 'casino'), (rid, 1, r[5], 'casino'), (rid, 1, r[6], 'maison'), (rid, 1, r[7], 'maison');
+  perform public.resolve_night(rid);
+  if not exists (select 1 from public.night_deaths where room_id = rid and location = 'casino') then
+    raise exception 'ÉCHEC [hantise] : pas de meurtre au casino hanté (0 %% + 100)'; end if; ok := ok + 1;
+
+  -- Le fantôme s'est trompé de lieu : pas de bonus là où va le Saboteur
+  r := pg_temp.mkroom('TQJB', 6, '{"ghost_haunt_bonus_pct": 100}'); rid := r[1];
+  perform pg_temp.as_player(r[2]); perform public.start_game(rid);
+  perform pg_temp.set_role(r[2], 'saboteur_simple'); perform pg_temp.set_role(r[3], 'saboteur_simple');
+  for i in 4..7 loop perform pg_temp.set_role(r[i], 'villageois_simple'); end loop;
+  update public.players set is_alive = false where id = r[3];
+  perform pg_temp.as_player(r[3]);
+  perform public.set_ghost_haunt(rid, 'taverne', null);
+  insert into public.night_actions (room_id, round, player_id, location) values
+    (rid, 1, r[2], 'casino'), (rid, 1, r[4], 'casino'), (rid, 1, r[5], 'casino'), (rid, 1, r[6], 'maison'), (rid, 1, r[7], 'maison');
+  perform public.resolve_night(rid);
+  if exists (select 1 from public.night_deaths where room_id = rid) then
+    raise exception 'ÉCHEC [hantise] : bonus appliqué alors que le fantôme hantait un autre lieu'; end if; ok := ok + 1;
+
   raise exception 'TESTS OK : % vérifications réussies (transaction annulée)', ok;
 end $tests$;
 
