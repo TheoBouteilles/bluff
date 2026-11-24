@@ -9,3 +9,4 @@ Historique des migrations SQL de Bluff (à exécuter dans l'ordre dans Supabase 
 0020 : hygiène des droits, remove_bot limité au salon d'attente, hôte remplacé après 60 s. Déjà appliquée. Tests : supabase/tests/scenarios.sql.
 0021 : comptes optionnels (profils, pseudo, avatar personnalisé, préférences, fusion invité → compte). Déjà appliquée.
 0022 : récap de fin de partie visible par tous (get_game_recap : exploits de chacun, bilan, nuit par nuit). Déjà appliquée.
+0023 : réglages revus après les parties tests (égalité 60 %, Casino 60 %, 2 revotes, rumeur sur 3 joueurs à 3 jetons avec un seul Saboteur, Poste de garde 2 / 1 jeton selon les Saboteurs, Mairie « −1 voix contre soi »). Déjà appliquée.

@@ -69,7 +69,7 @@ export default function DayPanel({ report, players }: Props) {
         m.rig === 'boost' ? (
           <>🏛 Trucage réussi : <strong className="text-gold">+{COSTS.mairieBoost} voix contre {m.target ? nameOf(m.target) : 'ton choix'}</strong> au premier dépouillement.</>
         ) : (
-          <>🏛 Trucage réussi : <strong className="text-gold">les voix contre toi seront annulées</strong> au premier dépouillement.</>
+          <>🏛 Trucage réussi : <strong className="text-gold">{COSTS.mairieBoost} voix de moins contre toi</strong> au premier dépouillement.</>
         ),
       )
     } else if (m.attempted) {

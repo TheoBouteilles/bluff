@@ -15,6 +15,7 @@ import RulesPanel from '../components/RulesPanel'
 import VotePanel from '../components/VotePannel'
 import { Button, Note, Screen, Tabs, TokenBadge, panelClass } from '../components/ui'
 import { Avatar, Px } from '../components/Px'
+import { saboteurTotal } from '../data/costs'
 import { getRole } from '../data/roles'
 import { useAllies } from '../hooks/useAllies'
 import { useCountdown } from '../hooks/useCountdown'
@@ -446,7 +447,7 @@ export default function Game() {
           player={target}
           others={players.filter((p) => p.is_alive && p.id !== tId)}
           tokens={secret?.tokens ?? 0}
-          totalPlayers={players.length}
+          saboteurs={saboteurTotal(players.length)}
           isSaboteur={secret?.team === 'saboteurs'}
           choice={choices[tId]}
           closed={players.some((p) => !p.is_alive) ? closed : [...closed, 'cimetiere']}

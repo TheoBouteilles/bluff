@@ -277,6 +277,60 @@ begin
   exception when others then if sqlerrm not like '%not_member%' then raise; end if;
   end; ok := ok + 1;
 
+  ---------------------------------------------------------------------------
+  -- 10. Réglages revus après les parties tests (migration 0023)
+  ---------------------------------------------------------------------------
+  if public.game_param('kill_tie_pct') <> 60 or public.game_param('casino_win_pct') <> 60
+     or public.game_param('vote_runoff_max') <> 2 then
+    raise exception 'ÉCHEC [défauts 0023] : égalité %, Casino %, revotes %', public.game_param('kill_tie_pct'),
+      public.game_param('casino_win_pct'), public.game_param('vote_runoff_max'); end if; ok := ok + 1;
+
+  -- Un seul Saboteur (5 joueurs) : rumeur sur 3 joueurs uniquement, 3 jetons ; Poste de garde à 2
+  r := pg_temp.mkroom('TQIA', 5); rid := r[1];
+  perform pg_temp.as_player(r[2]); perform public.start_game(rid);
+  if not public.rumeur_small(rid) or public.rumeur_cost(rid, 3) <> 3 or public.poste_cost(rid) <> 2 then
+    raise exception 'ÉCHEC [1 Saboteur] : rumeur 3 seule %, prix %, Poste %', public.rumeur_small(rid),
+      public.rumeur_cost(rid, 3), public.poste_cost(rid); end if; ok := ok + 1;
+  perform pg_temp.set_role(r[2], 'villageois_simple'); perform pg_temp.set_role(r[3], 'saboteur_simple');
+  for i in 4..6 loop perform pg_temp.set_role(r[i], 'villageois_simple'); end loop;
+  begin
+    perform public.submit_night_action(rid, 'taverne', null, jsonb_build_object('action', 'rumeur', 'targets', jsonb_build_array(r[3], r[4])));
+    raise exception 'ÉCHEC [1 Saboteur] : rumeur sur 2 joueurs acceptée';
+  exception when others then if sqlerrm not like '%invalid_params%' then raise; end if;
+  end; ok := ok + 1;
+
+  -- Deux Saboteurs (6 joueurs) : rumeur sur 2 ou 3 joueurs aux prix habituels ; Poste de garde à 1, payé 1
+  r := pg_temp.mkroom('TQIB', 6); rid := r[1];
+  perform pg_temp.as_player(r[2]); perform public.start_game(rid);
+  if public.rumeur_small(rid) or public.rumeur_cost(rid, 2) <> 3 or public.rumeur_cost(rid, 3) <> 2 or public.poste_cost(rid) <> 1 then
+    raise exception 'ÉCHEC [2 Saboteurs] : rumeur 3 seule %, Poste %', public.rumeur_small(rid), public.poste_cost(rid); end if; ok := ok + 1;
+  perform pg_temp.set_role(r[2], 'saboteur_simple'); perform pg_temp.set_role(r[3], 'saboteur_simple');
+  for i in 4..7 loop perform pg_temp.set_role(r[i], 'villageois_simple'); end loop;
+  insert into public.night_actions (room_id, round, player_id, location, params) values
+    (rid, 1, r[4], 'poste_garde', jsonb_build_object('target', r[2])),
+    (rid, 1, r[2], 'maison', '{}'), (rid, 1, r[3], 'maison', '{}'), (rid, 1, r[5], 'maison', '{}'),
+    (rid, 1, r[6], 'maison', '{}'), (rid, 1, r[7], 'maison', '{}');
+  perform public.resolve_night(rid);
+  select tokens into v_int from public.player_secrets where player_id = r[4];
+  if v_int <> 4 then raise exception 'ÉCHEC [Poste à 2 Saboteurs] : % jeton(s) au lieu de 4 (5 - 1)', v_int; end if; ok := ok + 1;
+
+  -- Mairie : la protection retire 1 voix contre soi (2 → 1), sans tout annuler ; puis 2 revotes au plus
+  r := pg_temp.mkroom('TQIC', 5); rid := r[1];
+  perform pg_temp.as_player(r[2]); perform public.start_game(rid);
+  update public.rooms set phase = 'vote' where id = rid;
+  insert into public.vote_tampering (room_id, round, player_id, kind, target_id) values (rid, 1, r[3], 'shield', null);
+  insert into public.votes (room_id, round, voter_id, target_id) values
+    (rid, 1, r[2], r[3]), (rid, 1, r[4], r[3]), (rid, 1, r[5], r[4]);
+  perform public.resolve_vote(rid);
+  select (tally->>r[3]::text)::int into v_int from public.vote_runoffs where room_id = rid and step = 1;
+  if v_int is distinct from 1 then raise exception 'ÉCHEC [Mairie −1 voix] : % voix contre le protégé au lieu de 1', v_int; end if; ok := ok + 1;
+  insert into public.votes (room_id, round, voter_id, target_id) values (rid, 1, r[2], r[3]), (rid, 1, r[5], r[4]);
+  perform public.resolve_vote(rid);   -- 2e revote
+  insert into public.votes (room_id, round, voter_id, target_id) values (rid, 1, r[2], r[3]), (rid, 1, r[5], r[4]);
+  perform public.resolve_vote(rid);   -- plus de revote : tirage au sort
+  if not exists (select 1 from public.vote_results where room_id = rid and drawn and runoffs = 2) then
+    raise exception 'ÉCHEC [2 revotes] : pas de tirage au sort après 2 revotes'; end if; ok := ok + 1;
+
   raise exception 'TESTS OK : % vérifications réussies (transaction annulée)', ok;
 end $tests$;
 

@@ -124,7 +124,7 @@ export default function GameRecap({ recap, players, meId, debug = false }: Props
                     <p key={`s${s.player_id}`}>💀 <Name id={s.player_id} /> {s.success ? 'a saboté' : 'a tenté de saboter'} : <strong className="text-paper">{locName(s.location)}</strong>{s.success ? '' : ' (raté)'}.</p>
                   ))}
                   {n.rigs.map((g) => (
-                    <p key={`m${g.player_id}`}>🏛 <Name id={g.player_id} /> {g.kind === 'boost' ? <>a truqué le vote contre <Name id={g.target_id} />.</> : g.kind === 'shield' ? 'a fait annuler les voix reçues.' : 'a truqué une Mairie sabotée et s’est pris une voix.'}</p>
+                    <p key={`m${g.player_id}`}>🏛 <Name id={g.player_id} /> {g.kind === 'boost' ? <>a truqué le vote contre <Name id={g.target_id} />.</> : g.kind === 'shield' ? 's’est retiré une voix au vote.' : 'a truqué une Mairie sabotée et s’est pris une voix.'}</p>
                   ))}
                   {vote && (
                     <p className="mt-1 border-t border-night-3 pt-1.5">

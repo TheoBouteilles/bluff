@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Avatar, Px } from './Px'
 import LocationCard from './LocationCard'
-import { COSTS, isSmallGame, jetons, rumeurCost } from '../data/costs'
+import { COSTS, jetons, posteCost, rumeurCost, rumeurThreeOnly } from '../data/costs'
 import { LOCATIONS } from '../data/locations'
 import VillageMap from './VillageMap'
 import type { NightParams } from '../lib/api'
@@ -13,7 +13,7 @@ type Props = {
   player: Player
   others: Player[] // joueurs vivants autres que player
   tokens: number
-  totalPlayers: number
+  saboteurs: number // nombre de Saboteurs dans la partie (prix de la rumeur et du Poste de garde)
   isSaboteur: boolean
   choice?: NightChoice
   closed: string[]
@@ -39,7 +39,7 @@ function Options({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-export default function NightPanel({ player, others, tokens, totalPlayers, isSaboteur, choice, closed, ghosts, namedCemetery, allyInfo, onDraft, onValidate, onCancel }: Props) {
+export default function NightPanel({ player, others, tokens, saboteurs, isSaboteur, choice, closed, ghosts, namedCemetery, allyInfo, onDraft, onValidate, onCancel }: Props) {
   // Brouillon local : rien n'est enregistré avant « Valider ». Une fois validé, le choix est verrouillé jusqu'à « Retour ».
   const [draft, setDraft] = useState<NightChoice | null>(null)
   const validated = !!choice
@@ -126,8 +126,8 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             </button>
             <button
               type="button"
-              disabled={tokens < (isSmallGame(totalPlayers) ? COSTS.rumeurSmall : COSTS.rumeur3)}
-              className={chip(action === 'rumeur' || rumOpen, tokens < (isSmallGame(totalPlayers) ? COSTS.rumeurSmall : COSTS.rumeur3))}
+              disabled={tokens < (rumeurThreeOnly(saboteurs) ? COSTS.rumeurSmall : COSTS.rumeur3)}
+              className={chip(action === 'rumeur' || rumOpen, tokens < (rumeurThreeOnly(saboteurs) ? COSTS.rumeurSmall : COSTS.rumeur3))}
               onClick={() => {
                 setRumOpen(true)
                 setRumTargets(params.targets ?? [])
@@ -157,23 +157,23 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
             active={action === 'rumeur'}
             savedTargets={params.targets}
             playerChip={playerChip}
-            totalPlayers={totalPlayers}
+            saboteurs={saboteurs}
           />
         </Options>
       )
     }
     if (id === 'poste_garde') {
       return (
-        <Options title={`Enquêter sur un joueur (${jetons(COSTS.posteGarde)})`}>
+        <Options title={`Enquêter sur un joueur (${jetons(posteCost(saboteurs))})`}>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={chip(!params.target)} onClick={() => onChoose('poste_garde', {})}>
               Ne pas enquêter
             </button>
             {others.map((p) =>
-              tokens < COSTS.posteGarde ? null : playerChip(p, params.target === p.id, () => onChoose('poste_garde', { target: p.id })),
+              tokens < posteCost(saboteurs) ? null : playerChip(p, params.target === p.id, () => onChoose('poste_garde', { target: p.id })),
             )}
           </div>
-          {tokens < COSTS.posteGarde && <p className="text-xs text-ink/60">Il te faut {jetons(COSTS.posteGarde)} pour enquêter.</p>}
+          {tokens < posteCost(saboteurs) && <p className="text-xs text-ink/60">Il te faut {jetons(posteCost(saboteurs))} pour enquêter.</p>}
           <p className="text-xs text-ink/60">Tu apprends où ce joueur a passé la nuit.</p>
         </Options>
       )
@@ -192,7 +192,7 @@ export default function NightPanel({ player, others, tokens, totalPlayers, isSab
               className={chip(rig === 'shield', tokens < COSTS.mairie)}
               onClick={() => onChoose('mairie', { rig: 'shield' })}
             >
-              Annuler les voix contre moi
+              {COSTS.mairieBoost} voix de moins contre moi
             </button>
             <button
               type="button"
@@ -370,20 +370,20 @@ type RumeurProps = {
   active: boolean
   savedTargets?: string[]
   playerChip: (p: Player, active: boolean, onClick: () => void) => ReactNode
-  totalPlayers: number
+  saboteurs: number // nombre de Saboteurs dans la partie (prix de la rumeur et du Poste de garde)
 }
 
-function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, savedTargets, playerChip, totalPlayers }: RumeurProps) {
+function RumeurPicker({ show, others, tokens, targets, onToggle, onBuy, active, savedTargets, playerChip, saboteurs }: RumeurProps) {
   if (!show && !active) return null
-  const small = isSmallGame(totalPlayers)
+  const small = rumeurThreeOnly(saboteurs)
   const n = targets.length
   const valid = small ? n === 3 : n === 2 || n === 3
-  const cost = valid ? rumeurCost(n, totalPlayers) : small ? COSTS.rumeurSmall : COSTS.rumeur3
+  const cost = valid ? rumeurCost(n, saboteurs) : small ? COSTS.rumeurSmall : COSTS.rumeur3
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs text-ink/60">
         {small
-          ? `Petite partie : choisis exactement 3 joueurs, tu sauras si au moins un Saboteur se cache parmi eux (${jetons(COSTS.rumeurSmall)}).`
+          ? `Un seul Saboteur dans la partie : choisis exactement 3 joueurs, tu sauras si au moins un Saboteur se cache parmi eux (${jetons(COSTS.rumeurSmall)}).`
           : `Choisis 2 ou 3 joueurs : tu sauras si au moins un Saboteur se cache parmi eux. Groupe de 3 : ${jetons(COSTS.rumeur3)}, groupe de 2 : ${jetons(COSTS.rumeur2)}.`}
       </p>
       <div className="flex flex-wrap gap-2">

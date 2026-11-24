@@ -23,13 +23,12 @@ const List = ({ items }: { items: string[] }) => (
 export default function RulesPanel({ settings }: Props) {
   const s = (k: string) => settings[k] ?? DEFAULT_SETTINGS[k]
   const j = (n: number) => `${n} jeton${n > 1 ? 's' : ''}`
-  const small = s('rumeur_small_max_players')
   const costs: Record<string, string> = {
     casino: `Mise de 0 à ${s('casino_max')} jetons, ${s('casino_win_pct')} % de chance de gagner le double.`,
-    taverne: `Cadeau : ${j(s('don_cost'))}. Rumeur sur 3 joueurs : ${j(s('rumeur3_cost'))}, sur 2 joueurs : ${j(s('rumeur2_cost'))}.${small > 0 ? ` Jusqu’à ${small} joueurs : exactement 3 cibles, ${j(s('rumeur_small_cost'))}.` : ''}`,
+    taverne: `Cadeau : ${j(s('don_cost'))}. Rumeur sur 3 joueurs : ${j(s('rumeur3_cost'))}, sur 2 joueurs : ${j(s('rumeur2_cost'))}.${s('rumeur_solo_only') === 1 ? ` Avec un seul Saboteur : exactement 3 cibles, ${j(s('rumeur_small_cost'))}.` : ''}`,
     planque: `Saboteurs : ${j(s('planque_cost'))} pour saboter un lieu en secret, la même nuit. ${s('planque_kill_first') === 1 ? 'Le meurtre est résolu avant le sabotage.' : 'Un intrus présent fait échouer le sabotage, même s’il meurt.'}${s('casino_sabotage_steal') === 1 ? ' Casino saboté : le Saboteur empoche la moitié des mises jouées.' : ''}`,
-    poste_garde: `Enquête sur un joueur : ${j(s('poste_garde_cost'))}.`,
-    mairie: `Trucage : ${j(s('mairie_cost'))} (+${s('mairie_boost')} voix contre un joueur, ou voix reçues annulées).`,
+    poste_garde: `Enquête sur un joueur : ${j(s('poste_garde_cost'))} avec un seul Saboteur, ${j(s('poste_garde_cost_multi'))} avec 2 Saboteurs ou plus.`,
+    mairie: `Trucage : ${j(s('mairie_cost'))} (+${s('mairie_boost')} voix contre un joueur, ou ${s('mairie_boost')} voix de moins contre soi).`,
     cimetiere: s('cemetery_named') === 1 ? `Interroger un fantôme par son nom : ${j(s('cemetery_cost'))}. Ouvert après le premier mort.` : `Choisir une tombe : ${j(s('cemetery_cost'))} (${s('tomb_count')} tombes). Ouvert après le premier mort.`,
   }
   const nbSab = s('saboteurs_count')

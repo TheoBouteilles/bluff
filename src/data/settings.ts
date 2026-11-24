@@ -1,5 +1,5 @@
 // Réglages modifiables par l'hôte dans le salon. Bornes et valeurs par défaut : alignées sur
-// supabase/migrations/0018_solitaires.sql (dernières versions de game_param et setting_bounds).
+// supabase/migrations/0023_reglages_parties_tests.sql (dernières versions de game_param et setting_bounds).
 export type SettingDef = {
   key: string
   label: string
@@ -47,7 +47,7 @@ export const SETTING_GROUPS: SettingGroup[] = [
     title: 'Meurtres',
     settings: [
       { key: 'kill_majority_pct', label: 'Saboteurs plus nombreux', min: 0, max: 100, step: 10, unit: '%', default: 100, hint: 'Chance de meurtre dans un lieu' },
-      { key: 'kill_tie_pct', label: 'Égalité Saboteurs / autres', min: 0, max: 100, step: 10, unit: '%', default: 50 },
+      { key: 'kill_tie_pct', label: 'Égalité Saboteurs / autres', min: 0, max: 100, step: 10, unit: '%', default: 60 },
       { key: 'kill_minority_pct', label: 'Saboteurs moins nombreux', min: 0, max: 100, step: 10, unit: '%', default: 0, hint: 'Au moins un Saboteur présent' },
       { key: 'death_reveals_location', label: 'Annoncer le lieu du meurtre', min: 0, max: 1, default: 0, format: yesNo },
       { key: 'planque_kill_first', label: 'Planque : meurtre avant sabotage', min: 0, max: 1, default: 1, format: yesNo, hint: 'Oui : si le Saboteur tue le seul intrus de la Planque, son sabotage réussit' },
@@ -57,17 +57,18 @@ export const SETTING_GROUPS: SettingGroup[] = [
     title: 'Lieux et prix',
     settings: [
       { key: 'casino_max', label: 'Casino : mise maximale', min: 0, max: 9, default: 3 },
-      { key: 'casino_win_pct', label: 'Casino : chance de gagner', min: 0, max: 100, step: 10, unit: '%', default: 50 },
+      { key: 'casino_win_pct', label: 'Casino : chance de gagner', min: 0, max: 100, step: 10, unit: '%', default: 60 },
       { key: 'casino_sabotage_steal', label: 'Casino saboté : le Saboteur empoche', min: 0, max: 1, default: 1, format: yesNo, hint: 'La moitié des mises jouées (arrondie au supérieur)' },
       { key: 'don_cost', label: 'Taverne : cadeau', min: 0, max: 9, default: 1 },
       { key: 'rumeur3_cost', label: 'Taverne : rumeur sur 3 joueurs', min: 0, max: 9, default: 2 },
       { key: 'rumeur2_cost', label: 'Taverne : rumeur sur 2 joueurs', min: 0, max: 9, default: 3 },
-      { key: 'rumeur_small_max_players', label: 'Petite partie : jusqu’à', min: 0, max: 10, unit: ' j.', default: 5, hint: 'Rumeur toujours sur 3 joueurs. 0 = jamais', format: (n) => (n === 0 ? 'Jamais' : `${n} j.`) },
-      { key: 'rumeur_small_cost', label: 'Rumeur en petite partie', min: 0, max: 9, default: 4, showIf: (s) => s('rumeur_small_max_players') > 0 },
-      { key: 'poste_garde_cost', label: 'Poste de garde', min: 0, max: 9, default: 2 },
+      { key: 'rumeur_solo_only', label: 'Un seul Saboteur : rumeur sur 3 joueurs', min: 0, max: 1, default: 1, format: yesNo, hint: 'Oui : avec un seul Saboteur dans la partie, la rumeur vise toujours 3 joueurs' },
+      { key: 'rumeur_small_cost', label: 'Prix de cette rumeur', min: 0, max: 9, default: 3, showIf: (s) => s('rumeur_solo_only') === 1 },
+      { key: 'poste_garde_cost', label: 'Poste de garde (1 Saboteur)', min: 0, max: 9, default: 2 },
+      { key: 'poste_garde_cost_multi', label: 'Poste de garde (2 Saboteurs ou plus)', min: 0, max: 9, default: 1 },
       { key: 'planque_cost', label: 'Planque : sabotage', min: 0, max: 9, default: 2 },
       { key: 'mairie_cost', label: 'Mairie : trucage', min: 0, max: 9, default: 2 },
-      { key: 'mairie_boost', label: 'Mairie : voix ajoutées', min: 1, max: 3, default: 1 },
+      { key: 'mairie_boost', label: 'Mairie : voix ajoutées ou retirées', min: 1, max: 3, default: 1, hint: '+ contre un joueur, ou − contre soi' },
       { key: 'cemetery_cost', label: 'Cimetière', min: 0, max: 9, default: 1 },
       { key: 'cemetery_named', label: 'Cimetière : fantôme choisi par son nom', min: 0, max: 1, default: 1, format: yesNo, hint: 'Non : tombes numérotées' },
       { key: 'tomb_count', label: 'Nombre de tombes', min: 2, max: 6, default: 3, showIf: (s) => s('cemetery_named') === 0 },
@@ -85,7 +86,7 @@ export const SETTING_GROUPS: SettingGroup[] = [
     title: 'Vote et victoire',
     settings: [
       {
-        key: 'vote_runoff_max', label: 'Revotes en cas d’égalité', min: 0, max: 9, default: 3,
+        key: 'vote_runoff_max', label: 'Revotes en cas d’égalité', min: 0, max: 9, default: 2,
         hint: 'Puis tirage au sort. 0 = égalité, personne n’est éliminé',
       },
       {

@@ -23,7 +23,7 @@ export const LOCATIONS: GameLocation[] = [
   { id: 'taverne', name: 'Taverne', icon: Beer, description: 'Offrir des jetons et acheter des rumeurs.', visibleCrossing: true,
     rules: () => [
       `Cadeau : offre ${jetons(COSTS.don)} à un joueur, en secret. Il n’est reçu que si le receveur est aussi à la Taverne cette nuit ; sinon le cadeau échoue, tu gardes ton jeton et tu l’apprends à l’aube.`,
-      `Rumeur : choisis 2 ou 3 joueurs et apprends si au moins un Saboteur se cache parmi eux (${jetons(COSTS.rumeur3)} pour 3 joueurs, ${jetons(COSTS.rumeur2)} pour 2).${COSTS.rumeurSmallMax > 0 ? ` Dans une petite partie (${COSTS.rumeurSmallMax} joueurs ou moins), il faut cibler exactement 3 joueurs, pour ${jetons(COSTS.rumeurSmall)}.` : ''} Les Solitaires passent pour innocents.`,
+      `Rumeur : choisis 2 ou 3 joueurs et apprends si au moins un Saboteur se cache parmi eux (${jetons(COSTS.rumeur3)} pour 3 joueurs, ${jetons(COSTS.rumeur2)} pour 2).${COSTS.rumeurSoloOnly === 1 ? ` S’il n’y a qu’un seul Saboteur dans la partie, il faut cibler exactement 3 joueurs, pour ${jetons(COSTS.rumeurSmall)}.` : ''} Les Solitaires passent pour innocents.`,
       'Les joueurs présents à la Taverne se voient entre eux à l’aube.',
     ] },
   { id: 'planque', name: 'La Planque', icon: Skull, description: 'Un repaire obscur où l’on prépare de mauvais coups.', visibleCrossing: true,
@@ -35,12 +35,12 @@ export const LOCATIONS: GameLocation[] = [
     ] },
   { id: 'poste_garde', name: 'Poste de garde', icon: Eye, description: 'Surveiller les allées et venues des autres.', visibleCrossing: false,
     rules: () => [
-      `Pour ${jetons(COSTS.posteGarde)}, tu apprends où un joueur de ton choix a passé la nuit.`,
+      `Pour ${jetons(COSTS.posteGarde)} (${jetons(COSTS.posteGardeMulti)} quand il y a 2 Saboteurs ou plus), tu apprends où un joueur de ton choix a passé la nuit.`,
       'Lieu discret : personne ne te voit et tu ne vois personne.',
     ] },
   { id: 'mairie', name: 'Mairie', icon: Landmark, description: 'Tenter de truquer le vote du jour.', visibleCrossing: true,
     rules: () => [
-      `Pour ${jetons(COSTS.mairie)}, tu truques le vote du lendemain : soit +${COSTS.mairieBoost} voix contre un joueur de ton choix, soit les voix reçues contre toi sont annulées. Le trucage ne compte qu’au premier dépouillement, pas lors des revotes.`,
+      `Pour ${jetons(COSTS.mairie)}, tu truques le vote du lendemain : soit +${COSTS.mairieBoost} voix contre un joueur de ton choix, soit ${COSTS.mairieBoost} voix de moins contre toi. Le trucage ne compte qu’au premier dépouillement, pas lors des revotes.`,
       'Le trucage échoue (jetons perdus) si au moins deux joueurs sont à la Mairie cette nuit. Ils se voient alors à l’aube et l’échec leur est annoncé.',
       'Un trucage réussi reste secret : seul le total des voix est public.',
     ] },

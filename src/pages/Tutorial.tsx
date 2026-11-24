@@ -83,7 +83,7 @@ const STEPS: Step[] = [
     body: (
       <>
         <div className="flex justify-center py-2"><Px name="skull" scale={4} className="animate-float" /></div>
-        <P>Dans chaque lieu, si les <B>Saboteurs sont plus nombreux</B> que les autres présents, l’un des non-Saboteurs meurt. À égalité, c’est une chance sur deux. Un mort au plus par lieu.</P>
+        <P>Dans chaque lieu, si les <B>Saboteurs sont plus nombreux</B> que les autres présents, l’un des non-Saboteurs meurt. À égalité, il y a de bonnes chances (60 % par défaut). Un mort au plus par lieu.</P>
         <P>Rester <B>chez soi</B> protège… mais pas deux nuits de suite. Les Saboteurs, eux, ne paient rien pour tuer.</P>
       </>
     ),
